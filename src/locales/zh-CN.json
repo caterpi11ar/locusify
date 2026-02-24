@@ -207,10 +207,10 @@
   "settings.theme.system": "跟随系统",
   "settings.section.privacy": "隐私",
   "settings.privacy.heading": "隐私承诺",
-  "settings.privacy.noCollection": "我们不收集任何个人信息",
-  "settings.privacy.locationDisplay": "位置数据仅用于地图展示，不做任何存储或上传",
+  "settings.privacy.noCollection": "我们不收集个人信息，也不出售您的数据",
+  "settings.privacy.locationDisplay": "位置数据仅用于地图展示，不会上传或存储至服务器",
   "settings.privacy.localOnly": "所有照片处理均在您的设备本地完成",
-  "settings.privacy.noTracking": "无数据分析、行为追踪或第三方数据共享",
+  "settings.privacy.noTracking": "我们使用匿名页面访问分析（Google Analytics）以改善应用体验，不共享任何个人数据",
 
   "settings.about.version": "版本",
   "settings.about.github": "GitHub",

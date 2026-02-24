@@ -206,10 +206,10 @@
   "settings.theme.system": "System",
   "settings.section.privacy": "Privacy",
   "settings.privacy.heading": "Our Privacy Commitment",
-  "settings.privacy.noCollection": "We do not collect any personal information",
-  "settings.privacy.locationDisplay": "Location data is used only for map display and is never stored or transmitted",
+  "settings.privacy.noCollection": "We do not collect personal information or sell your data",
+  "settings.privacy.locationDisplay": "Location data is used only for map display and is never stored on our servers",
   "settings.privacy.localOnly": "All photo processing happens locally on your device",
-  "settings.privacy.noTracking": "No analytics, tracking, or third-party data sharing",
+  "settings.privacy.noTracking": "We use anonymous page-view analytics (Google Analytics) to improve the app — no personal data is shared",
 
   "settings.about.version": "Version",
   "settings.about.github": "GitHub",

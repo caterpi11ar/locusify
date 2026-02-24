@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://locusify.caterpi11ar.com/sitemap.xml
