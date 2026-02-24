@@ -1,0 +1,61 @@
+# Locusify
+
+> Locusify is a free, browser-based travel tool that transforms GPS-tagged photos into interactive route maps and animated journey replays — all processed locally on your device, with zero uploads and complete privacy.
+
+## What Locusify Does
+
+Locusify reads the GPS coordinates embedded in each photo's EXIF metadata, plots them on an interactive map, and lets you replay your journey as a cinematic video. No account, no subscription, no server — everything runs in the browser.
+
+1. **Upload** GPS-tagged travel photos (JPG, PNG, HEIC, WebP, AVIF)
+2. **Extract** — GPS coordinates are parsed from EXIF data entirely in-browser
+3. **Visualize** — an interactive map renders your route with photo markers, clusters, and an animated trajectory line
+4. **Replay** — watch the journey play back in chronological order, then export as MP4
+
+## Key Features
+
+- **GPS Photo Mapping** — Automatically extracts location data from EXIF metadata and plots photos on an interactive map
+- **Trajectory Replay** — Timeline-based animated route playback with smooth camera follow and adjustable speed
+- **Video Export** — Record and download your journey replay as an MP4 video
+- **Photo Clusters** — Groups nearby photos at higher zoom levels for a clean, readable map
+- **100% Local Processing** — All parsing, rendering, and export happen in the browser; photos are never uploaded
+- **Drag-and-Drop Upload** — Upload multiple photos at once with automatic GPS validation
+- **Multi-language** — Available in English and Chinese (中文)
+- **Dark / Light Mode** — Follows system preference or can be toggled manually
+
+## Privacy
+
+Locusify is privacy-first by design. Photos are processed entirely in the browser using JavaScript. No photos, GPS coordinates, or personal data are ever sent to a server. Closing the browser tab clears all data. The only external service used is anonymous page-view analytics (Google Analytics).
+
+## Who It's For
+
+- Solo travelers who want to visualize and remember where they went
+- Travel photographers with large batches of geotagged photos
+- Vloggers and content creators who want a route replay video without video editing software
+- Anyone curious about "where exactly did I go on that trip?"
+
+## Frequently Asked Questions
+
+**Does Locusify upload my photos?**
+No. All processing happens locally in the browser. Photos never leave your device.
+
+**What photo formats are supported?**
+JPG, PNG, HEIC, WebP, and AVIF. At least 2 photos with valid GPS data are required to generate a trajectory.
+
+**Is Locusify free?**
+Yes — completely free, no account required, no feature paywalls.
+
+**Can I export my journey as a video?**
+Yes. After the trajectory replay, you can record and download it as an MP4.
+
+**What if some photos don't have GPS data?**
+Locusify validates GPS data on upload and clearly marks which photos have location data. Photos without GPS are excluded from the trajectory but remain listed.
+
+## Tech Stack
+
+Built with React 19, TypeScript, Vite 7, Tailwind CSS 4, MapLibre GL, Zustand, TanStack Query, Radix UI, and exifr for EXIF/GPS extraction.
+
+## Links
+
+- [Locusify App](https://locusify.caterpi11ar.com): Live application
+- [GitHub Repository](https://github.com/caterpi11ar/locusify): Open source code
+- [Product Hunt](https://www.producthunt.com/products/locusify): Product listing

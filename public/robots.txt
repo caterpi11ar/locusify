@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://locusify.caterpi11ar.com/sitemap.xml
+LLMs: https://locusify.caterpi11ar.com/llms.txt
