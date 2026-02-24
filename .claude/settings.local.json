@@ -79,7 +79,8 @@
       "mcp__xiaohongshu-mcp__get_login_qrcode",
       "Bash(git tag:*)",
       "Bash(gh release:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "WebFetch(domain:www.producthunt.com)"
     ],
     "deny": [],
     "ask": [],
