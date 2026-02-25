@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { env } from '@/lib/env'
 import { extractExifData } from '@/lib/exif'
 import { cn } from '@/lib/utils'
+import { convertExifGPSToDecimal } from '@/pages/map/utils'
 import { GPSDirection } from '@/types/map'
 
 // Mock GPS locations for dev testing (Japan locations)
@@ -45,82 +46,6 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [useMockMetadata, setUseMockMetadata] = useState(false)
 
-  // Extract GPS coordinates from EXIF data
-  const extractGPSCoordinates = useCallback((exif: NonNullable<Awaited<ReturnType<typeof extractExifData>>>): GPSCoordinates | undefined => {
-    if (!exif)
-      return undefined
-
-    // Try to get coordinates from exifr's processed fields
-    let latitude = exif.latitude
-    let longitude = exif.longitude
-    const altitude = exif.altitude
-
-    // Fallback to raw GPS fields if processed fields not available
-    if (typeof latitude !== 'number' && exif.GPSLatitude) {
-      if (typeof exif.GPSLatitude === 'number') {
-        latitude = exif.GPSLatitude
-      }
-      else if (Array.isArray(exif.GPSLatitude) && exif.GPSLatitude.length === 3) {
-        // Convert from [degrees, minutes, seconds] to decimal
-        const [degrees, minutes, seconds] = exif.GPSLatitude
-        latitude = degrees + minutes / 60 + seconds / 3600
-      }
-    }
-
-    if (typeof longitude !== 'number' && exif.GPSLongitude) {
-      if (typeof exif.GPSLongitude === 'number') {
-        longitude = exif.GPSLongitude
-      }
-      else if (Array.isArray(exif.GPSLongitude) && exif.GPSLongitude.length === 3) {
-        // Convert from [degrees, minutes, seconds] to decimal
-        const [degrees, minutes, seconds] = exif.GPSLongitude
-        longitude = degrees + minutes / 60 + seconds / 3600
-      }
-    }
-
-    // Validate coordinates
-    if (
-      typeof latitude !== 'number'
-      || typeof longitude !== 'number'
-      || latitude < -90 || latitude > 90
-      || longitude < -180 || longitude > 180
-    ) {
-      return undefined
-    }
-
-    // Get GPS direction references
-    const latitudeRef
-      = exif.GPSLatitudeRef === 'S' || exif.GPSLatitudeRef === 'South'
-        ? GPSDirection.South
-        : GPSDirection.North
-
-    const longitudeRef
-      = exif.GPSLongitudeRef === 'W' || exif.GPSLongitudeRef === 'West'
-        ? GPSDirection.West
-        : GPSDirection.East
-
-    // Apply reference direction (if coordinates are positive)
-    if (latitudeRef === GPSDirection.South && latitude > 0) {
-      latitude = -latitude
-    }
-    if (longitudeRef === GPSDirection.West && longitude > 0) {
-      longitude = -longitude
-    }
-
-    const altitudeRef = typeof exif.GPSAltitudeRef === 'number' && exif.GPSAltitudeRef === 1
-      ? 'Below Sea Level'
-      : 'Above Sea Level'
-
-    return {
-      latitude,
-      longitude,
-      altitude,
-      latitudeRef,
-      longitudeRef,
-      altitudeRef,
-    }
-  }, [])
-
   // Handle file processing
   const processFiles = useCallback(
     async (fileList: FileList) => {
@@ -151,7 +76,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         }
         else if (exif) {
           // Extract GPS coordinates
-          gpsInfo = extractGPSCoordinates(exif)
+          gpsInfo = convertExifGPSToDecimal(exif) ?? undefined
 
           // Extract date taken (convert Date to string if needed)
           const dateTimeOriginal = exif.DateTimeOriginal
@@ -192,7 +117,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
 
       onFilesSelected(files)
     },
-    [onFilesSelected, extractGPSCoordinates, useMockMetadata],
+    [onFilesSelected, useMockMetadata],
   )
 
   // Handle file input change

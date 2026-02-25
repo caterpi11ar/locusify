@@ -19,29 +19,49 @@ export function convertExifGPSToDecimal(exif: PickedExif | null): {
   altitude?: number
   altitudeRef?: 'Above Sea Level' | 'Below Sea Level'
 } | null {
-  if (!exif?.GPSLatitude || !exif?.GPSLongitude) {
+  if (!exif)
     return null
-  }
 
   // Convert GPS coordinates from EXIF format to decimal degrees
-  let latitude: number
-  let longitude: number
+  let latitude: number | undefined
+  let longitude: number | undefined
 
   try {
-    // Handle different EXIF coordinate formats
-    if (typeof exif.GPSLatitude === 'number') {
-      latitude = exif.GPSLatitude
-    }
-    else {
-      latitude = Number(exif.GPSLatitude)
+    // Prefer exifr's pre-processed decimal fields
+    if (typeof exif.latitude === 'number')
+      latitude = exif.latitude
+    if (typeof exif.longitude === 'number')
+      longitude = exif.longitude
+
+    // Fallback to raw GPS fields
+    if (typeof latitude !== 'number' && exif.GPSLatitude != null) {
+      if (typeof exif.GPSLatitude === 'number') {
+        latitude = exif.GPSLatitude
+      }
+      else if (Array.isArray(exif.GPSLatitude) && (exif.GPSLatitude as number[]).length === 3) {
+        const [degrees, minutes, seconds] = exif.GPSLatitude as number[]
+        latitude = degrees + minutes / 60 + seconds / 3600
+      }
+      else {
+        latitude = Number(exif.GPSLatitude)
+      }
     }
 
-    if (typeof exif.GPSLongitude === 'number') {
-      longitude = exif.GPSLongitude
+    if (typeof longitude !== 'number' && exif.GPSLongitude != null) {
+      if (typeof exif.GPSLongitude === 'number') {
+        longitude = exif.GPSLongitude
+      }
+      else if (Array.isArray(exif.GPSLongitude) && (exif.GPSLongitude as number[]).length === 3) {
+        const [degrees, minutes, seconds] = exif.GPSLongitude as number[]
+        longitude = degrees + minutes / 60 + seconds / 3600
+      }
+      else {
+        longitude = Number(exif.GPSLongitude)
+      }
     }
-    else {
-      longitude = Number(exif.GPSLongitude)
-    }
+
+    if (typeof latitude !== 'number' || typeof longitude !== 'number')
+      return null
 
     // Get GPS direction references
     const latitudeRef
@@ -68,10 +88,16 @@ export function convertExifGPSToDecimal(exif: PickedExif | null): {
     let altitude: number | undefined
     let altitudeRef: 'Above Sea Level' | 'Below Sea Level' | undefined
 
-    if (exif.GPSAltitude && typeof exif.GPSAltitude === 'number') {
-      altitude = exif.GPSAltitude
+    // Prefer pre-processed altitude, fallback to raw GPS field
+    const rawAltitude = typeof exif.altitude === 'number'
+      ? exif.altitude
+      : (typeof exif.GPSAltitude === 'number' ? exif.GPSAltitude : undefined)
+
+    if (rawAltitude !== undefined) {
+      altitude = rawAltitude
       altitudeRef
-        = exif.GPSAltitudeRef === 'Below Sea Level'
+        = (typeof exif.GPSAltitudeRef === 'number' && exif.GPSAltitudeRef === 1)
+          || exif.GPSAltitudeRef === 'Below Sea Level'
           ? 'Below Sea Level'
           : 'Above Sea Level'
 
