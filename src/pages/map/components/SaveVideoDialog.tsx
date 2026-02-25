@@ -1,18 +1,14 @@
 import type { PendingVideo } from '@/hooks/useVideoRecorder'
 import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import { formatFileSize } from '@/lib/formatters'
+import { cn, glassPanel } from '@/lib/utils'
 
 interface SaveVideoDialogProps {
   pendingVideo: PendingVideo | null
   isProcessing: boolean
   onSave: () => void
   onDiscard: () => void
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024 * 1024)
-    return `${(bytes / 1024).toFixed(0)} KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
 export function SaveVideoDialog({ pendingVideo, isProcessing, onSave, onDiscard }: SaveVideoDialogProps) {
@@ -31,7 +27,7 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, onSave, onDiscard 
 
       {/* Card */}
       <m.div
-        className="bg-material-thick border-fill-tertiary relative w-72 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px] sm:w-80"
+        className={cn(glassPanel, 'relative w-72 overflow-hidden sm:w-80')}
         initial={{ scale: 0.92, y: 12 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.92, y: 12 }}
@@ -52,7 +48,7 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, onSave, onDiscard 
             </p>
             {pendingVideo && (
               <p className="text-text-secondary mt-0.5 text-xs">
-                {formatBytes(pendingVideo.blob.size)}
+                {formatFileSize(pendingVideo.blob.size)}
               </p>
             )}
           </div>

@@ -3,9 +3,11 @@ import type { PhotoMarker } from '@/types/map'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@radix-ui/react-hover-card'
 import { m } from 'motion/react'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Marker } from 'react-map-gl/maplibre'
 import { GlassButton } from '@/components/ui/glass-button'
 import { LazyImage } from '@/components/ui/lazy-image'
+import { formatCoordinates, formatDate } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { ClusterPhotoGrid } from './ClusterPhotoGrid'
 
@@ -25,6 +27,7 @@ export const PhotoMarkerPin: FC<PhotoMarkerPinProps> = ({
   onClose,
   clusteredMarkers,
 }) => {
+  const { i18n } = useTranslation()
   const isCluster = !!clusteredMarkers && clusteredMarkers.length > 1
 
   const handleClick = () => {
@@ -171,11 +174,11 @@ export const PhotoMarkerPin: FC<PhotoMarkerPinProps> = ({
                           <div className="text-text-secondary flex items-center gap-2 text-xs">
                             <i className="i-mingcute-calendar-line text-sm" />
                             <span>
-                              {new Date(marker.photo.dateTaken).toLocaleDateString('zh-CN', {
+                              {formatDate(new Date(marker.photo.dateTaken), {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
-                              })}
+                              }, i18n.language)}
                             </span>
                           </div>
                         )}
@@ -191,17 +194,7 @@ export const PhotoMarkerPin: FC<PhotoMarkerPinProps> = ({
                           <div className="flex items-center gap-2">
                             <i className="i-mingcute-location-line text-sm" />
                             <span className="font-mono">
-                              <span>
-                                {Math.abs(marker.latitude).toFixed(4)}
-                                °
-                              </span>
-                              <span>{marker.latitudeRef || 'N'}</span>
-                              <span>, </span>
-                              <span>
-                                {Math.abs(marker.longitude).toFixed(4)}
-                                °
-                              </span>
-                              <span>{marker.longitudeRef || 'E'}</span>
+                              {formatCoordinates(marker.latitude, marker.longitude, marker.latitudeRef, marker.longitudeRef)}
                             </span>
                           </div>
                           {marker.altitude !== undefined && (

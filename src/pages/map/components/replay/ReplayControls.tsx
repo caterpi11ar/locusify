@@ -1,6 +1,7 @@
 import { AnimatePresence, m } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatCoordinates, formatDate, formatTime } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { useReplayStore } from '@/stores/replayStore'
 
@@ -46,15 +47,6 @@ export function ReplayControls() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [speedMenuOpen])
-
-  const formatTime = (date: Date) =>
-    date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })
-
-  const formatCoord = (lat: number, lng: number, latRef?: string, lngRef?: string) =>
-    `${Math.abs(lat).toFixed(2)}°${latRef || 'N'} ${Math.abs(lng).toFixed(2)}°${lngRef || 'E'}`
 
   return (
     <div className="border-fill-tertiary flex flex-col rounded-xl border shadow-2xl backdrop-blur-[120px] sm:rounded-2xl bg-white/90 dark:bg-black/70">
@@ -128,7 +120,7 @@ export function ReplayControls() {
                         isActive ? 'text-sky-300/70' : 'text-text/30',
                       )}
                     >
-                      {formatCoord(wp.marker.latitude, wp.marker.longitude, wp.marker.latitudeRef, wp.marker.longitudeRef)}
+                      {formatCoordinates(wp.marker.latitude, wp.marker.longitude, wp.marker.latitudeRef, wp.marker.longitudeRef)}
                     </span>
                   </div>
                 </button>

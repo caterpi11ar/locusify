@@ -7,6 +7,7 @@ import {
 } from 'mediabunny'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import locusifyLogoUrl from '@/assets/locusify-fit.png'
+import { formatCoordinates, formatDate } from '@/lib/formatters'
 import { useMapStore } from '@/stores/mapStore'
 import { useReplayStore } from '@/stores/replayStore'
 
@@ -198,7 +199,7 @@ function drawPhotoCard(ctx: CanvasRenderingContext2D, W: number, H: number): voi
   ctx.fillRect(cx, cy, CARD_W, PHOTO_H)
 
   if (photo.dateTaken) {
-    const dateStr = new Date(photo.dateTaken).toLocaleDateString('zh-CN', {
+    const dateStr = formatDate(new Date(photo.dateTaken), {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -219,7 +220,7 @@ function drawPhotoCard(ctx: CanvasRenderingContext2D, W: number, H: number): voi
     cy + PHOTO_H + PAD,
   )
 
-  const coordStr = `${Math.abs(marker.latitude).toFixed(4)}°${marker.latitudeRef ?? 'N'}, ${Math.abs(marker.longitude).toFixed(4)}°${marker.longitudeRef ?? 'E'}`
+  const coordStr = formatCoordinates(marker.latitude, marker.longitude, marker.latitudeRef, marker.longitudeRef)
   ctx.font = `${FONT_META}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
   ctx.fillStyle = 'rgba(255,255,255,0.45)'
   ctx.fillText(

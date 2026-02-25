@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/empty'
 import { LazyImage } from '@/components/ui/lazy-image'
 import { usePhotos } from '@/contexts'
+import { formatCoordinates } from '@/lib/formatters'
+import { cn, glassPanel } from '@/lib/utils'
 
 interface GalleryDrawerProps {
   open: boolean
@@ -36,12 +38,6 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange }) =>
     removePhoto(photoId)
   }
 
-  const formatCoords = (lat: number, lng: number) => {
-    const latDir = lat >= 0 ? 'N' : 'S'
-    const lngDir = lng >= 0 ? 'E' : 'W'
-    return `${Math.abs(lat).toFixed(4)}°${latDir} ${Math.abs(lng).toFixed(4)}°${lngDir}`
-  }
-
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[80vh] border-none bg-transparent backdrop-blur-none">
@@ -50,7 +46,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange }) =>
           <DrawerDescription>{t('gallery.photo.count', { count: photos.length })}</DrawerDescription>
         </DrawerHeader>
 
-        <div className="flex flex-col overflow-hidden bg-material-thick border-fill-tertiary rounded-t-2xl border shadow-2xl backdrop-blur-[120px]">
+        <div className={cn(glassPanel, 'flex flex-col overflow-hidden rounded-t-2xl')}>
           {/* Visible header */}
           <div className="flex items-center px-4 pt-4 pb-2 shrink-0">
             <h2 className="text-text text-base font-semibold">
@@ -104,7 +100,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange }) =>
                         {photo.gpsInfo && (
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
                             <p className="truncate text-left text-[10px] leading-tight text-white/90">
-                              {formatCoords(photo.gpsInfo.latitude, photo.gpsInfo.longitude)}
+                              {formatCoordinates(photo.gpsInfo.latitude, photo.gpsInfo.longitude)}
                             </p>
                           </div>
                         )}

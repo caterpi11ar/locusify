@@ -3,6 +3,7 @@ import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 
 import { LazyImage } from '@/components/ui/lazy-image'
+import { formatCoordinates, formatDate } from '@/lib/formatters'
 
 interface ClusterPhotoGridProps {
   photos: PhotoMarker[]
@@ -66,14 +67,7 @@ export function ClusterPhotoGrid({
           <div className="text-text-secondary flex items-center gap-2 text-xs">
             <i className="i-mingcute-location-line text-sm" />
             <span className="font-mono">
-              {Math.abs(photos[0].latitude).toFixed(4)}
-              °
-              {photos[0].latitudeRef || 'N'}
-              ,
-              {' '}
-              {Math.abs(photos[0].longitude).toFixed(4)}
-              °
-              {photos[0].longitudeRef || 'E'}
+              {formatCoordinates(photos[0].latitude, photos[0].longitude, photos[0].latitudeRef, photos[0].longitudeRef)}
             </span>
           </div>
 
@@ -97,20 +91,22 @@ export function ClusterPhotoGrid({
                 <i className="i-mingcute-calendar-line text-sm" />
                 <span>
                   {isSameDay
-                    ? earliest.toLocaleDateString(i18n.language, {
+                    ? formatDate(earliest, {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
-                      })
-                    : `${earliest.toLocaleDateString(i18n.language, {
+                      }, i18n.language)
+                    : `${formatDate(earliest, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
-                    })} - ${latest?.toLocaleDateString(i18n.language, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}`}
+                    }, i18n.language)} - ${latest
+                      ? formatDate(latest, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        }, i18n.language)
+                      : ''}`}
                 </span>
               </div>
             )

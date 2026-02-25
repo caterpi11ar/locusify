@@ -1,5 +1,6 @@
 import { AnimatePresence, m } from 'motion/react'
 import { LazyImage } from '@/components/ui/lazy-image'
+import { formatCoordinates, formatDate } from '@/lib/formatters'
 import { useReplayStore } from '@/stores/replayStore'
 
 /**
@@ -47,7 +48,7 @@ export function ReplayPhotoCard() {
               <div className="absolute bottom-2 left-2.5 flex items-center gap-1.5 text-[10px] text-white/90 sm:text-xs">
                 <i className="i-mingcute-calendar-line" />
                 <span>
-                  {new Date(photo.dateTaken).toLocaleDateString('zh-CN', {
+                  {formatDate(new Date(photo.dateTaken), {
                     month: 'short',
                     day: 'numeric',
                     hour: '2-digit',
@@ -74,14 +75,7 @@ export function ReplayPhotoCard() {
               <div className="flex items-center gap-1.5">
                 <i className="i-mingcute-location-line shrink-0" />
                 <span className="font-mono">
-                  {Math.abs(marker.latitude).toFixed(4)}
-                  °
-                  {marker.latitudeRef || 'N'}
-                  ,
-                  {' '}
-                  {Math.abs(marker.longitude).toFixed(4)}
-                  °
-                  {marker.longitudeRef || 'E'}
+                  {formatCoordinates(marker.latitude, marker.longitude, marker.latitudeRef, marker.longitudeRef)}
                 </span>
               </div>
               {marker.altitude !== undefined && (
