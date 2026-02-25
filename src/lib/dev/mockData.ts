@@ -122,7 +122,6 @@ export function generateMockGpsData(photos: UploadedPhoto[]): PhotoGpsData[] {
         latitude: coords.latitude,
         longitude: coords.longitude,
         altitude: coords.altitude,
-        accuracy: 10, // 10 米精度
       },
       timestamp,
       locationName: coords.name,

@@ -1,6 +1,7 @@
 /**
  * 工作区照片管理和轨迹回放的核心类型定义
  */
+import type { GPSCoordinates } from '@/types/map'
 
 /**
  * 照片对象及其元数据
@@ -21,20 +22,6 @@ export interface UploadedPhoto {
 }
 
 /**
- * GPS 坐标及其元数据
- */
-export interface GpsCoordinates {
-  /** 纬度（十进制度数） */
-  latitude: number
-  /** 经度（十进制度数） */
-  longitude: number
-  /** 海拔高度（米） */
-  altitude?: number
-  /** GPS 精度（米） */
-  accuracy?: number
-}
-
-/**
  * 包含提取的 GPS 数据的照片
  */
 export interface PhotoGpsData {
@@ -43,7 +30,7 @@ export interface PhotoGpsData {
   /** 照片对象引用 */
   photo: UploadedPhoto
   /** GPS 坐标数据（可能为空） */
-  gps: GpsCoordinates | null
+  gps: GPSCoordinates | null
   /** 拍摄时间（来自 EXIF DateTimeOriginal） */
   timestamp: Date
   /** 逆地理编码位置名称 */
