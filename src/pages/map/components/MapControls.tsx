@@ -2,6 +2,7 @@ import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 
 import { useMap } from 'react-map-gl/maplibre'
+import { cn, glassPanel } from '@/lib/utils'
 
 interface MapControlsProps {
   onGeolocate?: (longitude: number, latitude: number) => void
@@ -65,7 +66,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
       transition={{ duration: 0.4, delay: 0.2 }}
     >
       {/* Control Group Container */}
-      <div className="bg-material-thick border-fill-tertiary flex flex-col overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+      <div className={cn(glassPanel, 'flex flex-col overflow-hidden')}>
         {/* Zoom In */}
         <button
           type="button"
@@ -91,7 +92,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
       </div>
 
       {/* Compass Button */}
-      <div className="bg-material-thick border-fill-tertiary overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+      <div className={cn(glassPanel, 'overflow-hidden')}>
         <button
           type="button"
           onClick={handleCompass}
@@ -103,7 +104,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
       </div>
 
       {/* Geolocate Button */}
-      <div className="bg-material-thick border-fill-tertiary overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+      <div className={cn(glassPanel, 'overflow-hidden')}>
         <button
           type="button"
           onClick={handleGeolocate}

@@ -8,6 +8,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
+import { cn, glassPanel } from '@/lib/utils'
 import { AboutSection } from './components/AboutSection'
 import { LanguageSetting } from './components/LanguageSetting'
 import { PrivacySection } from './components/PrivacySection'
@@ -29,7 +30,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange }) 
           <DrawerTitle>{t('settings.title')}</DrawerTitle>
           <DrawerDescription>{t('settings.section.appearance')}</DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col overflow-hidden rounded-t-2xl border border-fill-tertiary bg-material-thick shadow-2xl backdrop-blur-[120px]">
+        <div className={cn(glassPanel, 'flex flex-col overflow-hidden rounded-t-2xl')}>
           <div className="flex-1 overflow-y-auto p-4 pb-safe">
             <h2 className="mb-4 text-lg font-semibold text-text">{t('settings.title')}</h2>
             <SettingsSection label={t('settings.section.appearance')}>

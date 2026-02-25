@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { cn, glassPanel } from '@/lib/utils'
 
 interface MenuItemProps {
   icon: string
@@ -106,7 +106,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       >
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="bg-material-thick border-fill-tertiary overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+            <div className={cn(glassPanel, 'overflow-hidden')}>
               <button
                 type="button"
                 onClick={onExitReplay}
@@ -168,7 +168,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
           )}
         </AnimatePresence>
 
-        <div className="border-red/30 bg-material-thick overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+        <div className={cn(glassPanel, 'border-red/30 overflow-hidden')}>
           <button
             type="button"
             onClick={onUploadClick}
@@ -207,7 +207,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="bg-material-thick border-fill-tertiary overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+                <div className={cn(glassPanel, 'overflow-hidden')}>
                   <button
                     type="button"
                     onClick={onRoutesClick}
@@ -226,7 +226,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       </AnimatePresence>
 
       {/* Menu Button - Will appear at bottom due to flex-col-reverse */}
-      <div className="bg-material-thick border-fill-tertiary overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+      <div className={cn(glassPanel, 'overflow-hidden')}>
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -249,7 +249,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className="overflow-hidden"
       >
-        <div className="bg-material-thick border-fill-tertiary flex flex-col overflow-hidden rounded-2xl border backdrop-blur-[120px]">
+        <div className={cn(glassPanel, 'flex flex-col overflow-hidden')}>
           {menuItems.map((item, index) => (
             <div key={item.label}>
               {index > 0 && <div className="bg-fill-secondary h-px w-full" />}

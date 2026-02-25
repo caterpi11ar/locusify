@@ -10,6 +10,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer'
 import { usePhotos } from '@/contexts'
+import { cn, glassPanel } from '@/lib/utils'
 import { GPSInfoPanel } from './GPSInfoPanel'
 import { PhotoSelector } from './PhotoSelector'
 
@@ -105,7 +106,7 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
         )}
 
         {/* Content with glass background */}
-        <div className="flex flex-col overflow-hidden bg-material-thick border-fill-tertiary rounded-t-2xl border shadow-2xl backdrop-blur-[120px]">
+        <div className={cn(glassPanel, 'flex flex-col overflow-hidden rounded-t-2xl')}>
           {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto p-4">
             {/* Step 1: File Selection */}

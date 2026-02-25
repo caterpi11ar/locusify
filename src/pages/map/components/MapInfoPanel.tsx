@@ -1,6 +1,7 @@
 import type { FC } from 'react'
 import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import { glassPanel } from '@/lib/utils'
 
 interface MapInfoPanelProps {
   markersCount: number
@@ -35,7 +36,7 @@ export const MapInfoPanel: FC<MapInfoPanelProps> = ({ markersCount }) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
     >
-      <div className="bg-material-thick border-fill-tertiary rounded-2xl border shadow-2xl backdrop-blur-[120px]">
+      <div className={glassPanel}>
         {/* Header Section */}
 
         <m.div
