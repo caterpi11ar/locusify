@@ -4,7 +4,7 @@ import { Camera, Map, Video } from 'lucide-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import logoUrl from '@/assets/locusify.png'
+const logoUrl = 'https://raw.githubusercontent.com/caterpi11ar/assets/main/logo/locusify.png'
 
 /**
  * Load splash screen resources (ads, config, etc.)
