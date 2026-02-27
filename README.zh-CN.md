@@ -40,6 +40,16 @@
 
 ---
 
+## 移动端体验
+
+Locusify 已针对移动端浏览器做了全面优化，扫描二维码即可在手机上体验：
+
+<p align="center">
+  <img src="src/assets/qrcode.jpeg" alt="扫码体验 Locusify 移动端" width="200" />
+</p>
+
+---
+
 ## 工作原理
 
 1. **上传** 带 GPS 的旅行照片（支持 JPG、PNG、HEIC、WebP、AVIF）

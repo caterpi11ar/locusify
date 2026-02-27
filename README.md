@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/locusify.png" alt="Locusify" width="120" />
+  <img src="https://raw.githubusercontent.com/caterpi11ar/assets/main/logo/locusify.png" alt="Locusify" width="120" />
 </p>
 
 <h1 align="center">Locusify</h1>
@@ -36,6 +36,16 @@
 
 <p align="center">
   <img src="example/locusify-replay.gif" alt="Locusify Demo — GPS photo route replay" width="680" />
+</p>
+
+---
+
+## Try on Mobile
+
+Locusify is fully optimized for mobile browsers. Scan the QR code to try it on your phone:
+
+<p align="center">
+  <img src="src/assets/qrcode.jpeg" alt="Scan to try Locusify on mobile" width="200" />
 </p>
 
 ---
