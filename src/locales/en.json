@@ -136,6 +136,8 @@
   "photos.added.count": "{{count}} photos added to map",
 
   "menu.gallery": "My Photos",
+  "menu.share": "Share",
+  "menu.linkCopied": "Link copied to clipboard",
   "menu.upload.hint": "Upload GPS photos to begin",
   "gallery.empty.title": "No photos yet",
   "gallery.empty.description": "Upload photos with GPS to see them here",

@@ -137,6 +137,8 @@
   "photos.added.count": "已添加 {{count}} 张照片到地图",
 
   "menu.gallery": "我的照片",
+  "menu.share": "分享",
+  "menu.linkCopied": "链接已复制到剪贴板",
   "menu.upload.hint": "上传含GPS的照片即可开始",
   "gallery.empty.title": "暂无照片",
   "gallery.empty.description": "上传含GPS的照片后即可在此查看",
