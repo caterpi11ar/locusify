@@ -72,17 +72,12 @@ export function PhotoPanel() {
               transition={{ duration: 0.3 }}
               className="mt-12 px-2"
             >
-              {waypoint?.marker.photo.title && (
-                <h3 className="truncate font-serif text-[1.05rem] font-semibold tracking-[0.02em] text-black/90 dark:text-white/90">
-                  {waypoint.marker.photo.title}
-                </h3>
-              )}
               {waypoint?.marker.photo.description && (
                 <p className="mt-1.5 font-serif text-[0.85rem] italic leading-[1.7] text-black/70 dark:text-white/70">
                   {waypoint.marker.photo.description}
                 </p>
               )}
-              <p className={`${waypoint?.marker.photo.title || waypoint?.marker.photo.description ? 'mt-3' : ''} font-serif text-[0.85rem] italic leading-[1.7] text-black/90 dark:text-white/90`}>
+              <p className={`${waypoint?.marker.photo.description ? 'mt-3' : ''} font-serif text-[0.85rem] italic leading-[1.7] text-black/90 dark:text-white/90`}>
                 {quote}
               </p>
             </m.div>

@@ -88,10 +88,6 @@ export function GPSInfoPanel({
 
               {/* File info - compact */}
               <div className="p-1.5">
-                <div className="mb-1 truncate text-[10px] font-medium text-gray-900 dark:text-gray-100">
-                  {file.name}
-                </div>
-
                 {/* GPS status badge */}
                 {file.gpsInfo
                   ? (
