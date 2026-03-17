@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { ComponentType, FC } from 'react'
 import type { AuthProvider, AuthProviderType } from '@/lib/auth/types'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +14,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer'
+import { GitHubIcon } from '@/components/ui/github-icon'
+import { GoogleIcon } from '@/components/ui/google-icon'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { getAuthProviders } from '@/lib/auth'
@@ -28,6 +30,11 @@ interface LoginDrawerProps {
 }
 
 type LoginMethod = 'otp' | 'password'
+
+const providerIcons: Record<Exclude<AuthProviderType, 'email'>, ComponentType> = {
+  google: GoogleIcon,
+  github: GitHubIcon,
+}
 
 export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissible = true }) => {
   const { t } = useTranslation()
@@ -130,6 +137,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
                 <div className="flex gap-3">
                   {providers.map((provider) => {
                     const isActive = activeProvider === provider.type
+                    const ProviderIcon = provider.type === 'email' ? null : providerIcons[provider.type]
                     return (
                       <button
                         key={provider.type}
@@ -143,7 +151,11 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
                           isLoggingIn && !isActive && 'cursor-not-allowed',
                         )}
                       >
-                        {isActive ? <Spinner className="size-5" /> : <provider.icon />}
+                        {isActive
+                          ? <Spinner className="size-5" />
+                          : ProviderIcon
+                            ? <ProviderIcon />
+                            : null}
                         <span className="hidden sm:inline">
                           {provider.type === 'google'
                             ? t('auth.login.oauth.google')

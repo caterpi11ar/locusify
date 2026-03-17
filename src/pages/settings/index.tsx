@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LegalDrawer } from '@/components/auth/LegalDrawer'
+import { FeedbackDialog } from '@/components/feedback'
 import { PricingDrawer } from '@/components/pricing'
 import {
   Drawer,
@@ -12,7 +13,6 @@ import {
 } from '@/components/ui/drawer'
 import { Separator } from '@/components/ui/separator'
 import { cn, glassPanel } from '@/lib/utils'
-import { FeedbackDialog } from '@/pages/map/components/FeedbackDialog'
 import { useAuthStore } from '@/stores/authStore'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
 import { AboutSection } from './components/AboutSection'

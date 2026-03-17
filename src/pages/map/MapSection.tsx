@@ -1,25 +1,29 @@
 import type { MapLayerMouseEvent, MapRef } from 'react-map-gl/maplibre'
 import type { PhotoMarker } from '@/types/map'
-import type { Photo } from '@/types/photo'
-import pkg from '@pkg'
 import { AnimatePresence, m } from 'motion/react'
 import { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LoginButton, LoginDrawer } from '@/components/auth'
+import { FeedbackDialog } from '@/components/feedback'
 import { SelectPhotosDrawer } from '@/components/upload'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
 import { useRegionPhotoMapping } from '@/hooks/useRegionPhotoMapping'
-import { extractExifData } from '@/lib/exif'
-import { categorizeFiles, cn, getFilenameStem } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { SettingsDrawer } from '@/pages/settings'
 import { useAuthStore } from '@/stores/authStore'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
-import { GPSDirection } from '@/types/map'
+import {
+  ANNOUNCEMENT_STORAGE_KEY,
+  ANNOUNCEMENT_VERSION,
+  FEEDBACK_INTERVAL_MS,
+  FEEDBACK_STORAGE_KEY,
+  GUIDE_STORAGE_KEY,
+} from './constants'
+import { buildPhotosForManualPlacement } from './manualPlacement'
 import { AnnouncementDialog } from './components/AnnouncementDialog'
-import { FeedbackDialog } from './components/FeedbackDialog'
 import { GalleryDrawer } from './components/GalleryDrawer'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
@@ -34,12 +38,6 @@ import { getInitialViewStateForMarkers } from './utils'
 const Maplibre = lazy(() =>
   import('./MapLibre').then(m => ({ default: m.Maplibre })),
 )
-
-const ANNOUNCEMENT_VERSION = pkg.version
-const ANNOUNCEMENT_STORAGE_KEY = 'locusify:version'
-const GUIDE_STORAGE_KEY = 'locusify:onboarding-guide-dismissed'
-const FEEDBACK_STORAGE_KEY = 'locusify:feedback-last-shown'
-const FEEDBACK_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 function MapSectionContent() {
   const user = useAuthStore(s => s.user)
@@ -185,84 +183,12 @@ function MapSectionContent() {
       return
 
     const { lng, lat } = pendingLngLat.current
-    const allFiles: File[] = []
-    for (let i = 0; i < fileList.length; i++) {
-      allFiles.push(fileList[i])
-    }
-
-    const { imageFiles, videoMap, standaloneVideos } = categorizeFiles(allFiles)
-    const photos: Photo[] = []
-
-    for (const file of imageFiles) {
-      const preview = URL.createObjectURL(file)
-
-      let dateTaken: string | undefined
-      let camera: { make?: string, model?: string } | undefined
-      const exif = (await extractExifData(file)) ?? undefined
-      if (exif) {
-        const dateTimeOriginal = exif.DateTimeOriginal
-        const createDate = exif.CreateDate
-        if (dateTimeOriginal) {
-          dateTaken = dateTimeOriginal instanceof Date ? dateTimeOriginal.toISOString() : dateTimeOriginal
-        }
-        else if (createDate) {
-          dateTaken = createDate instanceof Date ? createDate.toISOString() : createDate
-        }
-        if (exif.Make || exif.Model) {
-          camera = { make: exif.Make, model: exif.Model }
-        }
-      }
-
-      // Check for paired Live Photo video
-      const stem = getFilenameStem(file.name).toLowerCase()
-      const pairedVideo = videoMap.get(stem)
-
-      photos.push({
-        id: `${file.name}-${file.lastModified}`,
-        file,
-        preview,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-        gpsInfo: {
-          latitude: lat,
-          longitude: lng,
-          latitudeRef: lat >= 0 ? GPSDirection.North : GPSDirection.South,
-          longitudeRef: lng >= 0 ? GPSDirection.East : GPSDirection.West,
-        },
-        exif: exif ?? undefined,
-        dateTaken,
-        camera,
-        ...(pairedVideo && {
-          videoFile: pairedVideo,
-          videoSource: { type: 'live-photo' as const, videoUrl: URL.createObjectURL(pairedVideo) },
-        }),
-      })
-    }
-
-    // Process standalone videos
-    for (const videoFile of standaloneVideos) {
-      const preview = URL.createObjectURL(videoFile)
-
-      photos.push({
-        id: `${videoFile.name}-${videoFile.lastModified}`,
-        file: videoFile,
-        preview,
-        name: videoFile.name,
-        size: videoFile.size,
-        type: videoFile.type,
-        lastModified: videoFile.lastModified,
-        gpsInfo: {
-          latitude: lat,
-          longitude: lng,
-          latitudeRef: lat >= 0 ? GPSDirection.North : GPSDirection.South,
-          longitudeRef: lng >= 0 ? GPSDirection.East : GPSDirection.West,
-        },
-        videoFile,
-        videoSource: { type: 'video' as const, videoUrl: preview },
-      })
-    }
+    const files = Array.from(fileList)
+    const photos = await buildPhotosForManualPlacement({
+      files,
+      longitude: lng,
+      latitude: lat,
+    })
 
     if (photos.length > 0) {
       usePhotoStore.getState().addPhotos(photos)

@@ -1,5 +1,3 @@
-import type { ComponentType } from 'react'
-
 export type AuthProviderType = 'google' | 'github' | 'email'
 
 export interface AuthUser {
@@ -13,6 +11,5 @@ export interface AuthUser {
 export interface AuthProvider {
   type: AuthProviderType
   name: string
-  icon: ComponentType
   login: () => Promise<void>
 }

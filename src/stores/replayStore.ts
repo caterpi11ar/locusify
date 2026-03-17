@@ -1,165 +1,13 @@
-import type { PhotoMarker } from '@/types/map'
-import type { SegmentMeta, TransportMode } from '@/types/replay'
 import type { ReplayTemplateConfig } from '@/types/template'
-import type { PlaybackState } from '@/types/workspace'
 import { create } from 'zustand'
-import { templates } from '@/data/templates'
 import AudioManager from '@/lib/audio/AudioManager'
-import { haversineDistance } from '@/lib/geo'
 import { interpolateSegment } from '@/lib/replay/curves'
+import { BASE_SEGMENT_DURATION, DEFAULT_TEMPLATE_ID, DWELL_DURATION, getDefaultTemplateConfig } from './replay/constants'
+import { setupReplayLoop } from './replay/loop'
+import type { EarthZoomPhase, ReplayState } from './replay/types'
+import { computePosition, computeSegments, computeSegmentsWithPreservedModes, markersToWaypoints } from './replay/utils'
 
-/** Duration per segment in ms at 1x speed */
-const BASE_SEGMENT_DURATION = 2000
-
-/** Dwell time at each waypoint before advancing to next segment (ms) */
-const DWELL_DURATION = 400
-
-/** Ease-in-out curve for smoother segment traversal */
-function easeInOut(t: number): number {
-  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
-}
-
-interface ReplayWaypoint {
-  /** Marker ID */
-  id: string
-  /** [longitude, latitude] */
-  position: [number, number]
-  /** The original PhotoMarker for rendering */
-  marker: PhotoMarker
-  /** Timestamp for ordering */
-  timestamp: Date
-  /** Sequence index */
-  index: number
-}
-
-function markersToWaypoints(markers: PhotoMarker[]): ReplayWaypoint[] {
-  return markers
-    .filter(m => m.photo.dateTaken)
-    .sort((a, b) => new Date(a.photo.dateTaken).getTime() - new Date(b.photo.dateTaken).getTime())
-    .map((marker, index) => ({
-      id: marker.id,
-      position: [marker.longitude, marker.latitude] as [number, number],
-      marker,
-      timestamp: new Date(marker.photo.dateTaken),
-      index,
-    }))
-}
-
-function computePosition(
-  waypoints: ReplayWaypoint[],
-  waypointIndex: number,
-  segmentProgress: number,
-  segments: SegmentMeta[],
-): [number, number] | null {
-  if (waypoints.length === 0)
-    return null
-  if (waypointIndex >= waypoints.length - 1) {
-    return waypoints[waypoints.length - 1].position
-  }
-
-  const seg = segments[waypointIndex]
-  const t = easeInOut(Math.max(0, Math.min(1, segmentProgress)))
-
-  // Walk along pre-computed curve points
-  if (seg?.curvePoints && seg.curvePoints.length >= 2) {
-    const totalPoints = seg.curvePoints.length - 1
-    const exactIdx = t * totalPoints
-    const idx = Math.floor(exactIdx)
-    const frac = exactIdx - idx
-
-    if (idx >= totalPoints) {
-      return seg.curvePoints[totalPoints]
-    }
-
-    const p0 = seg.curvePoints[idx]
-    const p1 = seg.curvePoints[idx + 1]
-    return [
-      p0[0] + (p1[0] - p0[0]) * frac,
-      p0[1] + (p1[1] - p0[1]) * frac,
-    ]
-  }
-
-  // Fallback: linear interpolation
-  const from = waypoints[waypointIndex].position
-  const to = waypoints[waypointIndex + 1].position
-  return [
-    from[0] + (to[0] - from[0]) * t,
-    from[1] + (to[1] - from[1]) * t,
-  ]
-}
-
-function computeSegments(waypoints: ReplayWaypoint[]): SegmentMeta[] {
-  const segments: SegmentMeta[] = []
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const from = waypoints[i]
-    const to = waypoints[i + 1]
-    const distanceKm = haversineDistance(from.position, to.position)
-    const timeDeltaMs = to.timestamp.getTime() - from.timestamp.getTime()
-    const mode: TransportMode = 'walking'
-    const curvePoints = interpolateSegment(from.position, to.position, distanceKm, mode, i)
-    segments.push({
-      fromIndex: i,
-      toIndex: i + 1,
-      distanceKm,
-      timeDeltaMs,
-      mode,
-      curvePoints,
-      isLongJump: distanceKm > 200,
-    })
-  }
-  return segments
-}
-
-/** Default template ID */
-const DEFAULT_TEMPLATE_ID = 'minimal'
-
-/** Get default template config */
-function getDefaultTemplateConfig(): ReplayTemplateConfig {
-  return templates.find(t => t.id === DEFAULT_TEMPLATE_ID)!.config
-}
-
-export type EarthZoomPhase = 'idle' | 'setup' | 'revealing' | 'flying' | 'done'
-
-interface ReplayState {
-  isReplayMode: boolean
-  waypoints: ReplayWaypoint[]
-  status: PlaybackState['status']
-  currentWaypointIndex: number
-  segmentProgress: number
-  totalProgress: number
-  speedMultiplier: number
-  currentPosition: [number, number] | null
-  segments: SegmentMeta[]
-  currentSegmentMode: TransportMode
-  recordingActive: boolean
-  templateId: string
-  templateConfig: ReplayTemplateConfig
-  customOverrides: Partial<ReplayTemplateConfig>
-  captions: string[]
-  earthZoomPhase: EarthZoomPhase
-  /** Remaining dwell time (ms) at current waypoint before advancing */
-  dwellRemaining: number
-
-  startReplay: (markers: PhotoMarker[], startPaused?: boolean) => void
-  prepareReplay: (markers: PhotoMarker[]) => void
-  confirmConfig: () => void
-  togglePlayPause: () => void
-  restartReplay: () => void
-  resetReplay: () => void
-  exitReplay: () => void
-  setSpeedMultiplier: (speed: number) => void
-  seekToWaypoint: (index: number) => void
-  setSegmentMode: (segmentIndex: number, mode: TransportMode) => void
-  setRecordingActive: (active: boolean) => void
-  setTemplate: (templateId: string, config: ReplayTemplateConfig) => void
-  setCustomOverrides: (overrides: Partial<ReplayTemplateConfig>) => void
-  setCaptions: (captions: string[]) => void
-  startEarthZoom: () => void
-  setEarthZoomPhase: (phase: EarthZoomPhase) => void
-  refreshReplay: (markers: PhotoMarker[]) => void
-  /** Internal: advance animation by delta ms */
-  _tick: (delta: number) => void
-}
+export type { EarthZoomPhase }
 
 export const useReplayStore = create<ReplayState>((set, get) => ({
   isReplayMode: false,
@@ -369,38 +217,11 @@ export const useReplayStore = create<ReplayState>((set, get) => ({
     const { status, segments: oldSegments } = get()
     if (status !== 'configuring')
       return
+    const oldWaypoints = get().waypoints
     const waypoints = markersToWaypoints(markers)
     if (waypoints.length < 2)
       return
-    // Build a map of old transport modes by fromId-toId for preservation
-    const oldModeMap = new Map<string, TransportMode>()
-    const oldWaypoints = get().waypoints
-    for (const seg of oldSegments) {
-      const fromId = oldWaypoints[seg.fromIndex]?.id
-      const toId = oldWaypoints[seg.toIndex]?.id
-      if (fromId && toId)
-        oldModeMap.set(`${fromId}-${toId}`, seg.mode)
-    }
-    // Compute new segments, preserving user-set transport modes
-    const segments: SegmentMeta[] = []
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      const from = waypoints[i]
-      const to = waypoints[i + 1]
-      const distanceKm = haversineDistance(from.position, to.position)
-      const timeDeltaMs = to.timestamp.getTime() - from.timestamp.getTime()
-      const preserved = oldModeMap.get(`${from.id}-${to.id}`)
-      const mode: TransportMode = preserved ?? 'walking'
-      const curvePoints = interpolateSegment(from.position, to.position, distanceKm, mode, i)
-      segments.push({
-        fromIndex: i,
-        toIndex: i + 1,
-        distanceKm,
-        timeDeltaMs,
-        mode,
-        curvePoints,
-        isLongJump: distanceKm > 200,
-      })
-    }
+    const segments = computeSegmentsWithPreservedModes(oldWaypoints, oldSegments, waypoints)
     set({
       waypoints,
       segments,
@@ -498,46 +319,4 @@ export const useReplayStore = create<ReplayState>((set, get) => ({
     })
   },
 }))
-
-// --- rAF loop managed outside React ---
-let rafId = 0
-let lastTime = 0
-
-function startLoop() {
-  lastTime = 0
-  const animate = (time: number) => {
-    if (lastTime === 0) {
-      lastTime = time
-      rafId = requestAnimationFrame(animate)
-      return
-    }
-    const delta = time - lastTime
-    lastTime = time
-    useReplayStore.getState()._tick(delta)
-    rafId = requestAnimationFrame(animate)
-  }
-  rafId = requestAnimationFrame(animate)
-}
-
-function stopLoop() {
-  if (rafId) {
-    cancelAnimationFrame(rafId)
-    rafId = 0
-  }
-}
-
-// Auto-start/stop the rAF loop when status changes
-// Also sync AudioManager with replay status
-useReplayStore.subscribe((state, prevState) => {
-  if (state.status === 'playing' && prevState.status !== 'playing') {
-    startLoop()
-  }
-  else if (state.status !== 'playing' && prevState.status === 'playing') {
-    stopLoop()
-  }
-
-  // Sync audio with replay status changes
-  if (state.status !== prevState.status) {
-    AudioManager.getInstance().syncWithReplayStatus(state.status)
-  }
-})
+setupReplayLoop(useReplayStore.subscribe, useReplayStore.getState)

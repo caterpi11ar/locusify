@@ -1,5 +1,4 @@
 import type { AuthProvider } from '../types'
-import { GitHubIcon } from '@/components/ui/github-icon'
 import { env } from '@/lib/env'
 import { getBrowser, isNative } from '@/platforms'
 
@@ -19,6 +18,5 @@ async function login(): Promise<void> {
 export const githubProvider: AuthProvider = {
   type: 'github',
   name: 'GitHub',
-  icon: GitHubIcon,
   login,
 }

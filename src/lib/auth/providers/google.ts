@@ -1,5 +1,4 @@
 import type { AuthProvider } from '../types'
-import { GoogleIcon } from '@/components/ui/google-icon'
 import { env } from '@/lib/env'
 import { getBrowser, isNative } from '@/platforms'
 
@@ -19,6 +18,5 @@ async function login(): Promise<void> {
 export const googleProvider: AuthProvider = {
   type: 'google',
   name: 'Google',
-  icon: GoogleIcon,
   login,
 }

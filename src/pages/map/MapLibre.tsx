@@ -14,6 +14,7 @@ import { usePresenceStore } from '@/stores/presenceStore'
 import { useRegionStore } from '@/stores/regionStore'
 
 import { useReplayStore } from '@/stores/replayStore'
+import { clusterMarkers, clusterNearbyUsers } from './clustering'
 import { EarthZoomController } from './components/EarthZoomController'
 import { GeoJsonLayer } from './components/GeoJsonLayer'
 import { GlobeOrbitController } from './components/GlobeOrbitController'
@@ -33,82 +34,6 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 
 const MAP_STYLE: CSSProperties = { width: '100%', height: '100%', position: 'relative', zIndex: 10 }
 
-export interface UserClusterPoint {
-  user: NearbyUser
-  clusteredUsers?: NearbyUser[]
-  coordinates: [number, number]
-}
-
-/**
- * Cluster nearby users using the same algorithm as photo markers.
- * Uses Euclidean distance with a zoom-adaptive threshold.
- */
-function clusterNearbyUsers(users: NearbyUser[], zoom: number): UserClusterPoint[] {
-  if (users.length === 0)
-    return []
-
-  // At high zoom, don't cluster
-  if (zoom >= 15) {
-    return users.map(u => ({
-      user: u,
-      coordinates: [u.longitude, u.latitude] as [number, number],
-    }))
-  }
-
-  const result: UserClusterPoint[] = []
-  const processed = new Set<string>()
-  const threshold = Math.max(0.001, 0.01 / 2 ** (zoom - 10))
-
-  for (const user of users) {
-    if (processed.has(user.userId))
-      continue
-
-    const group = [user]
-    processed.add(user.userId)
-
-    for (const other of users) {
-      if (processed.has(other.userId))
-        continue
-
-      const dist = Math.sqrt(
-        (user.longitude - other.longitude) ** 2
-        + (user.latitude - other.latitude) ** 2,
-      )
-      if (dist < threshold) {
-        group.push(other)
-        processed.add(other.userId)
-      }
-    }
-
-    const lng = group.reduce((s, u) => s + u.longitude, 0) / group.length
-    const lat = group.reduce((s, u) => s + u.latitude, 0) / group.length
-
-    result.push({
-      user: group[0],
-      clusteredUsers: group.length > 1 ? group : undefined,
-      coordinates: [lng, lat],
-    })
-  }
-
-  return result
-}
-
-export interface ClusterPoint {
-  type: 'Feature'
-  properties: {
-    cluster?: boolean
-    cluster_id?: number
-    point_count?: number
-    point_count_abbreviated?: string
-    marker?: PhotoMarker
-    clusteredPhotos?: PhotoMarker[]
-  }
-  geometry: {
-    type: 'Point'
-    coordinates: [number, number]
-  }
-}
-
 export interface PureMaplibreProps {
   id?: string
   initialViewState?: {
@@ -127,98 +52,6 @@ export interface PureMaplibreProps {
   mapRef?: RefObject<MapRef | null>
   onContextMenu?: (e: MapLayerMouseEvent) => void
   autoFitBounds?: boolean
-}
-
-/**
- * Simple clustering algorithm for small datasets
- * @param markers Array of photo markers to cluster
- * @param zoom Current zoom level
- * @returns Array of cluster points
- */
-function clusterMarkers(
-  markers: PhotoMarker[],
-  zoom: number,
-): ClusterPoint[] {
-  if (markers.length === 0)
-    return []
-
-  // At high zoom levels, don't cluster
-  if (zoom >= 15) {
-    return markers.map(marker => ({
-      type: 'Feature' as const,
-      properties: { marker },
-      geometry: {
-        type: 'Point' as const,
-        coordinates: [marker.longitude, marker.latitude],
-      },
-    }))
-  }
-
-  const clusters: ClusterPoint[] = []
-  const processed = new Set<string>()
-
-  // Simple distance-based clustering
-  const threshold = Math.max(0.001, 0.01 / 2 ** (zoom - 10)) // Adjust threshold based on zoom
-
-  for (const marker of markers) {
-    if (processed.has(marker.id))
-      continue
-
-    const nearby = [marker]
-    processed.add(marker.id)
-
-    // Find nearby markers
-    for (const other of markers) {
-      if (processed.has(other.id))
-        continue
-
-      const distance = Math.sqrt(
-        (marker.longitude - other.longitude) ** 2
-        + (marker.latitude - other.latitude) ** 2,
-      )
-
-      if (distance < threshold) {
-        nearby.push(other)
-        processed.add(other.id)
-      }
-    }
-
-    if (nearby.length === 1) {
-      // Single marker
-      clusters.push({
-        type: 'Feature',
-        properties: { marker },
-        geometry: {
-          type: 'Point',
-          coordinates: [marker.longitude, marker.latitude],
-        },
-      })
-    }
-    else {
-      // Cluster
-      const centerLng
-        = nearby.reduce((sum, m) => sum + m.longitude, 0) / nearby.length
-      const centerLat
-        = nearby.reduce((sum, m) => sum + m.latitude, 0) / nearby.length
-
-      clusters.push({
-        type: 'Feature',
-        properties: {
-          cluster: true,
-          point_count: nearby.length,
-          point_count_abbreviated: nearby.length.toString(),
-          marker: nearby[0], // Representative marker for the cluster
-          clusteredPhotos: nearby, // All photos in the cluster
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [centerLng, centerLat],
-        },
-      })
-    }
-  }
-
-  return clusters
 }
 
 export function Maplibre({
