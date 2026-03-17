@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://locusify.caterpi11ar.com" target="_blank"><strong>🌐 Try it Live</strong></a>
+  <a href="https://app.locusify.cn" target="_blank"><strong>🌐 Try it Live</strong></a>
   &nbsp;·&nbsp;
   <a href="https://www.producthunt.com/products/locusify" target="_blank">Product Hunt</a>
   &nbsp;·&nbsp;
@@ -208,16 +208,18 @@ pnpm dev
 ```
 src/
 ├── assets/          # Static assets
-├── components/      # Shared UI components (shadcn/ui)
+├── components/      # Shared components (UI/auth/upload/feedback)
 ├── hooks/           # Custom React hooks
 ├── layout/          # Layout components
 ├── lib/             # Utility libraries
 ├── locales/         # i18n translations (en, zh-CN)
 ├── pages/
-│   ├── explore/     # Explore page
+│   ├── auth/        # OAuth callback + password reset
+│   ├── error/       # Error boundaries and fallback pages
 │   ├── map/         # Map page + trajectory replay
-│   ├── settings/    # Settings (language, theme, privacy)
-│   └── splashScreen/# Splash / landing screen
+│   └── settings/    # Settings drawer and account sections
+├── platforms/       # Web/native adapter layer
+├── stores/          # Zustand stores
 ├── routers/         # Route definitions
 └── types/           # TypeScript type definitions
 ```
@@ -227,4 +229,3 @@ src/
 ## License
 
 [ISC](LICENSE) © caterpi11ar
-

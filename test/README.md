@@ -12,7 +12,7 @@ pnpm test
 
 ### 运行特定测试文件
 ```bash
-pnpm test test/add.test.ts
+pnpm test test/stores/replayStore.test.ts
 ```
 
 ### 以监视模式运行测试
@@ -32,11 +32,11 @@ pnpm test -- --coverage
 测试结构示例:
 ```typescript
 import { describe, expect, it } from 'vitest'
-import { functionToTest } from '../src/path/to/function'
+import { haversineDistance } from '../../src/lib/geo'
 
-describe('functionToTest', () => {
-  it('should do something specific', () => {
-    expect(functionToTest()).toBe(expectedResult)
+describe('haversineDistance', () => {
+  it('returns 0 for the same point', () => {
+    expect(haversineDistance([0, 0], [0, 0])).toBe(0)
   })
 })
 ```
@@ -59,7 +59,7 @@ pnpm test -- -t "测试模式"
 
 ### 按名称模式过滤测试
 ```bash
-pnpm test -- --testNamePattern="add"
+pnpm test -- --testNamePattern="replay"
 ```
 
 ### 使用特定配置运行测试

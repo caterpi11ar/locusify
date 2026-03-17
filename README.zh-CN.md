@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://locusify.caterpi11ar.com" target="_blank"><strong>🌐 在线体验</strong></a>
+  <a href="https://app.locusify.cn" target="_blank"><strong>🌐 在线体验</strong></a>
   &nbsp;·&nbsp;
   <a href="https://www.producthunt.com/products/locusify" target="_blank">Product Hunt</a>
   &nbsp;·&nbsp;
