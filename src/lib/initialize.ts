@@ -11,8 +11,8 @@ async function initialize() {
   await import('@/i18n')
   /** Initialize React Scan */
   await initializeReactScan()
-  /** Initialize Auth */
-  await initializeAuth()
+  /** Initialize Auth (non-blocking — UI shows loading via authReady state) */
+  initializeAuth()
 }
 
 export default initialize

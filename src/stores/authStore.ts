@@ -20,6 +20,7 @@ interface AuthState {
   user: AuthUser | null
   profile: UserProfile | null
   isLoggingIn: boolean
+  authReady: boolean
   setUser: (user: AuthUser) => void
   setProfile: (profile: UserProfile | null) => void
   clearUser: () => void
@@ -32,6 +33,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       profile: null,
       isLoggingIn: false,
+      authReady: false,
       setUser: user => set({ user, isLoggingIn: false }),
       setProfile: profile => set({ profile }),
       clearUser: () => {
@@ -123,6 +125,7 @@ export async function initializeAuth() {
   const { accessToken } = await getTokens()
   if (!accessToken) {
     useAuthStore.getState().clearUser()
+    useAuthStore.setState({ authReady: true })
     return
   }
 
@@ -145,5 +148,8 @@ export async function initializeAuth() {
     else {
       console.error('Failed to validate auth session:', err)
     }
+  }
+  finally {
+    useAuthStore.setState({ authReady: true })
   }
 }

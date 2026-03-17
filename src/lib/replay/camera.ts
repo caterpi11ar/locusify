@@ -3,11 +3,10 @@ import { computeBearing } from '@/lib/geo'
 
 /** Continuous log-scale mapping from distance (km) to ideal zoom level. */
 export function computeSegmentZoom(distanceKm: number): number {
-  if (distanceKm < 0.5)
-    return 15
-  // log curve: 0.5km → z15, 1000km → z4
+  if (distanceKm <= 0)
+    return 17
   const zoom = 15 - (Math.log10(distanceKm) / Math.log10(1000)) * 11
-  return Math.max(4, Math.min(15, zoom))
+  return Math.max(4, Math.min(17, zoom))
 }
 
 /** Mode-aware pitch: flying is flatter, ground modes are steeper. */

@@ -1,7 +1,9 @@
 import { clearTokens, getAccessToken, getTokens, setTokens } from '@/lib/auth/token-storage'
 import { env } from '@/lib/env'
 
-const BASE_URL = `${env.VITE_API_BASE_URL}/api/v1`
+const BASE_URL = import.meta.env.DEV
+  ? '/api/v1'
+  : `${env.VITE_API_BASE_URL}/api/v1`
 
 export class ApiError extends Error {
   code: string

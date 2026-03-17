@@ -57,7 +57,7 @@ export function TrajectoryController() {
         }
         map!.fitBounds(
           [[minLng, minLat], [maxLng, maxLat]],
-          { padding: 80, maxZoom: 15, duration: 800 },
+          { padding: 80, maxZoom: 17, duration: 800 },
         )
       }
       else if (state.currentPosition) {

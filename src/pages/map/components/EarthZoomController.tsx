@@ -88,7 +88,7 @@ export function EarthZoomController() {
 
         const cam = mapInstance.cameraForBounds(
           [[minLng, minLat], [maxLng, maxLat]],
-          { padding: 80, maxZoom: 15 },
+          { padding: 80, maxZoom: 17 },
         )
         const landZoom = cam?.zoom ?? 10
 

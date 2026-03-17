@@ -10,6 +10,12 @@ export default defineConfig(() => {
     server: {
       port: 1046,
       host: true,
+      proxy: {
+        '/api': {
+          target: 'https://api.locusify.cn',
+          changeOrigin: true,
+        },
+      },
     },
     build: {
       rollupOptions: {

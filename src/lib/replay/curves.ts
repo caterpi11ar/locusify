@@ -114,9 +114,18 @@ export function interpolateSegment(
   mode: TransportMode,
   segmentIndex: number,
 ): [number, number][] {
-  // Very short segments: straight line (2 points)
+  // Short segments: 10-point linear interpolation for smooth bearing sampling
   if (distanceKm < 0.5) {
-    return [from, to]
+    const numPts = 10
+    const points: [number, number][] = []
+    for (let i = 0; i <= numPts; i++) {
+      const t = i / numPts
+      points.push([
+        from[0] + (to[0] - from[0]) * t,
+        from[1] + (to[1] - from[1]) * t,
+      ])
+    }
+    return points
   }
 
   // Number of interpolation points scales with distance
