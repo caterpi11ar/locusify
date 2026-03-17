@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
+import { fetchReleaseNotes } from '@/lib/release-notes'
 import { cn, glassPanel } from '@/lib/utils'
 
 interface AnnouncementDialogProps {
@@ -22,21 +23,13 @@ const mdComponents: Components = {
   code: ({ children }) => <code className="bg-fill-tertiary rounded px-1 text-xs">{children}</code>,
 }
 
-async function fetchReleaseNotes(lang: string): Promise<string> {
-  const url = `${import.meta.env.BASE_URL}releases/v${pkg.version}/${lang}.md`
-  const res = await fetch(url)
-  if (!res.ok)
-    throw new Error(`HTTP ${res.status}`)
-  return res.text()
-}
-
 function useReleaseNotes() {
   const { i18n } = useTranslation()
   const lang = i18n.language === 'zh-CN' ? 'zh-CN' : 'en'
 
   return useQuery({
     queryKey: ['release-notes', pkg.version, lang],
-    queryFn: () => fetchReleaseNotes(lang),
+    queryFn: () => fetchReleaseNotes(pkg.version, lang),
     staleTime: Infinity,
     retry: false,
   })
