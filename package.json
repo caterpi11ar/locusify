@@ -1,7 +1,7 @@
 {
   "name": "locusify",
   "type": "module",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "packageManager": "pnpm@10.15.0",
   "author": "caterpi11ar",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "test": "vitest",
     "lint": "eslint --fix",
     "typecheck": "tsc -b --noEmit",
     "cap:sync": "cap sync",
