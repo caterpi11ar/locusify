@@ -83,7 +83,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
         shareLink({
           title: t('share.appTitle', { defaultValue: 'Locusify' }),
           text: t('share.appText', { defaultValue: 'Transform your travel photos into visual route maps and cinematic vlogs' }),
-          url: 'https://locusify.caterpi11ar.com/',
+          url: 'https://app.locusify.cn/',
         })
       },
     },

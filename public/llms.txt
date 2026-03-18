@@ -56,6 +56,6 @@ Built with React 19, TypeScript, Vite 7, Tailwind CSS 4, MapLibre GL, Zustand, T
 
 ## Links
 
-- [Locusify App](https://locusify.caterpi11ar.com): Live application
+- [Locusify App](https://app.locusify.cn): Live application
 - [GitHub Repository](https://github.com/caterpi11ar/locusify): Open source code
 - [Product Hunt](https://www.producthunt.com/products/locusify): Product listing

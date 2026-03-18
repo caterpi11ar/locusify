@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://locusify.caterpi11ar.com/sitemap.xml
-LLMs: https://locusify.caterpi11ar.com/llms.txt
+Sitemap: https://app.locusify.cn/sitemap.xml
+LLMs: https://app.locusify.cn/llms.txt
