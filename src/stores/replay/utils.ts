@@ -1,6 +1,6 @@
+import type { ReplayWaypoint } from './types'
 import type { PhotoMarker } from '@/types/map'
 import type { SegmentMeta, TransportMode } from '@/types/replay'
-import type { ReplayWaypoint } from './types'
 import { haversineDistance } from '@/lib/geo'
 import { interpolateSegment } from '@/lib/replay/curves'
 

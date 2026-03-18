@@ -1,5 +1,5 @@
-import AudioManager from '@/lib/audio/AudioManager'
 import type { ReplayState } from './types'
+import AudioManager from '@/lib/audio/AudioManager'
 
 let rafId = 0
 let lastTime = 0

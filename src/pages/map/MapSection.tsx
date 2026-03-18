@@ -15,14 +15,6 @@ import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
-import {
-  ANNOUNCEMENT_STORAGE_KEY,
-  ANNOUNCEMENT_VERSION,
-  FEEDBACK_INTERVAL_MS,
-  FEEDBACK_STORAGE_KEY,
-  GUIDE_STORAGE_KEY,
-} from './constants'
-import { buildPhotosForManualPlacement } from './manualPlacement'
 import { AnnouncementDialog } from './components/AnnouncementDialog'
 import { GalleryDrawer } from './components/GalleryDrawer'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
@@ -33,6 +25,14 @@ import { PortraitLockOverlay } from './components/replay/PortraitLockOverlay'
 import { ReplayIntroOverlay } from './components/replay/ReplayIntroOverlay'
 import { SaveVideoDialog } from './components/SaveVideoDialog'
 import { TrajectoryOverlay } from './components/TrajectoryOverlay'
+import {
+  ANNOUNCEMENT_STORAGE_KEY,
+  ANNOUNCEMENT_VERSION,
+  FEEDBACK_INTERVAL_MS,
+  FEEDBACK_STORAGE_KEY,
+  GUIDE_STORAGE_KEY,
+} from './constants'
+import { buildPhotosForManualPlacement } from './manualPlacement'
 import { getInitialViewStateForMarkers } from './utils'
 
 const Maplibre = lazy(() =>

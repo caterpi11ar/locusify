@@ -1,10 +1,10 @@
+import type { EarthZoomPhase, ReplayState } from './replay/types'
 import type { ReplayTemplateConfig } from '@/types/template'
 import { create } from 'zustand'
 import AudioManager from '@/lib/audio/AudioManager'
 import { interpolateSegment } from '@/lib/replay/curves'
 import { BASE_SEGMENT_DURATION, DEFAULT_TEMPLATE_ID, DWELL_DURATION, getDefaultTemplateConfig } from './replay/constants'
 import { setupReplayLoop } from './replay/loop'
-import type { EarthZoomPhase, ReplayState } from './replay/types'
 import { computePosition, computeSegments, computeSegmentsWithPreservedModes, markersToWaypoints } from './replay/utils'
 
 export type { EarthZoomPhase }
