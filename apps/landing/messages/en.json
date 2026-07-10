@@ -1,0 +1,345 @@
+{
+  "Metadata": {
+    "site": {
+      "title": "Locusify | Photo Location Map & GPS Travel Route Visualizer",
+      "description": "Turn GPS photos into interactive route maps and animated journey replays. Map travel photos, visualize routes, export videos. 100% on-device processing."
+    }
+  },
+  "Header": {
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "faq": "FAQ",
+      "technology": "Technology",
+      "gallery": "Gallery",
+      "scenarios": "Scenarios",
+      "pricing": "Pricing",
+      "blog": "Blog"
+    },
+    "action": {
+      "cta": "Try Now"
+    }
+  },
+  "Hero": {
+    "alt": {
+      "side1": "Traveler taking photos",
+      "side2": "Ancient water town travel",
+      "side3": "Seaside sunset scenery",
+      "side4": "Mountain hiking trail",
+      "main": "GPS photo route map of a road trip aerial view"
+    },
+    "tagline": {
+      "line1": "Turn GPS photos into interactive maps,",
+      "line2": "relive every journey."
+    },
+    "action": {
+      "cta": "Try Now"
+    }
+  },
+  "Philosophy": {
+    "heading": {
+      "title": "GPS Photo Location & Route Replay",
+      "subtitle": "Core Features"
+    },
+    "alpine": {
+      "alt": "Photo location on interactive map",
+      "label": "GPS Map"
+    },
+    "forest": {
+      "alt": "Traveler and route",
+      "label": "Route Replay"
+    },
+    "content": {
+      "description": "Upload your travel photos, Locusify automatically extracts GPS coordinates, marks every footprint on an interactive map, and replays your complete journey with animation"
+    }
+  },
+  "HowItWorks": {
+    "heading": {
+      "subtitle": "How It Works",
+      "title": "Start Your Journey in Four Steps"
+    },
+    "step1": {
+      "title": "Upload Photos",
+      "description": "Drag and drop your travel photos. Supports JPEG, HEIC, and more."
+    },
+    "step2": {
+      "title": "Extract Coordinates",
+      "description": "Automatically reads GPS data from photos, all processed locally."
+    },
+    "step3": {
+      "title": "Visualize on Map",
+      "description": "Mark every footprint on an interactive map with the full route."
+    },
+    "step4": {
+      "title": "Replay Journey",
+      "description": "Animated playback of your travel route. Export videos to share."
+    }
+  },
+  "FeaturedProducts": {
+    "heading": {
+      "title1": "Designed for travelers,",
+      "title2": "making every journey memorable.",
+      "subtitle": "Core Features"
+    },
+    "feature1": {
+      "title": "GPS Photo Location",
+      "description": "Smart Extraction",
+      "detail": "Automatically extracts GPS coordinates from photo EXIF data and marks locations on the map"
+    },
+    "feature2": {
+      "title": "Video Export & Share",
+      "description": "One-Click Share",
+      "detail": "Record journey replays as videos, download or share directly"
+    },
+    "feature3": {
+      "title": "Route Animation",
+      "description": "Journey Replay",
+      "detail": "Animated playback of travel routes in chronological order with speed control"
+    },
+    "feature4": {
+      "title": "100% Local Processing",
+      "description": "Privacy First",
+      "detail": "All processing happens on your device. Photos never leave your phone"
+    },
+    "feature5": {
+      "title": "Photo Clustering",
+      "description": "Smart Organization",
+      "detail": "Automatically clusters nearby photos to keep the map clean"
+    },
+    "feature6": {
+      "title": "Multi-Format Support",
+      "description": "Wide Compatibility",
+      "detail": "Supports JPG, PNG, HEIC, WebP, AVIF"
+    }
+  },
+  "Technology": {
+    "heading": {
+      "line1": "Privacy first,",
+      "line2": "data secure."
+    },
+    "alt": {
+      "main": "Travel aerial scenery",
+      "side1": "Travel scenery",
+      "side2": "Camping trip",
+      "side3": "Boating on the lake",
+      "side4": "Forest morning mist"
+    },
+    "content": {
+      "description": "Your photos never leave your device.|All GPS extraction,|map rendering,|route calculation, and|video export|happen entirely on-device.|No server uploads,|no data collection.|Close the app,|data disappears.|This is our|commitment to privacy."
+    }
+  },
+  "Gallery": {
+    "alt": {
+      "image1": "Paris Eiffel Tower",
+      "image2": "Kyoto ancient city",
+      "image3": "Santorini sea view",
+      "image4": "City night view",
+      "image5": "Tropical beach",
+      "image6": "Night cityscape",
+      "image7": "Majestic mountains",
+      "image8": "Desert landscape"
+    }
+  },
+  "Collection": {
+    "heading": {
+      "title": "Who Uses Locusify Photo Maps"
+    },
+    "scenario1": {
+      "name": "Solo Traveler",
+      "description": "Adventurers who want to visually record every journey"
+    },
+    "scenario2": {
+      "name": "Travel Photographer",
+      "description": "Photography enthusiasts with hundreds of photos wanting the full picture"
+    },
+    "scenario3": {
+      "name": "Vlog Creator",
+      "description": "Content creators who want to quickly generate stunning route replay videos"
+    },
+    "scenario4": {
+      "name": "Backpacker",
+      "description": "Globe-trotters who want to relive 'where exactly did I go'"
+    },
+    "scenario5": {
+      "name": "Family Trip",
+      "description": "Record family travel routes and create precious memory videos"
+    },
+    "scenario6": {
+      "name": "Outdoor Adventure",
+      "description": "Hiking, cycling, road trips — record every adventure route with photos"
+    }
+  },
+  "Pricing": {
+    "heading": {
+      "subtitle": "Pricing",
+      "title": "Choose Your Plan",
+      "startFree": "Start free, upgrade anytime",
+      "popular": "Most Popular"
+    },
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "",
+      "description": "Basic features, free forever",
+      "cta": "Get Started Free",
+      "feature1": "GPS photo location (50 photos/batch)",
+      "feature2": "Interactive map",
+      "feature3": "Basic route replay",
+      "feature4": "JPEG / PNG",
+      "feature5": "Local processing"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$3",
+      "period": "/mo",
+      "description": "For travel photographers and power users",
+      "cta": "Upgrade to Pro",
+      "feature1": "All Free features",
+      "feature2": "Unlimited uploads",
+      "feature3": "1080p export",
+      "feature4": "HEIC / WebP / AVIF",
+      "feature5": "Custom styles",
+      "feature6": "Batch processing",
+      "feature7": "Priority support"
+    },
+    "flagship": {
+      "name": "Flagship",
+      "price": "$6",
+      "period": "/mo",
+      "description": "The ultimate tool for content creators",
+      "cta": "Upgrade to Flagship",
+      "feature1": "All Pro features",
+      "feature2": "4K export",
+      "feature3": "Brand watermark",
+      "feature4": "Advanced animations",
+      "feature5": "GPX / KML import",
+      "feature6": "Multilingual labels",
+      "feature7": "Dedicated support"
+    }
+  },
+  "Editorial": {
+    "spec1": {
+      "label": "Formats",
+      "value": "5+"
+    },
+    "spec2": {
+      "label": "Data Uploads",
+      "value": "0"
+    },
+    "spec3": {
+      "label": "Starting Cost",
+      "value": "Free"
+    },
+    "spec4": {
+      "label": "Platforms",
+      "value": "Web / App"
+    }
+  },
+  "Testimonials": {
+    "content": {
+      "statement": "Locusify believes every journey deserves to be remembered. We use the simplest way — your photos — to retrace every step you've taken. Core GPS map features are completely free, with no privacy concerns. Open the app, upload photos, and your travel map is right there.",
+      "imageAlt": "Spectacular panoramic scenery"
+    }
+  },
+  "FAQ": {
+    "heading": {
+      "subtitle": "FAQ",
+      "title": "Frequently Asked Questions"
+    },
+    "q1": {
+      "question": "How does Locusify map my travel photos?",
+      "answer": "Locusify reads GPS coordinates embedded in your photo EXIF data, then plots each photo on an interactive map. It automatically connects the dots to visualize your travel route — all processed locally on your device."
+    },
+    "q2": {
+      "question": "Is Locusify free to use?",
+      "answer": "Yes! Core features like GPS photo location mapping, interactive maps, and basic route replay are completely free. Pro and Flagship plans unlock unlimited uploads, HD/4K export, and advanced features."
+    },
+    "q3": {
+      "question": "Does Locusify upload my photos to a server?",
+      "answer": "No. All processing happens 100% on your device. Your photos never leave your phone or computer. We don't collect any data — close the app and everything disappears."
+    },
+    "q4": {
+      "question": "What photo formats does Locusify support?",
+      "answer": "Locusify supports JPEG, PNG, HEIC, WebP, and AVIF. Any photo with embedded GPS data will work. Pro plans add support for additional formats and batch processing."
+    },
+    "q5": {
+      "question": "How does the route replay animation work?",
+      "answer": "Locusify arranges your photos in chronological order, traces the route on the map, and plays an animated journey replay. You can control playback speed and export the animation as a shareable video."
+    },
+    "q6": {
+      "question": "Can I export my travel route as a video?",
+      "answer": "Yes! You can record your route replay animation as a video and download or share it directly. Free users get basic export, Pro gets 1080p, and Flagship gets 4K quality."
+    }
+  },
+  "Footer": {
+    "cta": {
+      "title": "Start Creating Your Travel Map for Free",
+      "button": "Try Now"
+    },
+    "brand": {
+      "description": "Travel tool that transforms GPS photos into interactive maps and journey replays, 100% on-device processing."
+    },
+    "links": {
+      "product": "Product",
+      "features": "Features",
+      "privacy": "Privacy",
+      "tutorial": "Tutorial",
+      "faq": "FAQ",
+      "opensource": "Open Source",
+      "blog": "Blog",
+      "social": "Social"
+    },
+    "legal": {
+      "copyright": "© 2026 Locusify by caterpi11ar. All rights reserved."
+    }
+  },
+  "Blog": {
+    "heading": {
+      "subtitle": "Blog",
+      "title": "Travel Map Tutorials, Comparisons, and Updates",
+      "description": "From beginner walkthroughs to real-world examples, learn how to turn travel photos into clear map stories."
+    },
+    "intents": {
+      "top": {
+        "title": "Beginner Tutorials",
+        "description": "Start fast and create your first travel map replay with simple steps."
+      },
+      "middle": {
+        "title": "Practical Guides",
+        "description": "Fix common workflow issues with repeatable methods and optimization tips."
+      },
+      "bottom": {
+        "title": "Comparisons & Updates",
+        "description": "Explore alternatives, side-by-side comparisons, and latest product updates."
+      }
+    },
+    "categories": {
+      "updates": "Updates / Changelog",
+      "guides": "Guides",
+      "stories": "Stories"
+    },
+    "readMore": "Read more",
+    "backToBlog": "Back to blog",
+    "article": {
+      "keywordHeading": "Target keywords",
+      "cta": "Try Locusify with your travel photos",
+      "relatedHeading": "Related articles",
+      "faqHeading": "Frequently asked questions",
+      "readTime": "{minutes} min read",
+      "sections": {
+        "problem": "Problem",
+        "pain": "Pain point",
+        "solution": "Solution",
+        "example": "Example"
+      }
+    },
+    "topic": {
+      "heading": "{topic} Topic Cluster",
+      "description": "Keyword-focused article cluster for stronger topical authority and internal linking."
+    },
+    "meta": {
+      "title": "Travel Map Blog | Tutorials, Comparisons, and Alternatives",
+      "description": "Read tutorials on animated travel maps, GPS photo route visualization, app comparisons, and Locusify updates."
+    }
+  }
+}

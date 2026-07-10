@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import 'tailwindcss-uikit-colors/v4/macos.css';
+@plugin '@egoist/tailwindcss-icons';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --font-family-sans: 'Inconsolata Variable', monospace;
+  --font-family-handwriting: 'Caveat Variable', 'Segoe Print', cursive;
+
+  /* Using your brand colors from colors.ts */
+  --color-primary: #13ACF0;
+  --color-primary-hover: #0891B2;
+  --color-primary-light: #67E8F9;
+
+  --color-secondary: #1E3A8A;
+  --color-secondary-hover: #1E40AF;
+  --color-secondary-light: #3B82F6;
+
+  --color-accent: #F59E0B;
+  --color-accent-hover: #D97706;
+  --color-accent-light: #FCD34D;
+
+  --color-success: #10B981;
+  --color-success-hover: #059669;
+  --color-success-light: #6EE7B7;
+
+  --color-premium: #064E3B;
+  --color-premium-hover: #065F46;
+  --color-premium-light: #6EE7B7;
+
+  --color-background: #FFFFFF;
+  --color-background-light: #F1F5F9;
+  --color-background-lightest: #F8FAFC;
+
+  --color-foreground: #475569;
+  --color-foreground-secondary: #64748B;
+  --color-foreground-muted: #94A3B8;
+
+  --color-border: #E2E8F0;
+  --color-border-input: #CBD5E1;
+}
+
+:root {
+  --radius: 0.625rem;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+@utility bg-tape {
+  background: rgba(255, 245, 210, 0.55);
+  border: 1px solid rgba(200, 190, 160, 0.3);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-family-sans;
+  }
+}

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://app.locusify.cn/sitemap.xml
+LLMs: https://app.locusify.cn/llms.txt

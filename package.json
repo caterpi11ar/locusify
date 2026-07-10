@@ -1,0 +1,23 @@
+{
+  "name": "locusify",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "prepare": "husky",
+    "preinstall": "npx only-allow pnpm",
+    "dev:web": "pnpm --filter @locusify/web dev",
+    "dev:backend": "pnpm --filter @locusify/backend dev",
+    "dev:landing": "pnpm --filter @locusify/landing dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.7.3",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "eslint": "^9",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  }
+}

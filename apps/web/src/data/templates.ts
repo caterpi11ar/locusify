@@ -1,0 +1,161 @@
+import type { ReplayTemplate } from '@/types/template'
+
+export const templates: ReplayTemplate[] = [
+  {
+    id: 'vlog',
+    name: 'Vlog Style',
+    nameKey: 'template.vlog.name',
+    description: 'Energetic cuts with warm tones and upbeat music',
+    descriptionKey: 'template.vlog.description',
+    previewUrl: '',
+    tier: 'free',
+    config: {
+      music: { trackId: 'upbeat', volume: 0.6, fadeIn: 1, fadeOut: 2 },
+      transitions: { type: 'cut', duration: 200 },
+      filter: { type: 'warm', intensity: 0.7 },
+      textOverlay: {
+        enabled: true,
+        position: 'bottom-left',
+        style: 'handwritten',
+        showDate: true,
+        showLocation: true,
+        fontFamily: 'cursive',
+        color: '#ffffff',
+      },
+      lineStyle: { color: '#f97316', width: 3, glow: true, animated: true },
+      intro: { style: 'logo-fade', duration: 2800 },
+      outro: { style: 'stats-card', duration: 3000 },
+      camera: { followMode: 'smart', pitchEnabled: true, bearingEnabled: true, damping: 0.12 },
+      segmentDuration: 1800,
+      defaultSpeed: 1,
+    },
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    nameKey: 'template.minimal.name',
+    description: 'Clean and simple with no distractions',
+    descriptionKey: 'template.minimal.description',
+    previewUrl: '',
+    tier: 'free',
+    config: {
+      music: { trackId: 'none', volume: 0, fadeIn: 0, fadeOut: 0 },
+      transitions: { type: 'crossfade', duration: 400 },
+      filter: { type: 'none', intensity: 0 },
+      textOverlay: {
+        enabled: false,
+        position: 'bottom-left',
+        style: 'minimal',
+        showDate: false,
+        showLocation: false,
+        fontFamily: 'system-ui',
+        color: '#ffffff',
+      },
+      lineStyle: { color: '#38bdf8', width: 3, glow: false, animated: false },
+      intro: { style: 'none', duration: 0 },
+      outro: { style: 'none', duration: 0 },
+      camera: { followMode: 'topdown', pitchEnabled: false, bearingEnabled: false, damping: 0.1 },
+      segmentDuration: 2000,
+      defaultSpeed: 1,
+    },
+  },
+  {
+    id: 'cinematic',
+    name: 'Cinematic',
+    nameKey: 'template.cinematic.name',
+    description: 'Slow crossfades with cinematic color grading and orchestral score',
+    descriptionKey: 'template.cinematic.description',
+    previewUrl: '',
+    tier: 'pro',
+    config: {
+      music: { trackId: 'orchestral', volume: 0.5, fadeIn: 2, fadeOut: 3 },
+      transitions: { type: 'crossfade', duration: 800 },
+      filter: { type: 'cinematic', intensity: 0.8 },
+      textOverlay: {
+        enabled: true,
+        position: 'bottom-left',
+        style: 'bold',
+        showDate: true,
+        showLocation: true,
+        fontFamily: 'system-ui',
+        color: '#ffffff',
+      },
+      lineStyle: { color: '#a78bfa', width: 4, glow: true, animated: true },
+      intro: { style: 'title-card', duration: 3500 },
+      outro: { style: 'stats-card', duration: 4000 },
+      camera: { followMode: 'smart', pitchEnabled: true, bearingEnabled: true, damping: 0.05 },
+      segmentDuration: 2500,
+      defaultSpeed: 0.8,
+    },
+  },
+  {
+    id: 'travel-diary',
+    name: 'Travel Diary',
+    nameKey: 'template.travelDiary.name',
+    description: 'Vintage slides with acoustic guitar and typewriter text',
+    descriptionKey: 'template.travelDiary.description',
+    previewUrl: '',
+    tier: 'pro',
+    config: {
+      music: { trackId: 'acoustic', volume: 0.5, fadeIn: 1.5, fadeOut: 2.5 },
+      transitions: { type: 'slide-left', duration: 600 },
+      filter: { type: 'vintage', intensity: 0.6 },
+      textOverlay: {
+        enabled: true,
+        position: 'bottom-right',
+        style: 'typewriter',
+        showDate: true,
+        showLocation: true,
+        fontFamily: 'monospace',
+        color: '#fef3c7',
+      },
+      lineStyle: { color: '#d97706', width: 3, glow: false, animated: true },
+      intro: { style: 'map-zoom', duration: 3000 },
+      outro: { style: 'stats-card', duration: 3500 },
+      camera: { followMode: 'smart', pitchEnabled: true, bearingEnabled: true, damping: 0.08 },
+      segmentDuration: 2200,
+      defaultSpeed: 1,
+    },
+  },
+  {
+    id: 'night-mode',
+    name: 'Night Mode',
+    nameKey: 'template.nightMode.name',
+    description: 'Cool tones with ambient music and neon accents',
+    descriptionKey: 'template.nightMode.description',
+    previewUrl: '',
+    tier: 'pro',
+    config: {
+      music: { trackId: 'ambient', volume: 0.4, fadeIn: 2, fadeOut: 3 },
+      transitions: { type: 'blur', duration: 700 },
+      filter: { type: 'cool', intensity: 0.7 },
+      textOverlay: {
+        enabled: true,
+        position: 'top-left',
+        style: 'neon',
+        showDate: true,
+        showLocation: false,
+        fontFamily: 'system-ui',
+        color: '#22d3ee',
+      },
+      lineStyle: { color: '#06b6d4', width: 3, glow: true, animated: true },
+      intro: { style: 'logo-fade', duration: 3000 },
+      outro: { style: 'logo-fade', duration: 2500 },
+      camera: { followMode: 'smart', pitchEnabled: true, bearingEnabled: true, damping: 0.07 },
+      segmentDuration: 2000,
+      defaultSpeed: 1,
+    },
+  },
+]
+
+export function getTemplateById(id: string): ReplayTemplate | undefined {
+  return templates.find(t => t.id === id)
+}
+
+export function getFreeTemplates(): ReplayTemplate[] {
+  return templates.filter(t => t.tier === 'free')
+}
+
+export function getProTemplates(): ReplayTemplate[] {
+  return templates.filter(t => t.tier === 'pro')
+}
