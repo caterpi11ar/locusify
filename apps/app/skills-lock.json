@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "app-store-screenshots": {
+      "source": "ParthJadhav/app-store-screenshots",
+      "sourceType": "github",
+      "computedHash": "e851b7d3ec03efe9199682b0ecc4d8f00694880848fe6ad5de210c6bccb1ca7f"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "3462ec83f862abb2d532953df33a4dbf87f4616849da5d4b5cc7c13601aaf997"
+    }
+  }
+}

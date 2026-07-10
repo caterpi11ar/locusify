@@ -1,18 +1,27 @@
-node_modules/
-dist/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# OS files
-.DS_Store
+# dependencies
+/node_modules
 
-# Environment variables
-.env
-.env.local
-.env.development
-.env.production
-.env.test
+# next.js
+/.next/
+/out/
 
-# Supabase local state
-supabase/.temp/
+# production
+/build
 
-# claude
-.claude/settings.local.json
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

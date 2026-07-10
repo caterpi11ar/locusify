@@ -36,13 +36,13 @@
 ## Screenshots
 
 <p align="center">
-  <img src="apps/web/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
+  <img src="apps/app/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
+  <img src="apps/app/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
+  <img src="apps/app/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
+  <img src="apps/app/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
 </p>
 
 ---
@@ -230,22 +230,22 @@ src/
 ```bash
 cd /Users/mac/daiqin/locusify
 pnpm install
+pnpm dev:app
 pnpm dev:web
 pnpm dev:backend
-pnpm dev:landing
 ```
 
-`apps/backend` and `apps/landing` both use Next's default port `3000`. To run them at the same time, start the landing page on another port:
+`apps/backend` and `apps/web` both use Next's default port `3000`. To run them at the same time, start the web landing page on another port:
 
 ```bash
-pnpm --filter @locusify/landing dev -- -p 3001
+pnpm --filter @locusify/web dev -- -p 3001
 ```
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev:web` | Start the Vite frontend |
+| `pnpm dev:app` | Start the Vite app |
+| `pnpm dev:web` | Start the Next web landing page |
 | `pnpm dev:backend` | Start the Next backend/service |
-| `pnpm dev:landing` | Start the Next landing page |
 | `pnpm build` | Build all apps |
 | `pnpm lint` | Run lint in all apps |
 | `pnpm typecheck` | Run typecheck where available |

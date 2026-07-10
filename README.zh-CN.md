@@ -36,13 +36,13 @@
 ## 产品展示
 
 <p align="center">
-  <img src="apps/web/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
+  <img src="apps/app/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
+  <img src="apps/app/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
+  <img src="apps/app/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
   &nbsp;
-  <img src="apps/web/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
+  <img src="apps/app/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
 </p>
 
 ---
@@ -228,22 +228,22 @@ src/
 ```bash
 cd /Users/mac/daiqin/locusify
 pnpm install
+pnpm dev:app
 pnpm dev:web
 pnpm dev:backend
-pnpm dev:landing
 ```
 
-`apps/backend` 和 `apps/landing` 都使用 Next 默认端口 `3000`。如需同时启动，可以把 landing 临时切到另一个端口：
+`apps/backend` 和 `apps/web` 都使用 Next 默认端口 `3000`。如需同时启动，可以把 Web 首页临时切到另一个端口：
 
 ```bash
-pnpm --filter @locusify/landing dev -- -p 3001
+pnpm --filter @locusify/web dev -- -p 3001
 ```
 
 | 命令 | 说明 |
 |------|------|
-| `pnpm dev:web` | 启动 Vite 前端 |
+| `pnpm dev:app` | 启动 Vite 应用 |
+| `pnpm dev:web` | 启动 Next Web 首页 |
 | `pnpm dev:backend` | 启动 Next 后端/服务 |
-| `pnpm dev:landing` | 启动 Next 首页 |
 | `pnpm build` | 构建所有应用 |
 | `pnpm lint` | 运行所有应用的 lint |
 | `pnpm typecheck` | 对有类型检查脚本的应用运行 typecheck |
@@ -259,7 +259,7 @@ pnpm --filter @locusify/landing dev -- -p 3001
 ## 支持我们
 
 <p>
-  <img src="apps/web/public/support/wechat.jpg" alt="微信赞赏" width="200" />
+  <img src="apps/app/public/support/wechat.jpg" alt="微信赞赏" width="200" />
   &nbsp;&nbsp;
-  <img src="apps/web/public/support/alipay.jpg" alt="支付宝赞赏" width="200" />
+  <img src="apps/app/public/support/alipay.jpg" alt="支付宝赞赏" width="200" />
 </p>

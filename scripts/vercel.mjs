@@ -5,9 +5,9 @@ import { Vercel } from '@vercel/sdk'
 
 const APPS = [
   {
-    key: 'web',
-    projectIdEnv: 'VERCEL_PROJECT_ID_WEB',
-    rootDirectory: 'apps/web',
+    key: 'app',
+    projectIdEnv: 'VERCEL_PROJECT_ID_APP',
+    rootDirectory: 'apps/app',
     framework: 'vite',
   },
   {
@@ -17,9 +17,9 @@ const APPS = [
     framework: 'nextjs',
   },
   {
-    key: 'landing',
-    projectIdEnv: 'VERCEL_PROJECT_ID_LANDING',
-    rootDirectory: 'apps/landing',
+    key: 'web',
+    projectIdEnv: 'VERCEL_PROJECT_ID_WEB',
+    rootDirectory: 'apps/web',
     framework: 'nextjs',
   },
 ]
