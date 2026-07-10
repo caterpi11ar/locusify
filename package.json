@@ -10,12 +10,16 @@
     "dev:landing": "pnpm --filter @locusify/landing dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r --if-present typecheck"
+    "typecheck": "pnpm -r --if-present typecheck",
+    "vercel:check": "node scripts/vercel.mjs check",
+    "vercel:status": "node scripts/vercel.mjs status",
+    "vercel:list": "node scripts/vercel.mjs list"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.7.3",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
+    "@vercel/sdk": "^1.19.40",
     "eslint": "^9",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0"

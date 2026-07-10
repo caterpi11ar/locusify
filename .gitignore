@@ -10,6 +10,7 @@ build/
 # Local environment and machine files
 .env
 .env.*
+!/.env.example
 .DS_Store
 *.tsbuildinfo
 

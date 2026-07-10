@@ -14,5 +14,6 @@ export default antfu({
     'eslint-comments/no-duplicate-disable': 'off',
     'antfu/no-top-level-await': 'off',
     'e18e/prefer-static-regex': 'off',
+    'pnpm/json-enforce-catalog': 'off',
   },
 })
