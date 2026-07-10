@@ -36,13 +36,13 @@
 ## 产品展示
 
 <p align="center">
-  <img src="apps/app/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
+  <img src="packages/app/public/screenshots/02-hero-zh-1125x2436.png" alt="Locusify 主打" width="160" />
   &nbsp;
-  <img src="apps/app/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
+  <img src="packages/app/public/screenshots/04-route-zh-1125x2436.png" alt="Locusify 路线地图" width="160" />
   &nbsp;
-  <img src="apps/app/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
+  <img src="packages/app/public/screenshots/06-vlog-zh-1125x2436.png" alt="Locusify Vlog" width="160" />
   &nbsp;
-  <img src="apps/app/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
+  <img src="packages/app/public/screenshots/08-more-zh-1125x2436.png" alt="Locusify 更多功能" width="160" />
 </p>
 
 ---
@@ -233,7 +233,7 @@ pnpm dev:web
 pnpm dev:backend
 ```
 
-`apps/backend` 和 `apps/web` 都使用 Next 默认端口 `3000`。如需同时启动，可以把 Web 首页临时切到另一个端口：
+`packages/backend` 和 `packages/web` 都使用 Next 默认端口 `3000`。如需同时启动，可以把 Web 首页临时切到另一个端口：
 
 ```bash
 pnpm --filter @locusify/web dev -- -p 3001
@@ -259,7 +259,7 @@ pnpm --filter @locusify/web dev -- -p 3001
 ## 支持我们
 
 <p>
-  <img src="apps/app/public/support/wechat.jpg" alt="微信赞赏" width="200" />
+  <img src="packages/app/public/support/wechat.jpg" alt="微信赞赏" width="200" />
   &nbsp;&nbsp;
-  <img src="apps/app/public/support/alipay.jpg" alt="支付宝赞赏" width="200" />
+  <img src="packages/app/public/support/alipay.jpg" alt="支付宝赞赏" width="200" />
 </p>

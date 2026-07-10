@@ -7,19 +7,19 @@ const APPS = [
   {
     key: 'app',
     projectIdEnv: 'VERCEL_PROJECT_ID_APP',
-    rootDirectory: 'apps/app',
+    rootDirectory: 'packages/app',
     framework: 'vite',
   },
   {
     key: 'backend',
     projectIdEnv: 'VERCEL_PROJECT_ID_BACKEND',
-    rootDirectory: 'apps/backend',
+    rootDirectory: 'packages/backend',
     framework: 'nextjs',
   },
   {
     key: 'web',
     projectIdEnv: 'VERCEL_PROJECT_ID_WEB',
-    rootDirectory: 'apps/web',
+    rootDirectory: 'packages/web',
     framework: 'nextjs',
   },
 ]
