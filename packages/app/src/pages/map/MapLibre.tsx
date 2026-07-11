@@ -12,6 +12,7 @@ import { useRegionStore } from '@/stores/regionStore'
 
 import { useReplayStore } from '@/stores/replayStore'
 import { clusterMarkers } from './clustering'
+import { CurrentLocationMarker } from './components/CurrentLocationMarker'
 import { EarthZoomController } from './components/EarthZoomController'
 import { GeoJsonLayer } from './components/GeoJsonLayer'
 import { GlobeOrbitController } from './components/GlobeOrbitController'
@@ -29,6 +30,11 @@ import { calculateMapBounds, calculateZoomFromBounds } from './utils'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const MAP_STYLE: CSSProperties = { width: '100%', height: '100%', position: 'relative', zIndex: 10 }
+
+interface CurrentLocation {
+  longitude: number
+  latitude: number
+}
 
 export interface PureMaplibreProps {
   id?: string
@@ -83,6 +89,7 @@ export function Maplibre({
   const [viewState, setViewState] = useState(initialViewState)
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [hasInitialFitCompleted, setHasInitialFitCompleted] = useState(false)
+  const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null)
 
   // Get user's geolocation on mount to set initial view
   useEffect(() => {
@@ -92,6 +99,7 @@ export function Maplibre({
       maximumAge: 60000,
     }).then((position) => {
       const { longitude, latitude } = position.coords
+      setCurrentLocation({ longitude, latitude })
       setViewState({
         longitude,
         latitude,
@@ -102,6 +110,11 @@ export function Maplibre({
       console.warn('Geolocation error:', error)
     })
   }, [])
+
+  const handleGeolocate = useCallback((longitude: number, latitude: number) => {
+    setCurrentLocation({ longitude, latitude })
+    onGeolocate?.(longitude, latitude)
+  }, [onGeolocate])
 
   // Handle marker click - only call the external callback
   const handleMarkerClick = useCallback(
@@ -326,6 +339,8 @@ export function Maplibre({
     }
   }, [isFragmentMode, isMapLoaded, earthZoomActive])
 
+  const shouldShowCurrentLocation = !!currentLocation && !isReplayMode && !isOrbiting && !earthZoomActive
+
   return (
     <div className={`${className} relative`} style={style}>
       <StarfieldCanvas />
@@ -349,7 +364,7 @@ export function Maplibre({
         maxZoom={isFragmentMode ? 5 : 22}
       >
         {/* Map Controls — hidden during replay (camera follows automatically) */}
-        {!isReplayMode && !isOrbiting && <MapControls onGeolocate={onGeolocate} />}
+        {!isReplayMode && !isOrbiting && <MapControls onGeolocate={handleGeolocate} />}
 
         {/* Region Fill Layer — country photo fills (below markers) */}
         <RegionFillLayer />
@@ -374,6 +389,14 @@ export function Maplibre({
 
         {/* GeoJSON Layer */}
         {geoJsonData && <GeoJsonLayer data={geoJsonData} />}
+
+        {/* Current Location Marker */}
+        {shouldShowCurrentLocation && (
+          <CurrentLocationMarker
+            longitude={currentLocation.longitude}
+            latitude={currentLocation.latitude}
+          />
+        )}
 
         {/* Trajectory Replay Layers */}
         {isReplayMode && (
