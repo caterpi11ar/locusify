@@ -1,5 +1,6 @@
 import type { PendingVideo } from '@/hooks/useVideoRecorder'
 import { m } from 'motion/react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatFileSize } from '@/lib/formatters'
 import { cn, glassPanel } from '@/lib/utils'
@@ -14,10 +15,28 @@ interface SaveVideoDialogProps {
 
 export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress, onSave, onDiscard }: SaveVideoDialogProps) {
   const { t } = useTranslation()
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewUnsupported, setPreviewUnsupported] = useState(false)
+
+  useEffect(() => {
+    setPreviewUnsupported(false)
+
+    if (!pendingVideo) {
+      setPreviewUrl(null)
+      return
+    }
+
+    const url = URL.createObjectURL(pendingVideo.blob)
+    setPreviewUrl(url)
+
+    return () => {
+      URL.revokeObjectURL(url)
+    }
+  }, [pendingVideo])
 
   return (
     <m.div
-      className="absolute inset-0 z-50 flex items-center justify-center"
+      className="absolute inset-0 z-50 flex items-center justify-center px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -28,7 +47,7 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress
 
       {/* Card */}
       <m.div
-        className={cn(glassPanel, 'relative w-72 overflow-hidden sm:w-80')}
+        className={cn(glassPanel, 'relative w-full max-w-[720px] overflow-hidden')}
         initial={{ scale: 0.92, y: 12 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.92, y: 12 }}
@@ -56,6 +75,27 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress
             )}
           </div>
         </div>
+
+        {pendingVideo && previewUrl && (
+          <div className="px-4 pb-4">
+            <div className="bg-fill-secondary/60 relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10">
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                className="size-full bg-black object-contain"
+                onError={() => setPreviewUnsupported(true)}
+              >
+                <source src={previewUrl} type={pendingVideo.mimeType} />
+              </video>
+            </div>
+            {previewUnsupported && (
+              <p className="text-text-secondary mt-2 text-xs leading-relaxed">
+                {t('workspace.recording.previewUnsupported')}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Divider */}
         <div className="bg-fill-tertiary mx-4 h-px" />

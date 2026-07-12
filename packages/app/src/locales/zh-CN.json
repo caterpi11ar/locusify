@@ -102,7 +102,8 @@
   "workspace.recording.processing": "正在处理...",
   "workspace.recording.converting": "正在转换为 MP4… {{progress}}%",
   "workspace.recording.ready.title": "轨迹视频已就绪",
-  "workspace.recording.save": "保存视频",
+  "workspace.recording.previewUnsupported": "当前浏览器无法预览此视频，但你仍然可以导出文件。",
+  "workspace.recording.save": "导出",
   "workspace.recording.discard": "放弃",
 
   "workspace.status.completed": "回放完成！点击播放重新开始。",

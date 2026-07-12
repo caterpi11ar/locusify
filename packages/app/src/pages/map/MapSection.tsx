@@ -201,8 +201,15 @@ function MapSectionContent() {
   const displayMarkers = isReplayMode ? [] : markers
   const isInAnyReplay = isReplayMode || isOrbiting
 
+  const recordingViewportStyle = recordingActive
+    ? {
+        width: 'min(100dvw, calc(100dvh * 16 / 9))',
+        height: 'min(100dvh, calc(100dvw * 9 / 16))',
+      }
+    : undefined
+
   return (
-    <div className={cn('absolute size-full', recordingActive && 'bg-black')}>
+    <div className={cn('absolute size-full', recordingActive && 'flex items-center justify-center bg-black')}>
       {/* Hide menu button during active recording (intro + playback) */}
       {!recordingActive && !isRecording && !!user && (
         <MapMenuButton
@@ -294,8 +301,9 @@ function MapSectionContent() {
         ref={cropRef}
         className={cn(
           'relative overflow-hidden',
-          recordingActive ? 'mx-auto aspect-video max-h-full max-w-full' : 'size-full',
+          recordingActive ? 'shrink-0' : 'size-full',
         )}
+        style={recordingViewportStyle}
       >
         {isReplayMode && (
           <TrajectoryOverlay
