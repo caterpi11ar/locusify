@@ -149,8 +149,8 @@ Locusify validates GPS data during upload and clearly marks which photos have lo
 - [x] Subscription plans — Free, Pro, and Max tiers with redemption codes
 - [ ] Trip history — save and revisit past journeys
 - [ ] Multi-trip view — display multiple trips on a single map
-- [ ] AI transitions — intelligent scene-aware transitions between photos during trajectory replay
-- [ ] AI video generation — automatically produce cinematic travel vlogs with smart editing, pacing, and storytelling
+- [ ] Social export ratios — export replay videos in 9:16, 1:1, and 16:9 formats
+- [ ] Google Maps route import — help users add route lines when photos have missing GPS data
 - [ ] Landing page — SEO-optimized marketing page to improve search engine visibility and organic traffic
 
 ---

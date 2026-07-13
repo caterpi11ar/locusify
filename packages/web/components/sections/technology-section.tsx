@@ -1,37 +1,38 @@
-"use client";
+'use client'
 
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations } from 'next-intl'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 
 function ScrollRevealText({ text }: { text: string }) {
-  const containerRef = useRef<HTMLParagraphElement>(null);
-  const [progress, setProgress] = useState(0);
+  const containerRef = useRef<HTMLParagraphElement>(null)
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current)
+        return
 
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      const rect = containerRef.current.getBoundingClientRect()
+      const windowHeight = window.innerHeight
 
-      const startOffset = windowHeight * 0.9;
-      const endOffset = windowHeight * 0.1;
+      const startOffset = windowHeight * 0.9
+      const endOffset = windowHeight * 0.1
 
-      const totalDistance = startOffset - endOffset;
-      const currentPosition = startOffset - rect.top;
+      const totalDistance = startOffset - endOffset
+      const currentPosition = startOffset - rect.top
 
-      const newProgress = Math.max(0, Math.min(1, currentPosition / totalDistance));
-      setProgress(newProgress);
-    };
+      const newProgress = Math.max(0, Math.min(1, currentPosition / totalDistance))
+      setProgress(newProgress)
+    }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
-  const words = text.includes("|") ? text.split("|") : text.split(" ");
+  const words = text.includes('|') ? text.split('|') : text.split(' ')
 
   return (
     <p
@@ -39,88 +40,71 @@ function ScrollRevealText({ text }: { text: string }) {
       className="text-3xl font-semibold leading-snug md:text-4xl lg:text-5xl"
     >
       {words.map((word, index) => {
-        const wordProgress = index / words.length;
-        const isRevealed = progress > wordProgress;
+        const wordProgress = index / words.length
+        const isRevealed = progress > wordProgress
 
         return (
           <span
             key={index}
             className="transition-colors duration-150"
             style={{
-              color: isRevealed ? "var(--foreground)" : "#e4e4e7",
+              color: isRevealed ? 'var(--foreground)' : '#e4e4e7',
             }}
           >
             {word}
           </span>
-        );
+        )
       })}
     </p>
-  );
+  )
 }
 
 export function TechnologySection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const textSectionRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [textProgress, setTextProgress] = useState(0);
-  const t = useTranslations("Technology");
+  const sectionRef = useRef<HTMLElement>(null)
+  const textSectionRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const t = useTranslations('Technology')
 
-  const descriptionText = t("content.description");
+  const descriptionText = t('content.description')
 
   const sideImages = [
-    { src: "/images/travel-tech-1.jpg", alt: t("alt.side1"), position: "left", span: 1 },
-    { src: "/images/travel-tech-2.jpg", alt: t("alt.side2"), position: "left", span: 1 },
-    { src: "/images/travel-tech-3.jpg", alt: t("alt.side3"), position: "right", span: 1 },
-    { src: "/images/travel-tech-4.jpg", alt: t("alt.side4"), position: "right", span: 1 },
-  ];
+    { src: '/images/travel-tech-1.jpg', alt: t('alt.side1'), position: 'left', span: 1 },
+    { src: '/images/travel-tech-2.jpg', alt: t('alt.side2'), position: 'left', span: 1 },
+    { src: '/images/travel-tech-3.jpg', alt: t('alt.side3'), position: 'right', span: 1 },
+    { src: '/images/travel-tech-4.jpg', alt: t('alt.side4'), position: 'right', span: 1 },
+  ]
 
-  const titleWords = [t("heading.line1"), t("heading.line2")];
+  const titleWords = [t('heading.line1'), t('heading.line2')]
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!sectionRef.current) return;
+      if (!sectionRef.current)
+        return
 
-      const rect = sectionRef.current.getBoundingClientRect();
-      const scrollableHeight = window.innerHeight * 2;
-      const scrolled = -rect.top;
-      const progress = Math.max(0, Math.min(1, scrolled / scrollableHeight));
+      const rect = sectionRef.current.getBoundingClientRect()
+      const scrollableHeight = window.innerHeight * 2
+      const scrolled = -rect.top
+      const progress = Math.max(0, Math.min(1, scrolled / scrollableHeight))
 
-      setScrollProgress(progress);
+      setScrollProgress(progress)
+    }
 
-      if (textSectionRef.current) {
-        const textRect = textSectionRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-
-        const startOffset = windowHeight * 0.9;
-        const endOffset = windowHeight * 0.1;
-
-        const totalDistance = startOffset - endOffset;
-        const currentPosition = startOffset - textRect.top;
-
-        const newTextProgress = Math.max(0, Math.min(1, currentPosition / totalDistance));
-        setTextProgress(newTextProgress);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
-  const titleOpacity = Math.max(0, 1 - (scrollProgress / 0.2));
-  const imageProgress = Math.max(0, Math.min(1, (scrollProgress - 0.2) / 0.8));
-  const centerWidth = 100 - (imageProgress * 58);
-  const centerHeight = 100 - (imageProgress * 30);
-  const sideWidth = imageProgress * 22;
-  const sideOpacity = imageProgress;
-  const sideTranslateLeft = -100 + (imageProgress * 100);
-  const sideTranslateRight = 100 - (imageProgress * 100);
-  const borderRadius = imageProgress * 24;
-  const gap = imageProgress * 16;
-  const grayscaleAmount = Math.round((1 - textProgress) * 100);
+  const imageProgress = Math.max(0, Math.min(1, (scrollProgress - 0.2) / 0.8))
+  const centerWidth = 100 - (imageProgress * 58)
+  const sideWidth = imageProgress * 22
+  const sideOpacity = imageProgress
+  const sideTranslateLeft = -100 + (imageProgress * 100)
+  const sideTranslateRight = 100 - (imageProgress * 100)
+  const borderRadius = imageProgress * 24
+  const gap = imageProgress * 16
 
   return (
     <section id="technology" ref={sectionRef} className="relative bg-foreground">
@@ -139,13 +123,13 @@ export function TechnologySection() {
                 opacity: sideOpacity,
               }}
             >
-              {sideImages.filter(img => img.position === "left").map((img, idx) => (
+              {sideImages.filter(img => img.position === 'left').map((img, idx) => (
                 <div
                   key={idx}
                   className="relative overflow-hidden will-change-transform"
                   style={{ flex: img.span, borderRadius: `${borderRadius}px` }}
                 >
-                  <Image src={img.src || "/placeholder.svg"} alt={img.alt} fill className="object-cover" sizes="22vw" />
+                  <Image src={img.src || '/placeholder.svg'} alt={img.alt} fill className="object-cover" sizes="22vw" />
                 </div>
               ))}
             </div>
@@ -154,14 +138,14 @@ export function TechnologySection() {
               className="relative overflow-hidden will-change-transform"
               style={{
                 width: `${centerWidth}%`,
-                height: "100%",
-                flex: "0 0 auto",
+                height: '100%',
+                flex: '0 0 auto',
                 borderRadius: `${borderRadius}px`,
               }}
             >
               <Image
                 src="/images/travel-tech-main.jpg"
-                alt={t("alt.main")}
+                alt={t('alt.main')}
                 fill
                 className="object-cover"
                 sizes="100vw"
@@ -171,11 +155,11 @@ export function TechnologySection() {
               <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
                 <h2 className="max-w-3xl font-medium leading-tight tracking-tight text-white md:text-5xl lg:text-7xl text-5xl">
                   {titleWords.map((word, index) => {
-                    const wordFadeStart = index * 0.1;
-                    const wordFadeEnd = wordFadeStart + 0.1;
-                    const wordProgress = Math.max(0, Math.min(1, (scrollProgress - wordFadeStart) / (wordFadeEnd - wordFadeStart)));
-                    const wordOpacity = 1 - wordProgress;
-                    const wordBlur = wordProgress * 10;
+                    const wordFadeStart = index * 0.1
+                    const wordFadeEnd = wordFadeStart + 0.1
+                    const wordProgress = Math.max(0, Math.min(1, (scrollProgress - wordFadeStart) / (wordFadeEnd - wordFadeStart)))
+                    const wordOpacity = 1 - wordProgress
+                    const wordBlur = wordProgress * 10
 
                     return (
                       <span
@@ -190,7 +174,7 @@ export function TechnologySection() {
                         {word}
                         {index === 0 && <br />}
                       </span>
-                    );
+                    )
                   })}
                 </h2>
               </div>
@@ -205,13 +189,13 @@ export function TechnologySection() {
                 opacity: sideOpacity,
               }}
             >
-              {sideImages.filter(img => img.position === "right").map((img, idx) => (
+              {sideImages.filter(img => img.position === 'right').map((img, idx) => (
                 <div
                   key={idx}
                   className="relative overflow-hidden will-change-transform"
                   style={{ flex: img.span, borderRadius: `${borderRadius}px` }}
                 >
-                  <Image src={img.src || "/placeholder.svg"} alt={img.alt} fill className="object-cover" sizes="22vw" />
+                  <Image src={img.src || '/placeholder.svg'} alt={img.alt} fill className="object-cover" sizes="22vw" />
                 </div>
               ))}
             </div>
@@ -230,5 +214,5 @@ export function TechnologySection() {
         </div>
       </div>
     </section>
-  );
+  )
 }

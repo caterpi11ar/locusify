@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import { Link } from '@/i18n/navigation'
 
 export default function NotFound() {
   return (
@@ -25,5 +25,5 @@ export default function NotFound() {
         </a>
       </div>
     </div>
-  );
+  )
 }

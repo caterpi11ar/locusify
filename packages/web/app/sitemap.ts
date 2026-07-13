@@ -1,17 +1,17 @@
-import type { MetadataRoute } from "next";
-import { getAllBlogPosts, getAllBlogTopics } from "@/lib/blog";
+import type { MetadataRoute } from 'next'
+import { getAllBlogPosts, getAllBlogTopics } from '@/lib/blog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://app.locusify.cn";
-  const now = new Date();
-  const posts = getAllBlogPosts();
-  const topics = getAllBlogTopics();
+  const baseUrl = 'https://app.locusify.cn'
+  const now = new Date()
+  const posts = getAllBlogPosts()
+  const topics = getAllBlogTopics()
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 1,
       alternates: {
         languages: {
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/en`,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 0.9,
       alternates: {
         languages: {
@@ -35,7 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/blog`,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 0.8,
       alternates: {
         languages: {
@@ -47,7 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/en/blog`,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 0.7,
       alternates: {
         languages: {
@@ -56,15 +56,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
-  ];
+  ]
 
   const postRoutes: MetadataRoute.Sitemap = posts.flatMap((post) => {
-    const lastModified = new Date(post.date);
+    const lastModified = new Date(post.date)
     return [
       {
         url: `${baseUrl}/blog/${post.slug}`,
         lastModified,
-        changeFrequency: "monthly",
+        changeFrequency: 'monthly',
         priority: 0.7,
         alternates: {
           languages: {
@@ -76,7 +76,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       {
         url: `${baseUrl}/en/blog/${post.slug}`,
         lastModified,
-        changeFrequency: "monthly",
+        changeFrequency: 'monthly',
         priority: 0.6,
         alternates: {
           languages: {
@@ -85,14 +85,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
           },
         },
       },
-    ];
-  });
+    ]
+  })
 
-  const topicRoutes: MetadataRoute.Sitemap = topics.flatMap((topic) => [
+  const topicRoutes: MetadataRoute.Sitemap = topics.flatMap(topic => [
     {
       url: `${baseUrl}/blog/topic/${topic}`,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 0.75,
       alternates: {
         languages: {
@@ -104,7 +104,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/en/blog/topic/${topic}`,
       lastModified: now,
-      changeFrequency: "weekly",
+      changeFrequency: 'weekly',
       priority: 0.7,
       alternates: {
         languages: {
@@ -113,7 +113,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
-  ]);
+  ])
 
-  return [...staticRoutes, ...postRoutes, ...topicRoutes];
+  return [...staticRoutes, ...postRoutes, ...topicRoutes]
 }
