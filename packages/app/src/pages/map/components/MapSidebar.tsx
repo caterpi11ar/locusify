@@ -8,6 +8,7 @@ import {
   Share2,
   Upload,
 } from 'lucide-react'
+import { AnimatePresence, m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import {
   Tooltip,
@@ -30,15 +31,18 @@ interface MapSidebarProps {
   onPricingClick: () => void
   onLogout?: () => void
   routesDisabled?: boolean
+  showUploadHint?: boolean
 }
 
 interface SidebarItemProps {
+  disabled?: boolean
+  expanded: boolean
   icon: LucideIcon
   label: string
-  expanded: boolean
-  onClick: () => void
-  disabled?: boolean
+  hintLabel?: string
   onboardingTarget?: string
+  onClick: () => void
+  showHint?: boolean
 }
 
 export function MapSidebar({
@@ -50,6 +54,7 @@ export function MapSidebar({
   onPricingClick,
   onLogout,
   routesDisabled,
+  showUploadHint,
 }: MapSidebarProps) {
   const { t } = useTranslation()
   const expanded = useSettingsStore(s => s.mapSidebarExpanded)
@@ -62,7 +67,9 @@ export function MapSidebar({
       label: t('menu.upload', { defaultValue: 'Upload Photos' }),
       onClick: onUploadClick,
       expanded,
+      hintLabel: t('menu.upload.hint', { defaultValue: 'Upload GPS photos to begin' }),
       onboardingTarget: 'upload',
+      showHint: showUploadHint,
     },
     {
       icon: Route,
@@ -100,7 +107,7 @@ export function MapSidebar({
 
         <nav
           className={cn(
-            'flex min-h-0 flex-1 flex-col gap-px overflow-hidden px-1',
+            'flex min-h-0 flex-1 flex-col gap-px overflow-visible px-1',
           )}
         >
           {items.map(item => (
@@ -153,34 +160,51 @@ function UserHeader({
 function SidebarItem({
   icon: Icon,
   label,
+  hintLabel,
   expanded,
   onClick,
   disabled,
   onboardingTarget,
+  showHint,
 }: SidebarItemProps) {
   const button = (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      data-onboarding={onboardingTarget}
-      aria-label={label}
-      className={cn(
-        'group flex h-9 min-w-8 select-none items-center overflow-hidden rounded-lg text-sm transition-colors',
-        expanded ? 'gap-2' : 'w-full justify-center',
-        disabled
-          ? 'cursor-not-allowed text-text/25'
-          : 'cursor-pointer text-text/55 hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary',
-      )}
-      style={expanded ? { paddingLeft: 4 } : undefined}
-    >
-      <span className="flex size-7 flex-none items-center justify-center">
-        <Icon className="size-4" />
-      </span>
-      {expanded
-        ? <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-        : <span className="sr-only">{label}</span>}
-    </button>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        data-onboarding={onboardingTarget}
+        aria-label={label}
+        className={cn(
+          'group flex h-9 min-w-8 select-none items-center overflow-hidden rounded-lg text-sm transition-colors',
+          expanded ? 'gap-2' : 'w-full justify-center',
+          disabled
+            ? 'cursor-not-allowed text-text/25'
+            : 'cursor-pointer text-text/55 hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary',
+        )}
+        style={expanded ? { paddingLeft: 4 } : undefined}
+      >
+        <span className="flex size-7 flex-none items-center justify-center">
+          <Icon className="size-4" />
+        </span>
+        {expanded
+          ? <span className="min-w-0 flex-1 truncate text-left">{label}</span>
+          : <span className="sr-only">{label}</span>}
+      </button>
+      <AnimatePresence>
+        {showHint && (
+          <m.div
+            className="absolute top-1/2 left-full z-100 ml-2 -translate-y-1/2 whitespace-nowrap rounded-xl bg-black/80 px-3 py-1.5 text-xs text-white backdrop-blur-sm"
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            {hintLabel ?? label}
+          </m.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 
   if (expanded)

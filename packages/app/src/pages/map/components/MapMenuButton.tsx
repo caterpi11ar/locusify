@@ -36,6 +36,8 @@ interface MapMenuButtonProps {
   isRecording?: boolean
   /** Whether recorded video is being processed */
   isProcessing?: boolean
+  /** Whether to show the upload entry hint */
+  showUploadHint?: boolean
 }
 
 /**
@@ -54,18 +56,13 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
   onExitReplay,
   isRecording,
   isProcessing,
+  showUploadHint,
 }) => {
   const { t } = useTranslation()
   const { shareLink } = useWebShare()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showRoutesHint, setShowRoutesHint] = useState(false)
-  const [showUploadHint, setShowUploadHint] = useState(false)
   const prevRoutesDisabled = useRef(routesDisabled)
-
-  // Show upload hint tooltip on mount until user clicks upload
-  useEffect(() => {
-    setShowUploadHint(true)
-  }, [])
 
   // Show hint tooltip when routes button first becomes available, until user clicks it
   useEffect(() => {
@@ -80,7 +77,6 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       icon: 'i-mingcute-add-line',
       label: t('menu.upload', { defaultValue: 'Upload Photos' }),
       onClick: () => {
-        setShowUploadHint(false)
         onUploadClick?.()
       },
     },
@@ -274,7 +270,6 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
             <button
               type="button"
               onClick={() => {
-                setShowUploadHint(false)
                 onUploadClick?.()
               }}
               className="group hover:bg-red/10 active:bg-red/20 relative flex size-10 items-center justify-center transition-colors"

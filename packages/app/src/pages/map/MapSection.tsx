@@ -90,6 +90,7 @@ function MapSectionContent() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [pricingOpen, setPricingOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
+  const [showUploadHint, setShowUploadHint] = useState(true)
   const [loginDrawerOpen, setLoginDrawerOpen] = useState(() => !user)
   const [announcementOpen, setAnnouncementOpen] = useState(
     () => localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) !== ANNOUNCEMENT_VERSION,
@@ -158,6 +159,12 @@ function MapSectionContent() {
     localStorage.setItem(GUIDE_STORAGE_KEY, 'true')
     setGuideOpen(false)
   }, [])
+
+  const handleUploadClick = useCallback(() => {
+    setShowUploadHint(false)
+    setUploadDrawerOpen(true)
+    handleDismissGuide()
+  }, [handleDismissGuide])
 
   const handleDismissFeedback = useCallback(() => {
     localStorage.setItem(FEEDBACK_STORAGE_KEY, String(Date.now()))
@@ -229,10 +236,8 @@ function MapSectionContent() {
       {/* Hide menu button during active recording (intro + playback) */}
       {!recordingActive && !isRecording && !!user && (
         <MapMenuButton
-          onUploadClick={() => {
-            setUploadDrawerOpen(true)
-            handleDismissGuide()
-          }}
+          onUploadClick={handleUploadClick}
+          showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
           onSettingsClick={() => setSettingsOpen(true)}
           onPricingClick={() => setPricingOpen(true)}
@@ -248,10 +253,8 @@ function MapSectionContent() {
 
       {showDesktopSidebar && (
         <MapSidebar
-          onUploadClick={() => {
-            setUploadDrawerOpen(true)
-            handleDismissGuide()
-          }}
+          onUploadClick={handleUploadClick}
+          showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
           onSettingsClick={() => setSettingsOpen(true)}
           onPricingClick={() => setPricingOpen(true)}
