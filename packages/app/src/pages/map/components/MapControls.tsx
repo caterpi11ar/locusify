@@ -58,9 +58,9 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
 
   return (
     <m.div
-      className="absolute bottom-4 left-2 z-40 flex flex-col gap-2 sm:left-4 sm:gap-3"
-      style={{ paddingBottom: 'var(--safe-area-bottom)', paddingLeft: 'var(--safe-area-left)' }}
-      initial={{ opacity: 0, x: -20 }}
+      className="absolute right-2 bottom-3 z-40 flex flex-col gap-2 sm:right-4 sm:bottom-4 sm:gap-3"
+      style={{ paddingBottom: 'var(--safe-area-bottom)', paddingRight: 'var(--safe-area-right)' }}
+      initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
     >

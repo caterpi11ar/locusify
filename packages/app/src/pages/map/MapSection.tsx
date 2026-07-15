@@ -2,12 +2,15 @@ import type { MapLayerMouseEvent, MapRef } from 'react-map-gl/maplibre'
 import type { PhotoMarker } from '@/types/map'
 import { AnimatePresence, m } from 'motion/react'
 import { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { LoginButton, LoginDrawer } from '@/components/auth'
+import { useTranslation } from 'react-i18next'
+import { LoginDrawer } from '@/components/auth'
 import { FeedbackDialog } from '@/components/feedback'
+import { PricingDrawer } from '@/components/pricing'
 import { SelectPhotosDrawer } from '@/components/upload'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
 import { useRegionPhotoMapping } from '@/hooks/useRegionPhotoMapping'
+import { useWebShare } from '@/hooks/useWebShare'
 import { cn } from '@/lib/utils'
 import { SettingsDrawer } from '@/pages/settings'
 import { useAuthStore } from '@/stores/authStore'
@@ -20,6 +23,7 @@ import { GalleryDrawer } from './components/GalleryDrawer'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
 import { MapMenuButton } from './components/MapMenuButton'
+import { MapSidebar } from './components/MapSidebar'
 import { OnboardingGuide } from './components/OnboardingGuide'
 import { PortraitLockOverlay } from './components/replay/PortraitLockOverlay'
 import { ReplayIntroOverlay } from './components/replay/ReplayIntroOverlay'
@@ -46,6 +50,8 @@ function MapSectionContent() {
   const setSelectedMarkerId = usePhotoStore(s => s.setSelectedMarkerId)
   const mapRef = useRef<MapRef>(null)
   const cropRef = useRef<HTMLDivElement>(null)
+  const { shareLink } = useWebShare()
+  const { t } = useTranslation()
 
   // Region photo mapping — auto GPS→country matching
   useRegionPhotoMapping()
@@ -82,6 +88,7 @@ function MapSectionContent() {
 
   const [uploadDrawerOpen, setUploadDrawerOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [pricingOpen, setPricingOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [loginDrawerOpen, setLoginDrawerOpen] = useState(() => !user)
   const [announcementOpen, setAnnouncementOpen] = useState(
@@ -127,6 +134,14 @@ function MapSectionContent() {
       prepareReplay(markers)
     }
   }, [isFragmentMode, prepareReplay, markers, startOrbit])
+
+  const handleShareClick = useCallback(() => {
+    shareLink({
+      title: t('share.appTitle', { defaultValue: 'Locusify' }),
+      text: t('share.appText', { defaultValue: 'Transform your travel photos into visual route maps and cinematic vlogs' }),
+      url: 'https://app.locusify.cn/',
+    })
+  }, [shareLink, t])
 
   const handleExitReplay = useCallback(() => {
     exitReplay()
@@ -200,6 +215,7 @@ function MapSectionContent() {
   const hasEnoughPhotos = markers.length >= 2
   const displayMarkers = isReplayMode ? [] : markers
   const isInAnyReplay = isReplayMode || isOrbiting
+  const showDesktopSidebar = !recordingActive && !isRecording && !!user && !isInAnyReplay
 
   const recordingViewportStyle = recordingActive
     ? {
@@ -219,6 +235,8 @@ function MapSectionContent() {
           }}
           onRoutesClick={handleRoutesClick}
           onSettingsClick={() => setSettingsOpen(true)}
+          onPricingClick={() => setPricingOpen(true)}
+          onLogout={() => setLoginDrawerOpen(true)}
           onGalleryClick={() => setGalleryOpen(true)}
           routesDisabled={!hasEnoughPhotos && !isFragmentMode}
           isReplayMode={isInAnyReplay}
@@ -228,18 +246,31 @@ function MapSectionContent() {
         />
       )}
 
+      {showDesktopSidebar && (
+        <MapSidebar
+          onUploadClick={() => {
+            setUploadDrawerOpen(true)
+            handleDismissGuide()
+          }}
+          onRoutesClick={handleRoutesClick}
+          onSettingsClick={() => setSettingsOpen(true)}
+          onPricingClick={() => setPricingOpen(true)}
+          onLogout={() => setLoginDrawerOpen(true)}
+          onGalleryClick={() => setGalleryOpen(true)}
+          onShareClick={handleShareClick}
+          routesDisabled={!hasEnoughPhotos && !isFragmentMode}
+        />
+      )}
+
       <SelectPhotosDrawer
         open={uploadDrawerOpen}
         onOpenChange={setUploadDrawerOpen}
       />
 
       <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} onLogout={() => setLoginDrawerOpen(true)} />
+      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} />
       <GalleryDrawer open={galleryOpen} onOpenChange={setGalleryOpen} />
       <LoginDrawer open={loginDrawerOpen} onOpenChange={setLoginDrawerOpen} dismissible={!!user} />
-
-      {!isInAnyReplay && !!user && (
-        <LoginButton onClick={() => setSettingsOpen(true)} />
-      )}
 
       {isReplayMode && (
         <PortraitLockOverlay />
@@ -302,6 +333,7 @@ function MapSectionContent() {
         className={cn(
           'relative overflow-hidden',
           recordingActive ? 'shrink-0' : 'size-full',
+          showDesktopSidebar && 'sm:ml-14 sm:h-full sm:w-[calc(100%-3.5rem)]',
         )}
         style={recordingViewportStyle}
       >

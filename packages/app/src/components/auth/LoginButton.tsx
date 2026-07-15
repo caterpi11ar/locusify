@@ -12,7 +12,7 @@ export const LoginButton: FC<LoginButtonProps> = ({ onClick }) => {
 
   return (
     <m.div
-      className="absolute top-3 right-2 z-40 sm:top-4 sm:right-4"
+      className="absolute top-3 right-2 z-40 sm:hidden"
       style={{ paddingTop: 'var(--safe-area-top)', paddingRight: 'var(--safe-area-right)' }}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}

@@ -52,13 +52,12 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Spotlight — mirror MapMenuButton layout: same bottom/right/flex/gap, upload is 1st child */}
-            <div className="pointer-events-none fixed bottom-3 right-2 flex flex-col-reverse gap-2 sm:bottom-4 sm:right-4 sm:gap-3">
-              {/* Upload button position */}
-              <div className="relative size-10 sm:size-12">
+            {/* Spotlight — mobile targets the floating + button; desktop targets the sidebar upload item. */}
+            <div className="pointer-events-none fixed bottom-3 right-2 flex flex-col-reverse gap-2 sm:top-16 sm:bottom-auto sm:left-2 sm:right-auto sm:flex-col">
+              <div className="relative size-10 sm:h-10 sm:w-10">
                 {/* Shadow overlay */}
                 <m.div
-                  className="absolute -inset-1.5 rounded-2xl"
+                  className="absolute -inset-1.5 rounded-2xl sm:rounded-lg"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
@@ -66,7 +65,7 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
                 />
                 {/* Pulse ring */}
                 <m.div
-                  className="absolute -inset-1.5 rounded-2xl ring-2 ring-sky-400/80"
+                  className="absolute -inset-1.5 rounded-2xl ring-2 ring-sky-400/80 sm:rounded-lg"
                   animate={{
                     boxShadow: [
                       '0 0 0 0px rgba(56,189,248,0.4)',
@@ -80,13 +79,12 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
                   }}
                 />
               </div>
-              {/* Menu button spacer — 3rd child in MapMenuButton, sits at bottom in flex-col-reverse */}
-              <div className="size-10 sm:size-12" />
+              <div className="size-10 sm:hidden" />
             </div>
 
             {/* Step 1 card */}
             <m.div
-              className={cn(glassPanel, 'fixed right-4 bottom-24 z-20 w-72 overflow-hidden sm:right-6 sm:bottom-28 sm:w-80')}
+              className={cn(glassPanel, 'fixed right-4 bottom-24 z-20 w-72 overflow-hidden sm:left-20 sm:right-auto sm:bottom-auto sm:top-14 sm:w-80')}
               initial={{ scale: 0.92, y: 12, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.92, y: 12, opacity: 0 }}
@@ -176,8 +174,8 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Spotlight — mirror MapControls layout: bottom-left, fragment mode is last button */}
-            <div className="pointer-events-none fixed bottom-4 left-2 flex flex-col gap-2 sm:left-4 sm:gap-3">
+            {/* Spotlight — mirror MapControls layout: right side, fragment mode is last button */}
+            <div className="pointer-events-none fixed right-2 bottom-28 flex flex-col gap-2 sm:right-4 sm:bottom-4 sm:gap-3">
               {/* Spacers for zoom group (2 buttons + divider) */}
               <div className="flex flex-col overflow-hidden">
                 <div className="size-10 sm:size-12" />
@@ -217,7 +215,7 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
 
             {/* Step 3 card */}
             <m.div
-              className={cn(glassPanel, 'fixed left-4 bottom-24 z-20 w-72 overflow-hidden sm:left-6 sm:bottom-28 sm:w-80')}
+              className={cn(glassPanel, 'fixed right-16 bottom-40 z-20 w-72 overflow-hidden sm:right-20 sm:bottom-6 sm:w-80')}
               initial={{ scale: 0.92, y: 12, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.92, y: 12, opacity: 0 }}

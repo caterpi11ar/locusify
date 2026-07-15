@@ -19,8 +19,8 @@ export function ReplayStatsCard() {
       totalDistanceKm += haversineDistance(waypoints[i].position, waypoints[i + 1].position)
     }
 
-    const start = waypoints[0].timestamp
-    const end = waypoints[waypoints.length - 1].timestamp
+    const start = waypoints[0]!.timestamp
+    const end = waypoints.at(-1)!.timestamp
     const durationMs = end.getTime() - start.getTime()
     const durationHours = durationMs / (1000 * 60 * 60)
 

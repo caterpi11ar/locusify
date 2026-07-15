@@ -15,12 +15,12 @@ const DOT_COLOR = 'rgb(255,255,255)'
 
 function createStars(): Star[] {
   const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.2
-  return Array.from({ length: STAR_COUNT }, () => ({
+  return Array.from<Star>({ length: STAR_COUNT }).fill({
     orbitRadius: Math.random() * maxRadius,
     angle: Math.random() * Math.PI * 2,
     speed: (0.0001 + Math.random() * 0.0003) * (Math.random() < 0.5 ? 1 : -1),
     alpha: 0.2 + Math.random() * 0.8,
-  }))
+  })
 }
 
 export function StarfieldCanvas() {

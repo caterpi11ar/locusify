@@ -141,9 +141,13 @@
   "photos.added.count": "{{count}} photos added to map",
 
   "menu.gallery": "My Photos",
+  "menu.upload": "Upload Photos",
   "menu.share": "Share",
+  "menu.expandSidebar": "Expand sidebar",
+  "menu.collapseSidebar": "Collapse sidebar",
   "menu.linkCopied": "Link copied to clipboard",
   "menu.upload.hint": "Upload GPS photos to begin",
+  "userPanel.getApp": "Get App",
   "gallery.empty.title": "No photos yet",
   "gallery.empty.description": "Upload photos with GPS to see them here",
   "gallery.photo.count": "{{count}} photos",
@@ -294,7 +298,7 @@
   "map.contextMenu.addPhotos": "Add",
 
   "guide.step1.title": "Upload Photos",
-  "guide.step1.description": "Tap the + button in the bottom-right corner to add GPS-tagged photos to the map",
+  "guide.step1.description": "Use the upload entry to add GPS-tagged photos to the map",
   "guide.step2.title": "Quick Add Photos",
   "guide.step2.description.desktop": "You can also right-click anywhere on the map to quickly add photos to that spot",
   "guide.step2.description.mobile": "You can also long-press anywhere on the map to quickly add photos to that spot",

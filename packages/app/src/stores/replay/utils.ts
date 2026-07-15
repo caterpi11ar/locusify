@@ -30,7 +30,7 @@ export function computePosition(
   if (waypoints.length === 0)
     return null
   if (waypointIndex >= waypoints.length - 1) {
-    return waypoints[waypoints.length - 1].position
+    return waypoints.at(-1)!.position
   }
 
   const seg = segments[waypointIndex]
@@ -43,19 +43,19 @@ export function computePosition(
     const frac = exactIdx - idx
 
     if (idx >= totalPoints) {
-      return seg.curvePoints[totalPoints]
+      return seg.curvePoints[totalPoints]!
     }
 
-    const p0 = seg.curvePoints[idx]
-    const p1 = seg.curvePoints[idx + 1]
+    const p0 = seg.curvePoints[idx]!
+    const p1 = seg.curvePoints[idx + 1]!
     return [
       p0[0] + (p1[0] - p0[0]) * frac,
       p0[1] + (p1[1] - p0[1]) * frac,
     ]
   }
 
-  const from = waypoints[waypointIndex].position
-  const to = waypoints[waypointIndex + 1].position
+  const from = waypoints[waypointIndex]!.position
+  const to = waypoints[waypointIndex + 1]!.position
   return [
     from[0] + (to[0] - from[0]) * t,
     from[1] + (to[1] - from[1]) * t,
@@ -65,8 +65,8 @@ export function computePosition(
 export function computeSegments(waypoints: ReplayWaypoint[]): SegmentMeta[] {
   const segments: SegmentMeta[] = []
   for (let i = 0; i < waypoints.length - 1; i++) {
-    const from = waypoints[i]
-    const to = waypoints[i + 1]
+    const from = waypoints[i]!
+    const to = waypoints[i + 1]!
     const distanceKm = haversineDistance(from.position, to.position)
     const timeDeltaMs = to.timestamp.getTime() - from.timestamp.getTime()
     const mode: TransportMode = 'walking'
