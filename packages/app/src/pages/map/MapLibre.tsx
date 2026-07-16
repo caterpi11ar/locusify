@@ -3,10 +3,10 @@ import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-g
 
 import type { PhotoMarker } from '@/types/map'
 import { useTheme } from 'next-themes'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Map from 'react-map-gl/maplibre'
 import { getCurrentPosition } from '@/lib/geolocation'
-import { computeOrbitZoom, useGlobeOrbitStore } from '@/stores/globeOrbitStore'
+import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { useMapStore } from '@/stores/mapStore'
 import { useRegionStore } from '@/stores/regionStore'
 
@@ -25,11 +25,12 @@ import { TrajectoryLineLayer } from './components/TrajectoryLineLayer'
 import { WaypointDot } from './components/WaypointDot'
 import MapStyleDark from './MapLibreStyleDark.json'
 import MapStyleLight from './MapLibreStyleLight.json'
-import { calculateMapBounds, calculateZoomFromBounds } from './utils'
+import { calculateMapBounds, calculateZoomFromBounds, getFragmentModeForZoom } from './utils'
 // Styles
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const MAP_STYLE: CSSProperties = { width: '100%', height: '100%', position: 'relative', zIndex: 10 }
+const MAP_SKY = { 'atmosphere-blend': 0 }
 
 interface CurrentLocation {
   longitude: number
@@ -82,7 +83,7 @@ export function Maplibre({
   const earthZoomPhase = useReplayStore(s => s.earthZoomPhase)
   const isOrbiting = useGlobeOrbitStore(s => s.isOrbiting)
   const isFragmentMode = useRegionStore(s => s.isFragmentMode)
-  const setPreviousViewState = useRegionStore(s => s.setPreviousViewState)
+  const updateFragmentMode = useRegionStore(s => s.updateFragmentMode)
   const registerMap = useMapStore(s => s.registerMap)
   const unregisterMap = useMapStore(s => s.unregisterMap)
   const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom)
@@ -90,6 +91,13 @@ export function Maplibre({
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [hasInitialFitCompleted, setHasInitialFitCompleted] = useState(false)
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null)
+  const earthZoomActive = earthZoomPhase !== 'idle' && earthZoomPhase !== 'done'
+
+  const syncFragmentModeFromZoom = useCallback((zoom: number) => {
+    updateFragmentMode(
+      getFragmentModeForZoom(zoom, useRegionStore.getState().isFragmentMode),
+    )
+  }, [updateFragmentMode])
 
   // Get user's geolocation on mount to set initial view
   useEffect(() => {
@@ -250,12 +258,12 @@ export function Maplibre({
     setIsMapLoaded(true)
     if (mapRef?.current?.getMap) {
       const map = mapRef.current.getMap()
-      map.setProjection({
-        type: 'mercator',
-      })
       registerMap(map)
+      if (!earthZoomActive) {
+        syncFragmentModeFromZoom(map.getZoom())
+      }
     }
-  }, [registerMap])
+  }, [mapRef, registerMap, earthZoomActive, syncFragmentModeFromZoom])
 
   // 组件卸载时注销 map 实例
   useEffect(() => {
@@ -274,43 +282,16 @@ export function Maplibre({
     return () => clearTimeout(timer)
   }, [fitMapToBounds])
 
-  // Fragment mode: fly to global view on enter, restore previous view on exit
-  const prevFragmentMode = useRef(isFragmentMode)
-  const viewStateRef = useRef(viewState)
-  viewStateRef.current = viewState
-  useEffect(() => {
-    if (isFragmentMode === prevFragmentMode.current)
-      return
-    prevFragmentMode.current = isFragmentMode
-
-    if (isFragmentMode) {
-      // Save current view before flying out
-      setPreviousViewState({ ...viewStateRef.current })
-      const prev = viewStateRef.current
-      const globalView = { longitude: prev.longitude, latitude: prev.latitude, zoom: computeOrbitZoom() }
-      setViewState(globalView)
-      setCurrentZoom(globalView.zoom)
-    }
-    else {
-      const saved = useRegionStore.getState().previousViewState
-      if (saved) {
-        setViewState(saved)
-        setCurrentZoom(saved.zoom)
-        setPreviousViewState(null)
-      }
-    }
-  }, [isFragmentMode, setPreviousViewState])
-
-  // Atmosphere + projection for fragment mode.
-  // setStyle (theme switch) resets projection & sky, so re-apply on style.load.
-  // Skip when earth zoom is active — EarthZoomController manages projection.
-  const earthZoomActive = earthZoomPhase !== 'idle' && earthZoomPhase !== 'done'
+  // Background for fragment mode.
+  // The Map instance is remounted when projection changes, so avoid calling
+  // setProjection here; mutating an active MapLibre projection during low-zoom
+  // gestures can leave handlers stuck.
   useEffect(() => {
     const map = mapRef?.current?.getMap()
     if (!map || !isMapLoaded)
       return
 
-    // Earth zoom controller manages projection during its active phases
+    // Earth zoom controller manages projection/background during its active phases.
     if (earthZoomActive)
       return
 
@@ -319,14 +300,10 @@ export function Maplibre({
       const container = map.getContainer()
 
       if (isFragmentMode) {
-        map.setProjection({ type: 'globe' })
-        map.setSky({ 'atmosphere-blend': 0 })
         canvas.style.background = 'transparent'
         container.style.background = 'transparent'
       }
       else {
-        map.setProjection({ type: 'mercator' })
-        map.setSky({ 'atmosphere-blend': 0 })
         canvas.style.background = ''
         container.style.background = ''
       }
@@ -337,7 +314,7 @@ export function Maplibre({
     return () => {
       map.off('style.load', apply)
     }
-  }, [isFragmentMode, isMapLoaded, earthZoomActive])
+  }, [mapRef, isFragmentMode, isMapLoaded, earthZoomActive])
 
   const shouldShowCurrentLocation = !!currentLocation && !isReplayMode && !isOrbiting && !earthZoomActive
 
@@ -345,11 +322,14 @@ export function Maplibre({
     <div className={`${className} relative`} style={style}>
       <StarfieldCanvas />
       <Map
+        key={isFragmentMode ? 'fragment-globe' : 'street-mercator'}
         id={id}
         ref={mapRef}
         {...viewState}
         style={MAP_STYLE}
         mapStyle={mapStyle}
+        projection={isFragmentMode ? 'globe' : 'mercator'}
+        sky={MAP_SKY}
         attributionControl={false}
         canvasContextAttributes={{ preserveDrawingBuffer: true }}
         interactiveLayerIds={geoJsonData ? ['data'] : undefined}
@@ -357,11 +337,17 @@ export function Maplibre({
         onContextMenu={onContextMenu}
         onLoad={handleMapLoad}
         onMove={(evt) => {
-          setCurrentZoom(evt.viewState.zoom)
-          setViewState(evt.viewState)
+          const nextViewState = evt.viewState
+          setCurrentZoom(nextViewState.zoom)
+          setViewState(nextViewState)
         }}
-        minZoom={isOrbiting ? 0.5 : earthZoomActive ? 0 : isFragmentMode ? 1 : 0}
-        maxZoom={isFragmentMode ? 5 : 22}
+        onMoveEnd={(evt) => {
+          if (!earthZoomActive) {
+            syncFragmentModeFromZoom(evt.viewState.zoom)
+          }
+        }}
+        minZoom={isOrbiting ? 0.5 : 0}
+        maxZoom={22}
       >
         {/* Map Controls — hidden during replay (camera follows automatically) */}
         {!isReplayMode && !isOrbiting && <MapControls onGeolocate={handleGeolocate} />}

@@ -9,7 +9,6 @@ interface RegionState {
   isLoading: boolean
   // Fragment mode
   isFragmentMode: boolean
-  previousViewState: { longitude: number, latitude: number, zoom: number } | null
 
   loadBoundaries: () => Promise<void>
   assignPhotoToRegion: (
@@ -20,9 +19,7 @@ interface RegionState {
   ) => void
   removePhotoFromRegion: (regionId: string) => void
   clearAllRegions: () => void
-  toggleFragmentMode: () => void
-  setFragmentMode: (enabled: boolean) => void
-  setPreviousViewState: (vs: { longitude: number, latitude: number, zoom: number } | null) => void
+  updateFragmentMode: (enabled: boolean) => void
 }
 
 export const useRegionStore = create<RegionState>((set, get) => ({
@@ -30,7 +27,6 @@ export const useRegionStore = create<RegionState>((set, get) => ({
   boundaryData: null,
   isLoading: false,
   isFragmentMode: false,
-  previousViewState: null,
 
   loadBoundaries: async () => {
     if (get().boundaryData)
@@ -66,15 +62,9 @@ export const useRegionStore = create<RegionState>((set, get) => ({
     set({ regionPhotos: new Map() })
   },
 
-  toggleFragmentMode: () => {
-    set(state => ({ isFragmentMode: !state.isFragmentMode }))
-  },
-
-  setFragmentMode: (enabled) => {
+  updateFragmentMode: (enabled) => {
+    if (get().isFragmentMode === enabled)
+      return
     set({ isFragmentMode: enabled })
-  },
-
-  setPreviousViewState: (vs) => {
-    set({ previousViewState: vs })
   },
 }))

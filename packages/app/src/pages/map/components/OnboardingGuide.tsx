@@ -174,19 +174,10 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Spotlight — mirror MapControls layout: right side, fragment mode is last button */}
-            <div className="pointer-events-none fixed right-2 bottom-28 flex flex-col gap-2 sm:right-4 sm:bottom-4 sm:gap-3">
-              {/* Spacers for zoom group (2 buttons + divider) */}
-              <div className="flex flex-col overflow-hidden">
-                <div className="size-10 sm:size-12" />
-                <div className="size-10 sm:size-12" />
-              </div>
-              {/* Compass spacer */}
-              <div className="size-10 sm:size-12" />
-              {/* Geolocate spacer */}
-              <div className="size-10 sm:size-12" />
-              {/* Fragment mode button position */}
-              <div className="relative size-10 sm:size-12">
+            {/* Spotlight — mirror MapControls layout: zoom controls drive fragment mode */}
+            <div className="pointer-events-none fixed right-2 bottom-3 flex flex-col gap-2 sm:right-4 sm:bottom-4 sm:gap-3">
+              {/* Zoom group position */}
+              <div className="relative h-20 w-10 sm:h-24 sm:w-12">
                 {/* Shadow overlay */}
                 <m.div
                   className="absolute -inset-1.5 rounded-2xl"
@@ -211,6 +202,10 @@ export function OnboardingGuide({ open, onDismiss }: OnboardingGuideProps) {
                   }}
                 />
               </div>
+              {/* Compass spacer */}
+              <div className="size-10 sm:size-12" />
+              {/* Geolocate spacer */}
+              <div className="size-10 sm:size-12" />
             </div>
 
             {/* Step 3 card */}

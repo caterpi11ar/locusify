@@ -117,7 +117,6 @@
   "explory.back.to.gallery": "返回图库",
   "explory.cluster.photos": "{{count}} 张照片",
   "explory.cluster.click.details": "点击查看详情",
-  "explory.controls.fragmentMode": "碎片模式",
 
   "photos.select.title": "选择照片",
   "photos.select.description": "选择照片添加到地图",
@@ -303,7 +302,7 @@
   "guide.step2.description.desktop": "你也可以在地图上右键点击任意位置，快速添加照片到该地点",
   "guide.step2.description.mobile": "你也可以在地图上长按任意位置，快速添加照片到该地点",
   "guide.step3.title": "碎片模式",
-  "guide.step3.description": "点击地球按钮进入碎片模式——你的照片会填充到世界地图的国家轮廓中，一眼纵览你去过的每个地方",
+  "guide.step3.description": "缩小地图进入碎片模式——你的照片会填充到世界地图的国家轮廓中，一眼纵览你去过的每个地方",
   "guide.dismiss": "我知道了",
   "guide.tapToContinue": "点击任意位置继续",
 

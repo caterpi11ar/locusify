@@ -8,6 +8,17 @@ import type {
 } from '@/types/map'
 import { GPSDirection } from '@/types/map'
 
+export const FRAGMENT_ENTER_ZOOM = 5
+export const FRAGMENT_EXIT_ZOOM = 6
+
+export function getFragmentModeForZoom(zoom: number, currentMode: boolean): boolean {
+  if (zoom <= FRAGMENT_ENTER_ZOOM)
+    return true
+  if (zoom >= FRAGMENT_EXIT_ZOOM)
+    return false
+  return currentMode
+}
+
 /**
  * Convert EXIF GPS data to decimal coordinates with proper directional handling
  */

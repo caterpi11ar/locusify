@@ -117,7 +117,6 @@
   "explory.back.to.gallery": "Back to Gallery",
   "explory.cluster.photos": "{{count}} photos",
   "explory.cluster.click.details": "Click to view details",
-  "explory.controls.fragmentMode": "Fragment Mode",
 
   "photos.select.title": "Select Photos",
   "photos.select.description": "Select photos to add to the map",
@@ -303,7 +302,7 @@
   "guide.step2.description.desktop": "You can also right-click anywhere on the map to quickly add photos to that spot",
   "guide.step2.description.mobile": "You can also long-press anywhere on the map to quickly add photos to that spot",
   "guide.step3.title": "Fragment Mode",
-  "guide.step3.description": "Tap the globe button to enter Fragment Mode — your photos fill country shapes on a world map, giving you a bird's-eye view of everywhere you've been",
+  "guide.step3.description": "Zoom out to enter Fragment Mode — your photos fill country shapes on a world map, giving you a bird's-eye view of everywhere you've been",
   "guide.dismiss": "Got it",
   "guide.tapToContinue": "Tap anywhere to continue",
 

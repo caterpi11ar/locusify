@@ -3,6 +3,7 @@ import {
   calculateMapBounds,
   calculateZoomFromBounds,
   convertExifGPSToDecimal,
+  getFragmentModeForZoom,
   isValidGPSCoordinates,
 } from '@/pages/map/utils'
 
@@ -99,6 +100,23 @@ describe('calculateZoomFromBounds', () => {
 
   it('returns minimum zoom for cross-continent spread', () => {
     expect(calculateZoomFromBounds(50, 100)).toBe(2)
+  })
+})
+
+describe('getFragmentModeForZoom', () => {
+  it('enters fragment mode at zoom 5 and below', () => {
+    expect(getFragmentModeForZoom(5, false)).toBe(true)
+    expect(getFragmentModeForZoom(4.9, false)).toBe(true)
+  })
+
+  it('keeps the current mode between zoom 5 and 6', () => {
+    expect(getFragmentModeForZoom(5.5, false)).toBe(false)
+    expect(getFragmentModeForZoom(5.5, true)).toBe(true)
+  })
+
+  it('exits fragment mode at zoom 6 and above', () => {
+    expect(getFragmentModeForZoom(6, true)).toBe(false)
+    expect(getFragmentModeForZoom(6.1, true)).toBe(false)
   })
 })
 
