@@ -129,6 +129,22 @@
   }
 }
 
+@layer components {
+  [data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"] {
+    stroke: color-mix(in oklab, var(--border) 50%, transparent);
+  }
+
+  [data-slot="chart"] .recharts-polar-grid [stroke="#ccc"],
+  [data-slot="chart"] .recharts-reference-line [stroke="#ccc"] {
+    stroke: var(--border);
+  }
+
+  [data-slot="chart"] .recharts-dot[stroke="#fff"],
+  [data-slot="chart"] .recharts-sector[stroke="#fff"] {
+    stroke: transparent;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

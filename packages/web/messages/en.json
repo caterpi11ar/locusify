@@ -32,6 +32,7 @@
       "line1": "Turn GPS photos into interactive maps,",
       "line2": "relive every journey."
     },
+    "description": "Turn geotagged photos into route maps, place memories, and animated journey replays.",
     "action": {
       "cta": "Try Now"
     }
