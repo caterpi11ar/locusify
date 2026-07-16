@@ -11,9 +11,14 @@ export default defineConfig({
   },
   plugins: [
     react(),
+
+    /**
+     * @see {@link https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#react-compiler}
+     */
     babel({
       presets: [reactCompilerPreset()],
     }),
+
     tailwindcss(),
   ],
   server: {

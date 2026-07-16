@@ -1,9 +1,10 @@
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { mergeConfig } from 'vite'
 import { defineConfig } from 'vitest/config'
+import viteConfig from './vite.config.ts'
 
-export default defineConfig({
-  plugins: [tsconfigPaths({ projects: ['tsconfig.app.json'], loose: true })],
+export default mergeConfig(viteConfig, defineConfig({
   test: {
+    include: ['test/**/*.test.{ts,tsx}'],
     setupFiles: ['test/setup.ts'],
   },
-})
+}))
