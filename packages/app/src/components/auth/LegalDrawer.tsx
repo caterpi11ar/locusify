@@ -1,16 +1,12 @@
 import type { FC } from 'react'
 import type { Components } from 'react-markdown'
 import { useQuery } from '@tanstack/react-query'
+import { Drawer as AntDrawer } from 'antd'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
 import { Spinner } from '@/components/ui/spinner'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { cn, glassPanel } from '@/lib/utils'
 
 type LegalType = 'privacy-policy' | 'terms-of-service'
@@ -19,6 +15,9 @@ interface LegalDrawerProps {
   type: LegalType
   open: boolean
   onOpenChange: (open: boolean) => void
+  contentClassName?: string
+  modal?: boolean
+  desktopOffset?: number
 }
 
 const mdComponents: Components = {
@@ -52,42 +51,61 @@ function useLegalContent(type: LegalType) {
   })
 }
 
-export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange }) => {
+export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, contentClassName, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const { data: content, isLoading } = useLegalContent(type)
+  const isMobile = useIsMobile()
 
   const title = type === 'privacy-policy'
     ? t('auth.legal.privacyPolicy.title')
     : t('auth.legal.termsOfService.title')
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[95dvh] sm:max-h-[80vh] border-none bg-transparent backdrop-blur-none">
-        <DrawerHeader className="hidden">
-          <DrawerTitle>{title}</DrawerTitle>
-          <DrawerDescription>{title}</DrawerDescription>
-        </DrawerHeader>
-        <div className={cn(glassPanel, 'flex flex-col overflow-hidden rounded-t-2xl')}>
-          <div className="flex-1 overflow-y-auto p-4 pb-safe">
-            <div className="mb-3 text-center">
-              <h2 className="text-text text-lg font-semibold">{title}</h2>
-            </div>
-            {isLoading
-              ? (
-                  <div className="flex justify-center py-8">
-                    <Spinner className="size-5" />
-                  </div>
-                )
-              : content
-                ? (
-                    <Markdown components={mdComponents}>
-                      {content}
-                    </Markdown>
-                  )
-                : null}
-          </div>
+    <AntDrawer
+      open={open}
+      onClose={() => onOpenChange(false)}
+      placement={isMobile ? 'bottom' : 'left'}
+      size={isMobile ? 'auto' : 480}
+      mask={{ enabled: modal ?? isMobile, closable: modal ?? isMobile }}
+      zIndex={!isMobile && modal === false ? 900 : undefined}
+      closable={false}
+      destroyOnHidden
+      rootClassName={cn('locusify-drawer', contentClassName)}
+      rootStyle={!isMobile ? { left: desktopOffset } : undefined}
+      styles={{
+        wrapper: isMobile ? { maxHeight: '95dvh' } : { height: '100dvh', width: 480 },
+        section: { background: 'transparent', boxShadow: 'none' },
+        body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
+      }}
+    >
+      <div className={cn(glassPanel, 'pointer-events-auto flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-2xl sm:rounded-l-none sm:rounded-r-2xl')}>
+        <div className="flex shrink-0 items-start justify-between gap-3 px-4 pt-4 pb-2">
+          <h2 className="text-text text-lg font-semibold">{title}</h2>
+          <button
+            type="button"
+            aria-label="Close drawer"
+            onClick={() => onOpenChange(false)}
+            className="bg-fill-secondary hover:bg-fill-tertiary text-text/60 hover:text-text flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
+          >
+            <X className="size-4" />
+          </button>
         </div>
-      </DrawerContent>
-    </Drawer>
+        <div className="flex-1 overflow-y-auto p-4 pb-safe">
+          {isLoading
+            ? (
+                <div className="flex justify-center py-8">
+                  <Spinner className="size-5" />
+                </div>
+              )
+            : content
+              ? (
+                  <Markdown components={mdComponents}>
+                    {content}
+                  </Markdown>
+                )
+              : null}
+        </div>
+      </div>
+    </AntDrawer>
   )
 }

@@ -7,6 +7,7 @@ import { LoginDrawer } from '@/components/auth'
 import { FeedbackDialog } from '@/components/feedback'
 import { PricingDrawer } from '@/components/pricing'
 import { SelectPhotosDrawer } from '@/components/upload'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
 import { useRegionPhotoMapping } from '@/hooks/useRegionPhotoMapping'
@@ -52,6 +53,7 @@ function MapSectionContent() {
   const cropRef = useRef<HTMLDivElement>(null)
   const { shareLink } = useWebShare()
   const { t } = useTranslation()
+  const isMobile = useIsMobile()
 
   // Region photo mapping — auto GPS→country matching
   useRegionPhotoMapping()
@@ -137,6 +139,11 @@ function MapSectionContent() {
   }, [isFragmentMode, prepareReplay, markers, startOrbit])
 
   const handleShareClick = useCallback(() => {
+    setUploadDrawerOpen(false)
+    setSettingsOpen(false)
+    setPricingOpen(false)
+    setGalleryOpen(false)
+    setLoginDrawerOpen(false)
     shareLink({
       title: t('share.appTitle', { defaultValue: 'Locusify' }),
       text: t('share.appText', { defaultValue: 'Transform your travel photos into visual route maps and cinematic vlogs' }),
@@ -160,11 +167,40 @@ function MapSectionContent() {
     setGuideOpen(false)
   }, [])
 
+  const closeMenuDrawers = useCallback(() => {
+    setUploadDrawerOpen(false)
+    setSettingsOpen(false)
+    setPricingOpen(false)
+    setGalleryOpen(false)
+    setLoginDrawerOpen(false)
+  }, [])
+
   const handleUploadClick = useCallback(() => {
     setShowUploadHint(false)
+    closeMenuDrawers()
     setUploadDrawerOpen(true)
     handleDismissGuide()
-  }, [handleDismissGuide])
+  }, [closeMenuDrawers, handleDismissGuide])
+
+  const handleSettingsClick = useCallback(() => {
+    closeMenuDrawers()
+    setSettingsOpen(true)
+  }, [closeMenuDrawers])
+
+  const handlePricingClick = useCallback(() => {
+    closeMenuDrawers()
+    setPricingOpen(true)
+  }, [closeMenuDrawers])
+
+  const handleGalleryClick = useCallback(() => {
+    closeMenuDrawers()
+    setGalleryOpen(true)
+  }, [closeMenuDrawers])
+
+  const handleLoginClick = useCallback(() => {
+    closeMenuDrawers()
+    setLoginDrawerOpen(true)
+  }, [closeMenuDrawers])
 
   const handleDismissFeedback = useCallback(() => {
     localStorage.setItem(FEEDBACK_STORAGE_KEY, String(Date.now()))
@@ -223,6 +259,8 @@ function MapSectionContent() {
   const displayMarkers = isReplayMode ? [] : markers
   const isInAnyReplay = isReplayMode || isOrbiting
   const showDesktopSidebar = !recordingActive && !isRecording && !!user && !isInAnyReplay
+  const mapDrawerModal = isMobile ? undefined : false
+  const mapDrawerDesktopOffset = showDesktopSidebar && !isMobile ? 56 : 0
 
   const recordingViewportStyle = recordingActive
     ? {
@@ -239,10 +277,10 @@ function MapSectionContent() {
           onUploadClick={handleUploadClick}
           showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
-          onSettingsClick={() => setSettingsOpen(true)}
-          onPricingClick={() => setPricingOpen(true)}
-          onLogout={() => setLoginDrawerOpen(true)}
-          onGalleryClick={() => setGalleryOpen(true)}
+          onSettingsClick={handleSettingsClick}
+          onPricingClick={handlePricingClick}
+          onLogout={handleLoginClick}
+          onGalleryClick={handleGalleryClick}
           routesDisabled={!hasEnoughPhotos && !isFragmentMode}
           isReplayMode={isInAnyReplay}
           onExitReplay={handleExitReplay}
@@ -256,10 +294,10 @@ function MapSectionContent() {
           onUploadClick={handleUploadClick}
           showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
-          onSettingsClick={() => setSettingsOpen(true)}
-          onPricingClick={() => setPricingOpen(true)}
-          onLogout={() => setLoginDrawerOpen(true)}
-          onGalleryClick={() => setGalleryOpen(true)}
+          onSettingsClick={handleSettingsClick}
+          onPricingClick={handlePricingClick}
+          onLogout={handleLoginClick}
+          onGalleryClick={handleGalleryClick}
           onShareClick={handleShareClick}
           routesDisabled={!hasEnoughPhotos && !isFragmentMode}
         />
@@ -268,12 +306,14 @@ function MapSectionContent() {
       <SelectPhotosDrawer
         open={uploadDrawerOpen}
         onOpenChange={setUploadDrawerOpen}
+        modal={mapDrawerModal}
+        desktopOffset={mapDrawerDesktopOffset}
       />
 
-      <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} onLogout={() => setLoginDrawerOpen(true)} />
-      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} />
-      <GalleryDrawer open={galleryOpen} onOpenChange={setGalleryOpen} />
-      <LoginDrawer open={loginDrawerOpen} onOpenChange={setLoginDrawerOpen} dismissible={!!user} />
+      <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} onLogout={handleLoginClick} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+      <GalleryDrawer open={galleryOpen} onOpenChange={setGalleryOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+      <LoginDrawer open={loginDrawerOpen} onOpenChange={setLoginDrawerOpen} dismissible={!!user} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
 
       {isReplayMode && (
         <PortraitLockOverlay />

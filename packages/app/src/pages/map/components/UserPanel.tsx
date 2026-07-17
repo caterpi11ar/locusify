@@ -153,7 +153,7 @@ export function UserPanel({
         sideOffset={variant === 'menuRow' ? 8 : 4}
         collisionPadding={8}
         className={cn(
-          'z-100 rounded-xl border-fill-tertiary bg-material-opaque p-0 text-text shadow-2xl',
+          'z-[950] rounded-xl border-fill-tertiary bg-material-opaque p-0 text-text shadow-2xl',
           variant === 'menuRow' ? 'w-56' : 'w-80',
         )}
       >
@@ -297,7 +297,7 @@ function UserPanelThemeSwitch() {
         side="right"
         align="start"
         sideOffset={4}
-        className="z-110 w-44 rounded-[10px] border-fill-tertiary bg-material-opaque p-1 text-text shadow-2xl"
+        className="z-[960] w-44 rounded-[10px] border-fill-tertiary bg-material-opaque p-1 text-text shadow-2xl"
       >
         {options.map(({ value, label, icon: Icon }) => (
           <button

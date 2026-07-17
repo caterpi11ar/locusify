@@ -36,6 +36,7 @@
     "@tanstack/react-query": "^5.100.9",
     "@turf/boolean-point-in-polygon": "^7.3.5",
     "@turf/helpers": "^7.3.5",
+    "antd": "^6.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "es-toolkit": "^1.46.1",
@@ -58,7 +59,6 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "thumbhash": "^0.1.1",
-    "vaul": "^1.1.2",
     "zod": "catalog:",
     "zustand": "^5.0.13"
   },

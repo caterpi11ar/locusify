@@ -1,8 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   Images,
-  PanelLeftClose,
-  PanelLeftOpen,
   Route,
   Settings,
   Share2,
@@ -16,11 +14,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { useSettingsStore } from '@/stores/settingsStore'
 import { UserPanel } from './UserPanel'
-
-const SIDEBAR_WIDTH = 200
-const SIDEBAR_COLLAPSED_WIDTH = 56
 
 interface MapSidebarProps {
   onUploadClick: () => void
@@ -39,6 +33,7 @@ interface SidebarItemProps {
   expanded: boolean
   icon: LucideIcon
   label: string
+  shortLabel?: string
   hintLabel?: string
   onboardingTarget?: string
   onClick: () => void
@@ -57,14 +52,14 @@ export function MapSidebar({
   showUploadHint,
 }: MapSidebarProps) {
   const { t } = useTranslation()
-  const expanded = useSettingsStore(s => s.mapSidebarExpanded)
-  const toggleMapSidebar = useSettingsStore(s => s.toggleMapSidebar)
-  const collapsed = !expanded
+  const expanded = false
+  const collapsed = true
 
   const items: SidebarItemProps[] = [
     {
       icon: Upload,
       label: t('menu.upload', { defaultValue: 'Upload Photos' }),
+      shortLabel: t('menu.upload.short', { defaultValue: 'Upload' }),
       onClick: onUploadClick,
       expanded,
       hintLabel: t('menu.upload.hint', { defaultValue: 'Upload GPS photos to begin' }),
@@ -74,6 +69,7 @@ export function MapSidebar({
     {
       icon: Route,
       label: t('workspace.controls.viewReplay', { defaultValue: 'View Trajectory' }),
+      shortLabel: t('menu.replay.short', { defaultValue: 'Replay' }),
       onClick: onRoutesClick,
       expanded,
       disabled: routesDisabled,
@@ -81,23 +77,22 @@ export function MapSidebar({
     {
       icon: Images,
       label: t('menu.gallery', { defaultValue: 'My Photos' }),
+      shortLabel: t('menu.gallery.short', { defaultValue: 'Photos' }),
       onClick: onGalleryClick,
       expanded,
     },
     {
       icon: Share2,
       label: t('menu.share', { defaultValue: 'Share' }),
+      shortLabel: t('menu.share.short', { defaultValue: 'Share' }),
       onClick: onShareClick,
       expanded,
     },
   ]
 
   return (
-    <aside className="absolute top-0 left-0 z-40 hidden h-full sm:block">
-      <div
-        className="relative flex h-full select-none flex-col overflow-visible border-r border-fill-tertiary bg-material-opaque shadow-2xl transition-[width] duration-200 ease-out"
-        style={{ width: expanded ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH }}
-      >
+    <aside className="absolute top-0 left-0 z-[1000] hidden h-full sm:block">
+      <div className="relative flex h-full w-14 select-none flex-col overflow-visible border-r border-fill-tertiary bg-material-opaque shadow-2xl">
         <UserHeader
           collapsed={collapsed}
           onSettingsClick={onSettingsClick}
@@ -119,16 +114,11 @@ export function MapSidebar({
           <SidebarItem
             icon={Settings}
             label={t('settings.title', { defaultValue: 'Settings' })}
+            shortLabel={t('settings.title.short', { defaultValue: 'Settings' })}
             expanded={expanded}
             onClick={onSettingsClick}
           />
         </div>
-
-        <SidebarCollapseButton
-          collapsed={collapsed}
-          label={collapsed ? t('menu.expandSidebar') : t('menu.collapseSidebar')}
-          onClick={toggleMapSidebar}
-        />
       </div>
     </aside>
   )
@@ -160,6 +150,7 @@ function UserHeader({
 function SidebarItem({
   icon: Icon,
   label,
+  shortLabel,
   hintLabel,
   expanded,
   onClick,
@@ -176,20 +167,20 @@ function SidebarItem({
         data-onboarding={onboardingTarget}
         aria-label={label}
         className={cn(
-          'group flex h-9 min-w-8 select-none items-center overflow-hidden rounded-lg text-sm transition-colors',
-          expanded ? 'gap-2' : 'w-full justify-center',
+          'group flex min-w-8 select-none overflow-hidden rounded-lg text-sm transition-colors',
+          expanded ? 'h-9 items-center gap-2' : 'h-[52px] w-full flex-col items-center justify-center gap-0.5 py-1',
           disabled
             ? 'cursor-not-allowed text-text/25'
             : 'cursor-pointer text-text/55 hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary',
         )}
         style={expanded ? { paddingLeft: 4 } : undefined}
       >
-        <span className="flex size-7 flex-none items-center justify-center">
+        <span className="flex size-6 flex-none items-center justify-center">
           <Icon className="size-4" />
         </span>
         {expanded
           ? <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-          : <span className="sr-only">{label}</span>}
+          : <span className="max-w-full truncate px-0.5 text-center text-[10px] leading-none">{shortLabel ?? label}</span>}
       </button>
       <AnimatePresence>
         {showHint && (
@@ -215,36 +206,5 @@ function SidebarItem({
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent side="right">{label}</TooltipContent>
     </Tooltip>
-  )
-}
-
-function SidebarCollapseButton({
-  collapsed,
-  label,
-  onClick,
-}: {
-  collapsed: boolean
-  label: string
-  onClick: () => void
-}) {
-  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose
-
-  return (
-    <div className={cn('flex h-12 shrink-0 items-center py-3', collapsed ? 'justify-center px-1' : 'px-4')}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            aria-label={label}
-            aria-expanded={!collapsed}
-            onClick={onClick}
-            className="flex size-6 cursor-pointer items-center justify-center rounded-lg p-0 text-text/50 transition-colors hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary"
-          >
-            <Icon className="size-4" strokeWidth={2} />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="right">{label}</TooltipContent>
-      </Tooltip>
-    </div>
   )
 }

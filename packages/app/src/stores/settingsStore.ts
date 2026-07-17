@@ -10,12 +10,9 @@ interface SettingsState {
   theme: Theme
   language: string
   avatarSource: AvatarSource
-  mapSidebarExpanded: boolean
   setTheme: (theme: Theme) => void
   setLanguage: (lang: string) => void
   setAvatarSource: (source: AvatarSource) => void
-  setMapSidebarExpanded: (expanded: boolean) => void
-  toggleMapSidebar: () => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -24,15 +21,12 @@ export const useSettingsStore = create<SettingsState>()(
       theme: 'dark',
       language: 'en',
       avatarSource: { type: 'profile' } as AvatarSource,
-      mapSidebarExpanded: false,
       setTheme: theme => set({ theme }),
       setLanguage: (lang) => {
         set({ language: lang })
         i18n.changeLanguage(lang)
       },
       setAvatarSource: avatarSource => set({ avatarSource }),
-      setMapSidebarExpanded: mapSidebarExpanded => set({ mapSidebarExpanded }),
-      toggleMapSidebar: () => set(state => ({ mapSidebarExpanded: !state.mapSidebarExpanded })),
     }),
     {
       name: 'locusify-settings',
