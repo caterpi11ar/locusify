@@ -91,7 +91,7 @@ export function MapSidebar({
   ]
 
   return (
-    <aside className="absolute top-0 left-0 z-[1000] hidden h-full sm:block">
+    <aside className="absolute top-0 left-0 z-1000 hidden h-full sm:block">
       <div className="relative flex h-full w-14 select-none flex-col overflow-visible border-r border-fill-tertiary bg-material-opaque shadow-2xl">
         <UserHeader
           collapsed={collapsed}

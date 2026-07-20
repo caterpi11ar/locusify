@@ -123,7 +123,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, cont
 
                       {/* Location label */}
                       {photo.gpsInfo && (
-                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1">
+                        <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/60 to-transparent px-1.5 py-1">
                           <p className="truncate text-left text-[10px] leading-tight text-white/90">
                             {formatCoordinates(photo.gpsInfo.latitude, photo.gpsInfo.longitude)}
                           </p>
