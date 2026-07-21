@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import Layout from '@/layout'
 import { ErrorElement } from '@/pages/error/ErrorElement'
 import { Map } from '@/pages/map'
+import { i18n } from '@/i18n'
 
 const AuthCallback = lazy(() => import('@/pages/auth/AuthCallback'))
 const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'))
@@ -32,13 +33,29 @@ export const routes: RouteObject[] = [
     children: [
       {
         path: '/',
+        element: <Navigate to={i18n.resolvedLanguage?.toLowerCase().startsWith('zh') ? '/zh-CN/' : '/en/'} replace />,
+      },
+      {
+        path: '/en/',
         element: <Map />,
+        loader: () => {
+          void i18n.changeLanguage('en')
+          return null
+        },
+      },
+      {
+        path: '/zh-CN/',
+        element: <Map />,
+        loader: () => {
+          void i18n.changeLanguage('zh-CN')
+          return null
+        },
       },
     ],
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: <Navigate to="/en/" replace />,
   },
 ]
 

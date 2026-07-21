@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/generate-seo-pages.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint --fix",

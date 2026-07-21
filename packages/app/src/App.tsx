@@ -3,6 +3,7 @@ import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
 import { ThemeProvider } from 'next-themes'
 import { ErrorBoundary } from 'react-error-boundary'
 import { RouterProvider } from 'react-router'
+import { SeoManager } from './components/seo/SeoManager'
 import { Toaster } from './components/ui/sonner'
 import { TooltipProvider } from './components/ui/tooltip'
 import { router } from './routers'
@@ -24,6 +25,7 @@ const App: FC = () => {
             }}
           >
             <TooltipProvider>
+              <SeoManager />
               <RouterProvider router={router} />
               <Toaster />
             </TooltipProvider>

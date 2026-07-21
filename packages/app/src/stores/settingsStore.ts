@@ -25,6 +25,10 @@ export const useSettingsStore = create<SettingsState>()(
       setLanguage: (lang) => {
         set({ language: lang })
         i18n.changeLanguage(lang)
+        const localizedPath = lang.toLowerCase().startsWith('zh') ? '/zh-CN/' : '/en/'
+        if (window.location.pathname === '/en/' || window.location.pathname === '/zh-CN/' || window.location.pathname === '/') {
+          window.history.replaceState(window.history.state, '', `${localizedPath}${window.location.search}${window.location.hash}`)
+        }
       },
       setAvatarSource: avatarSource => set({ avatarSource }),
     }),

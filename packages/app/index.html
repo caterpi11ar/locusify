@@ -3,78 +3,98 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="application-name" content="Locusify" />
+  <meta name="apple-mobile-web-app-title" content="Locusify" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
-  <!-- Primary Meta -->
-  <title>Locusify | Transform Travel Photos into Route Maps & Vlogs</title>
-  <meta name="description" content="Upload your GPS-tagged travel photos and Locusify automatically creates visual route maps and cinematic vlogs of your journey. Free, private, and runs entirely on your device." />
-  <meta name="keywords" content="travel photo map, GPS photo route, travel vlog generator, photo trajectory, travel route map, geotagged photos" />
-  <link rel="canonical" href="https://app.locusify.cn/" />
+  <title>GPS Photo Map & Travel Route Video Maker | Locusify</title>
+  <meta name="description" content="Turn GPS-tagged travel photos into an interactive route map, animated journey replay, and MP4 travel video. Private in-browser processing with Locusify." />
+  <meta name="keywords" content="GPS photo map, travel route map, photo map maker, travel video maker, journey replay, EXIF GPS, geotagged photos, travel vlog generator" />
+  <link rel="canonical" href="https://app.locusify.cn/en/" />
 
-  <!-- Internationalization -->
-  <link rel="alternate" hreflang="en" href="https://app.locusify.cn/" />
-  <link rel="alternate" hreflang="zh-CN" href="https://app.locusify.cn/" />
-  <link rel="alternate" hreflang="x-default" href="https://app.locusify.cn/" />
+  <link rel="alternate" hreflang="en" href="https://app.locusify.cn/en/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://app.locusify.cn/zh-CN/" />
+  <link rel="alternate" hreflang="x-default" href="https://app.locusify.cn/en/" />
 
-  <!-- Open Graph -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://app.locusify.cn/" />
+  <meta property="og:url" content="https://app.locusify.cn/en/" />
   <meta property="og:site_name" content="Locusify" />
-  <meta property="og:title" content="Locusify | Transform Travel Photos into Route Maps & Vlogs" />
-  <meta property="og:description" content="Upload GPS-tagged travel photos and automatically get visual route maps and cinematic vlogs of your journey. Free and runs entirely on your device." />
+  <meta property="og:title" content="GPS Photo Map & Travel Route Video Maker | Locusify" />
+  <meta property="og:description" content="Turn GPS-tagged travel photos into an interactive route map, animated journey replay, and MP4 travel video. Private in-browser processing with Locusify." />
   <meta property="og:image" content="https://app.locusify.cn/og-image.png" />
-  <meta property="og:image:width" content="1024" />
-  <meta property="og:image:height" content="1024" />
+  <meta property="og:image:secure_url" content="https://app.locusify.cn/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Locusify GPS photo map and animated travel route" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="zh_CN" />
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Locusify | Transform Travel Photos into Route Maps & Vlogs" />
-  <meta name="twitter:description" content="Upload GPS-tagged travel photos and automatically get visual route maps and cinematic vlogs of your journey." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="GPS Photo Map & Travel Route Video Maker | Locusify" />
+  <meta name="twitter:description" content="Turn GPS-tagged travel photos into an interactive route map, animated journey replay, and MP4 travel video. Private in-browser processing with Locusify." />
   <meta name="twitter:image" content="https://app.locusify.cn/og-image.png" />
+  <meta name="twitter:image:alt" content="Locusify GPS photo map and animated travel route" />
 
-  <!-- Structured Data -->
-  <script type="application/ld+json">
+  <script id="locusify-structured-data" type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Locusify",
-    "url": "https://app.locusify.cn",
-    "description": "Transform your travel photos into visual route maps and cinematic vlogs",
-    "applicationCategory": "TravelApplication",
-    "operatingSystem": "Web",
-    "inLanguage": ["en", "zh-CN"],
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "GPS photo route mapping",
-      "Automatic travel vlog generation",
-      "Photo trajectory replay",
-      "Local processing — no data uploaded"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://app.locusify.cn/#organization",
+        "name": "Locusify",
+        "url": "https://app.locusify.cn/",
+        "logo": { "@type": "ImageObject", "url": "https://app.locusify.cn/logo.png", "width": 1024, "height": 1024 },
+        "sameAs": ["https://github.com/caterpi11ar/locusify", "https://www.producthunt.com/products/locusify"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://app.locusify.cn/#website",
+        "url": "https://app.locusify.cn/",
+        "name": "Locusify",
+        "inLanguage": ["en", "zh-CN"],
+        "publisher": { "@id": "https://app.locusify.cn/#organization" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://app.locusify.cn/en/#app",
+        "name": "Locusify",
+        "url": "https://app.locusify.cn/en/",
+        "description": "A browser-based GPS photo map and travel video maker that turns geotagged photos into route maps, animated journey replays, and MP4 videos.",
+        "applicationCategory": "TravelApplication",
+        "applicationSubCategory": "GPS photo map and travel video maker",
+        "operatingSystem": "Any",
+        "inLanguage": "en",
+        "image": "https://app.locusify.cn/og-image.png",
+        "featureList": ["GPS photo route mapping", "Animated journey replay", "MP4 travel video export", "Local in-browser photo processing"],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+        "publisher": { "@id": "https://app.locusify.cn/#organization" }
+      }
     ]
   }
   </script>
 
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MHD9DY05C4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'G-MHD9DY05C4');
   </script>
 </head>
 
 <body>
   <div id="root"></div>
+  <noscript>Locusify requires JavaScript to create GPS photo maps, animated journey replays, and travel videos in your browser.</noscript>
   <script type="module" src="/src/main.tsx"></script>
-
 </body>
 
 </html>

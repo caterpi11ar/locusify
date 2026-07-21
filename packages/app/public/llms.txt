@@ -1,61 +1,67 @@
 # Locusify
 
-> Locusify is a free, browser-based travel tool that transforms GPS-tagged photos into interactive route maps and animated journey replays — all processed locally on your device, with zero uploads and complete privacy.
+> Locusify is a browser-based GPS photo map and travel video maker. It turns geotagged travel photos into interactive route maps, animated journey replays, and downloadable MP4 videos. Photo and EXIF processing happens locally on the user's device.
 
-## What Locusify Does
+## Language versions
 
-Locusify reads the GPS coordinates embedded in each photo's EXIF metadata, plots them on an interactive map, and lets you replay your journey as a cinematic video. No account, no subscription, no server — everything runs in the browser.
+- [English application](https://app.locusify.cn/en/)
+- [简体中文应用](https://app.locusify.cn/zh-CN/)
 
-1. **Upload** GPS-tagged travel photos (JPG, PNG, HEIC, WebP, AVIF)
-2. **Extract** — GPS coordinates are parsed from EXIF data entirely in-browser
-3. **Visualize** — an interactive map renders your route with photo markers, clusters, and an animated trajectory line
-4. **Replay** — watch the journey play back in chronological order, then export as MP4
+## What Locusify does
 
-## Key Features
+1. Select GPS-tagged travel photos in JPG, PNG, HEIC, WebP, or AVIF format.
+2. Read embedded EXIF coordinates locally in the browser.
+3. Plot the photos on an interactive map and connect them in chronological order.
+4. Replay the journey with an animated trajectory and camera movement.
+5. Export the journey replay as an MP4 travel video.
 
-- **GPS Photo Mapping** — Automatically extracts location data from EXIF metadata and plots photos on an interactive map
-- **Trajectory Replay** — Timeline-based animated route playback with smooth camera follow and adjustable speed
-- **Video Export** — Record and download your journey replay as an MP4 video
-- **Photo Clusters** — Groups nearby photos at higher zoom levels for a clean, readable map
-- **100% Local Processing** — All parsing, rendering, and export happen in the browser; photos are never uploaded
-- **Drag-and-Drop Upload** — Upload multiple photos at once with automatic GPS validation
-- **Multi-language** — Available in English and Chinese (中文)
-- **Dark / Light Mode** — Follows system preference or can be toggled manually
+## Core facts
 
-## Privacy
+- Product category: GPS photo map, travel route visualizer, journey replay, and travel video maker.
+- Primary users: travelers, photographers, vloggers, and travel content creators.
+- Input: geotagged photos; at least two photos with valid GPS coordinates are needed for a route replay.
+- Supported image formats: JPG, PNG, HEIC, WebP, and AVIF.
+- Output: interactive photo map, chronological route animation, and MP4 video.
+- Privacy: photo pixels and EXIF GPS metadata are processed locally in the browser for map and replay creation.
+- Languages: English and Simplified Chinese.
+- Platform: modern desktop and mobile web browsers.
 
-Locusify is privacy-first by design. Photos are processed entirely in the browser using JavaScript. No photos, GPS coordinates, or personal data are ever sent to a server. Closing the browser tab clears all data. The only external service used is anonymous page-view analytics (Google Analytics).
+## Frequently asked questions
 
-## Who It's For
+### What is Locusify?
 
-- Solo travelers who want to visualize and remember where they went
-- Travel photographers with large batches of geotagged photos
-- Vloggers and content creators who want a route replay video without video editing software
-- Anyone curious about "where exactly did I go on that trip?"
+Locusify is a web application that reads GPS coordinates embedded in travel photos and turns them into an interactive route map, animated journey replay, and downloadable MP4 travel video.
 
-## Frequently Asked Questions
+### Does Locusify upload travel photos?
 
-**Does Locusify upload my photos?**
-No. All processing happens locally in the browser. Photos never leave your device.
+Photo and EXIF processing for route maps and journey replays happens locally in the browser. The photos do not need to be uploaded to a photo-processing server.
 
-**What photo formats are supported?**
-JPG, PNG, HEIC, WebP, and AVIF. At least 2 photos with valid GPS data are required to generate a trajectory.
+### Which formats are supported?
 
-**Is Locusify free?**
-Yes — completely free, no account required, no feature paywalls.
+Locusify supports JPG, PNG, HEIC, WebP, and AVIF. At least two photos with valid GPS data are required to generate a trajectory.
 
-**Can I export my journey as a video?**
-Yes. After the trajectory replay, you can record and download it as an MP4.
+### Can Locusify export a travel video?
 
-**What if some photos don't have GPS data?**
-Locusify validates GPS data on upload and clearly marks which photos have location data. Photos without GPS are excluded from the trajectory but remain listed.
+Yes. Users can replay their GPS photo route chronologically and export the animated journey as an MP4 video.
 
-## Tech Stack
+## 中文简介
 
-Built with React 19, TypeScript, Vite 7, Tailwind CSS 4, MapLibre GL, Zustand, TanStack Query, Radix UI, and exifr for EXIF/GPS extraction.
+Locusify 是一款基于浏览器的 GPS 照片地图和旅行轨迹视频制作工具。它可以读取旅行照片中的 EXIF 定位信息，自动生成互动路线地图、按时间排序的动态旅程回放，并导出 MP4 旅行视频。照片与 GPS 数据在用户设备的浏览器中本地处理。
 
-## Links
+## 中文核心信息
 
-- [Locusify App](https://app.locusify.cn): Live application
-- [GitHub Repository](https://github.com/caterpi11ar/locusify): Open source code
-- [Product Hunt](https://www.producthunt.com/products/locusify): Product listing
+- 产品类型：GPS 照片地图、旅行足迹地图、轨迹回放和旅行视频制作工具。
+- 适用人群：旅行者、摄影师、Vlogger 和旅行内容创作者。
+- 支持格式：JPG、PNG、HEIC、WebP 和 AVIF。
+- 使用要求：生成轨迹至少需要两张带有有效 GPS 定位信息的照片。
+- 输出内容：互动照片地图、按时间排序的旅行路线动画和 MP4 视频。
+- 隐私保护：照片和 EXIF GPS 信息在浏览器本地处理。
+- 支持语言：英文和简体中文。
+
+## Authoritative links
+
+- [Locusify application](https://app.locusify.cn/en/)
+- [Locusify 中文版](https://app.locusify.cn/zh-CN/)
+- [GitHub source repository](https://github.com/caterpi11ar/locusify)
+- [Product Hunt listing](https://www.producthunt.com/products/locusify)
+- [XML sitemap](https://app.locusify.cn/sitemap.xml)
