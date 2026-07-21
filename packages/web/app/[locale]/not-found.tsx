@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation'
+import { APP_URL } from '@/lib/app-url'
 
 export default function NotFound() {
   return (
@@ -18,7 +19,7 @@ export default function NotFound() {
           Go Home
         </Link>
         <a
-          href="https://app.locusify.cn"
+          href={APP_URL}
           className="inline-block rounded-full border border-border px-8 py-3.5 text-sm font-medium text-foreground transition-opacity hover:opacity-70"
         >
           Try Locusify Free

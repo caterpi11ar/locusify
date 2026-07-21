@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl'
 import NextLink from 'next/link'
 import { Link } from '@/i18n/navigation'
+import { APP_URL } from '@/lib/app-url'
 
 export function FooterSection({ variant = 'default' }: { variant?: 'default' | 'dark' }) {
   const t = useTranslations('Footer')
@@ -28,7 +29,7 @@ export function FooterSection({ variant = 'default' }: { variant?: 'default' | '
         </p>
         <div className="mt-8">
           <NextLink
-            href="https://app.locusify.cn"
+            href={APP_URL}
             className={`inline-block rounded-full px-8 py-3.5 text-sm font-medium transition-opacity hover:opacity-80 ${isDark ? 'bg-zinc-100 text-zinc-950' : 'bg-foreground text-background'}`}
           >
             {t('cta.button')}

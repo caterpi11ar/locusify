@@ -11,6 +11,8 @@ build/
 .env
 .env.*
 !/.env.example
+!/packages/web/.env.example
+!/packages/web/.env.development
 .DS_Store
 *.tsbuildinfo
 

@@ -21,6 +21,7 @@
     }
   },
   "Hero": {
+    "eyebrow": "Your journey, mapped",
     "alt": {
       "side1": "Traveler taking photos",
       "side2": "Ancient water town travel",
@@ -34,7 +35,15 @@
     },
     "description": "Turn geotagged photos into route maps, place memories, and animated journey replays.",
     "action": {
-      "cta": "Try Now"
+      "cta": "Try Locusify",
+      "open": "Open in a new window"
+    },
+    "preview": {
+      "title": "Locusify interactive travel map app",
+      "loading": "Preparing your workspace…",
+      "errorTitle": "The app is taking longer than expected",
+      "errorDescription": "You can continue directly in the standalone Locusify app.",
+      "caption": "Live Locusify workspace · {locale}"
     }
   },
   "Philosophy": {

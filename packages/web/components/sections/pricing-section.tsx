@@ -2,6 +2,7 @@
 
 import { Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { APP_URL } from '@/lib/app-url'
 
 export function PricingSection() {
   const t = useTranslations('Pricing')
@@ -134,7 +135,7 @@ export function PricingSection() {
             </p>
 
             <a
-              href="https://app.locusify.cn"
+              href={APP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className={

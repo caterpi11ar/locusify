@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import Script from 'next/script'
 import React from 'react'
 import { routing } from '@/i18n/routing'
+import { APP_URL } from '@/lib/app-url'
 import '../globals.css'
 
 const inter = Inter({
@@ -241,6 +242,8 @@ export default async function LocaleLayout({
   return (
     <html lang={htmlLang} className={`${inter.variable} ${notoSansSC.variable}`}>
       <head>
+        <link rel="preconnect" href={APP_URL} crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href={APP_URL} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ZMTQE5Z6W9"
           strategy="afterInteractive"

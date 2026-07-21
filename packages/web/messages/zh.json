@@ -21,6 +21,7 @@
     }
   },
   "Hero": {
+    "eyebrow": "让旅程跃然地图",
     "alt": {
       "side1": "旅行者拍照留念",
       "side2": "古镇水城旅行",
@@ -34,7 +35,15 @@
     },
     "description": "把带定位信息的照片串联成路线地图、地点记忆和动态旅程回放。",
     "action": {
-      "cta": "立即体验"
+      "cta": "立即体验",
+      "open": "在独立窗口打开"
+    },
+    "preview": {
+      "title": "Locusify 交互式旅行地图应用",
+      "loading": "正在准备你的工作台…",
+      "errorTitle": "应用加载时间超出预期",
+      "errorDescription": "你可以前往独立的 Locusify 应用继续使用。",
+      "caption": "实时 Locusify 工作台 · {locale}"
     }
   },
   "Philosophy": {
