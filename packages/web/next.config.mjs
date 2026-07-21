@@ -3,8 +3,9 @@ import createNextIntlPlugin from 'next-intl/plugin'
 import { z } from 'zod'
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
+const DEFAULT_APP_URL = 'https://app.locusify.cn'
 const { NEXT_PUBLIC_APP_URL } = z.object({
-  NEXT_PUBLIC_APP_URL: z.url(),
+  NEXT_PUBLIC_APP_URL: z.url().default(DEFAULT_APP_URL),
 }).parse(process.env)
 const appOrigin = new URL(NEXT_PUBLIC_APP_URL).origin
 
