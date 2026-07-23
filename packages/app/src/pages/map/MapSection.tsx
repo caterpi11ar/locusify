@@ -12,6 +12,7 @@ import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
 import { useRegionPhotoMapping } from '@/hooks/useRegionPhotoMapping'
 import { useWebShare } from '@/hooks/useWebShare'
+import { createDemoPhotos } from '@/lib/demo-photos'
 import { cn } from '@/lib/utils'
 import { SettingsDrawer } from '@/pages/settings'
 import { useAuthStore } from '@/stores/authStore'
@@ -23,11 +24,12 @@ import { AnnouncementDialog } from './components/AnnouncementDialog'
 import { GalleryDrawer } from './components/GalleryDrawer'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
+import { EmptyJourneyPrompt, RouteReadyPrompt } from './components/FirstJourneyPrompt'
 import { MapMenuButton } from './components/MapMenuButton'
 import { MapSidebar } from './components/MapSidebar'
-import { OnboardingGuide } from './components/OnboardingGuide'
 import { PortraitLockOverlay } from './components/replay/PortraitLockOverlay'
 import { ReplayIntroOverlay } from './components/replay/ReplayIntroOverlay'
+import { RecordingErrorDialog } from './components/RecordingErrorDialog'
 import { SaveVideoDialog } from './components/SaveVideoDialog'
 import { TrajectoryOverlay } from './components/TrajectoryOverlay'
 import {
@@ -35,7 +37,7 @@ import {
   ANNOUNCEMENT_VERSION,
   FEEDBACK_INTERVAL_MS,
   FEEDBACK_STORAGE_KEY,
-  GUIDE_STORAGE_KEY,
+  HELP_SEEN_STORAGE_KEY,
 } from './constants'
 import { buildPhotosForManualPlacement } from './manualPlacement'
 import { getInitialViewStateForMarkers } from './utils'
@@ -76,12 +78,14 @@ function MapSectionContent() {
     isProcessing,
     pendingVideo,
     conversionProgress,
+    recordingError,
     beginRecording,
     showIntro,
     onIntroComplete,
     saveVideo,
     discardVideo,
     exitRecording,
+    dismissRecordingError,
   } = useRecordingFlow({ cropRef })
 
   const earthZoomPhase = useReplayStore(s => s.earthZoomPhase)
@@ -92,13 +96,13 @@ function MapSectionContent() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [pricingOpen, setPricingOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
-  const [showUploadHint, setShowUploadHint] = useState(true)
+  const [helpOpen, setHelpOpen] = useState(() => localStorage.getItem(HELP_SEEN_STORAGE_KEY) !== 'true')
+  const [showHelpHint, setShowHelpHint] = useState(false)
+  const [routeReadyPromptOpen, setRouteReadyPromptOpen] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const [loginDrawerOpen, setLoginDrawerOpen] = useState(() => !user)
   const [announcementOpen, setAnnouncementOpen] = useState(
     () => localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) !== ANNOUNCEMENT_VERSION,
-  )
-  const [guideOpen, setGuideOpen] = useState(
-    () => localStorage.getItem(GUIDE_STORAGE_KEY) !== 'true',
   )
   const [feedbackOpen, setFeedbackOpen] = useState(() => {
     const last = localStorage.getItem(FEEDBACK_STORAGE_KEY)
@@ -113,6 +117,16 @@ function MapSectionContent() {
   const pendingLngLat = useRef<{ lng: number, lat: number } | null>(null)
   const contextMenuFileInputRef = useRef<HTMLInputElement>(null)
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number, y: number } | null>(null)
+
+  useEffect(() => {
+    if (helpOpen) {
+      setShowHelpHint(false)
+      return
+    }
+    setShowHelpHint(true)
+    const timer = window.setTimeout(() => setShowHelpHint(false), 5000)
+    return () => window.clearTimeout(timer)
+  }, [helpOpen])
 
   // Re-open login drawer when user logs out
   useEffect(() => {
@@ -129,6 +143,7 @@ function MapSectionContent() {
   }, [markers])
 
   const handleRoutesClick = useCallback(() => {
+    setRouteReadyPromptOpen(false)
     if (isFragmentMode) {
       const center = mapRef.current?.getMap()?.getCenter()
       startOrbit(center?.lng ?? 0, center?.lat ?? 20)
@@ -162,25 +177,46 @@ function MapSectionContent() {
     setAnnouncementOpen(false)
   }, [])
 
-  const handleDismissGuide = useCallback(() => {
-    localStorage.setItem(GUIDE_STORAGE_KEY, 'true')
-    setGuideOpen(false)
-  }, [])
-
   const closeMenuDrawers = useCallback(() => {
     setUploadDrawerOpen(false)
     setSettingsOpen(false)
     setPricingOpen(false)
     setGalleryOpen(false)
+    setHelpOpen(false)
     setLoginDrawerOpen(false)
   }, [])
 
   const handleUploadClick = useCallback(() => {
-    setShowUploadHint(false)
     closeMenuDrawers()
+    setRouteReadyPromptOpen(false)
     setUploadDrawerOpen(true)
-    handleDismissGuide()
-  }, [closeMenuDrawers, handleDismissGuide])
+  }, [closeMenuDrawers])
+
+  const handlePhotosAdded = useCallback(() => {
+    setRouteReadyPromptOpen(usePhotoStore.getState().markers.length >= 2)
+  }, [])
+
+  const handleUseDemo = useCallback(async () => {
+    if (demoLoading)
+      return
+    setDemoLoading(true)
+    try {
+      const store = usePhotoStore.getState()
+      const hasDemo = store.photos.some(photo => photo.id.startsWith('locusify-demo-'))
+      if (!hasDemo) {
+        const photos = await createDemoPhotos()
+        usePhotoStore.getState().addPhotos(photos)
+      }
+      setRouteReadyPromptOpen(usePhotoStore.getState().markers.length >= 2)
+    }
+    catch {
+      // Keep the user in the guide and allow retrying if demo generation fails.
+      setHelpOpen(true)
+    }
+    finally {
+      setDemoLoading(false)
+    }
+  }, [demoLoading])
 
   const handleSettingsClick = useCallback(() => {
     closeMenuDrawers()
@@ -196,6 +232,31 @@ function MapSectionContent() {
     closeMenuDrawers()
     setGalleryOpen(true)
   }, [closeMenuDrawers])
+
+  const handleHelpClick = useCallback(() => {
+    closeMenuDrawers()
+    setHelpOpen(true)
+  }, [closeMenuDrawers])
+
+  const handleCloseHelp = useCallback(() => {
+    localStorage.setItem(HELP_SEEN_STORAGE_KEY, 'true')
+    setHelpOpen(false)
+  }, [])
+
+  const handleHelpSelectPhotos = useCallback(() => {
+    setHelpOpen(false)
+    handleUploadClick()
+  }, [handleUploadClick])
+
+  const handleHelpUseDemo = useCallback(() => {
+    setHelpOpen(false)
+    void handleUseDemo()
+  }, [handleUseDemo])
+
+  const handleHelpStartReplay = useCallback(() => {
+    setHelpOpen(false)
+    handleRoutesClick()
+  }, [handleRoutesClick])
 
   const handleLoginClick = useCallback(() => {
     closeMenuDrawers()
@@ -258,29 +319,24 @@ function MapSectionContent() {
   const hasEnoughPhotos = markers.length >= 2
   const displayMarkers = isReplayMode ? [] : markers
   const isInAnyReplay = isReplayMode || isOrbiting
-  const showDesktopSidebar = !recordingActive && !isRecording && !!user && !isInAnyReplay
+  const captureUiActive = introVisible || recordingActive || isRecording
+  const showDesktopSidebar = !captureUiActive && !!user && !isInAnyReplay
   const mapDrawerModal = isMobile ? undefined : false
   const mapDrawerDesktopOffset = showDesktopSidebar && !isMobile ? 56 : 0
 
-  const recordingViewportStyle = recordingActive
-    ? {
-        width: 'min(100dvw, calc(100dvh * 16 / 9))',
-        height: 'min(100dvh, calc(100dvw * 9 / 16))',
-      }
-    : undefined
-
   return (
-    <div className={cn('absolute size-full', recordingActive && 'flex items-center justify-center bg-black')}>
+    <div className={cn('absolute size-full', captureUiActive && 'flex items-center justify-center overflow-hidden bg-black')}>
       {/* Hide menu button during active recording (intro + playback) */}
-      {!recordingActive && !isRecording && !!user && (
+      {!captureUiActive && !!user && (
         <MapMenuButton
           onUploadClick={handleUploadClick}
-          showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
           onSettingsClick={handleSettingsClick}
           onPricingClick={handlePricingClick}
           onLogout={handleLoginClick}
           onGalleryClick={handleGalleryClick}
+          onHelpClick={handleHelpClick}
+          showHelpHint={showHelpHint}
           routesDisabled={!hasEnoughPhotos && !isFragmentMode}
           isReplayMode={isInAnyReplay}
           onExitReplay={handleExitReplay}
@@ -292,13 +348,14 @@ function MapSectionContent() {
       {showDesktopSidebar && (
         <MapSidebar
           onUploadClick={handleUploadClick}
-          showUploadHint={showUploadHint}
           onRoutesClick={handleRoutesClick}
           onSettingsClick={handleSettingsClick}
           onPricingClick={handlePricingClick}
           onLogout={handleLoginClick}
           onGalleryClick={handleGalleryClick}
           onShareClick={handleShareClick}
+          onHelpClick={handleHelpClick}
+          showHelpHint={showHelpHint}
           routesDisabled={!hasEnoughPhotos && !isFragmentMode}
         />
       )}
@@ -306,6 +363,7 @@ function MapSectionContent() {
       <SelectPhotosDrawer
         open={uploadDrawerOpen}
         onOpenChange={setUploadDrawerOpen}
+        onPhotosAdded={handlePhotosAdded}
         modal={mapDrawerModal}
         desktopOffset={mapDrawerDesktopOffset}
       />
@@ -314,7 +372,7 @@ function MapSectionContent() {
       <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
       <GalleryDrawer open={galleryOpen} onOpenChange={setGalleryOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
       <LoginDrawer open={loginDrawerOpen} onOpenChange={setLoginDrawerOpen} dismissible={!!user} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
-
+      <RecordingErrorDialog reason={recordingError} onClose={dismissRecordingError} />
       {isReplayMode && (
         <PortraitLockOverlay />
       )}
@@ -325,16 +383,6 @@ function MapSectionContent() {
           <AnnouncementDialog
             open={announcementOpen}
             onClose={handleDismissAnnouncement}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Onboarding guide — shown once for new users */}
-      <AnimatePresence>
-        {guideOpen && markers.length === 0 && !announcementOpen && !isReplayMode && !!user && (
-          <OnboardingGuide
-            open
-            onDismiss={handleDismissGuide}
           />
         )}
       </AnimatePresence>
@@ -354,7 +402,7 @@ function MapSectionContent() {
 
       {/* Feedback dialog — shown every 7 days, lowest priority */}
       <AnimatePresence>
-        {feedbackOpen && !!user && !announcementOpen && !guideOpen && !videoDialogOpen && (
+        {feedbackOpen && !!user && !announcementOpen && !videoDialogOpen && (
           <FeedbackDialog
             open
             onClose={handleDismissFeedback}
@@ -370,15 +418,22 @@ function MapSectionContent() {
         />
       )}
 
-      {/* Crop container — fixed 16:9 during recording for Region Capture */}
+      {/* Export canvas: a real 16:9 box whose exact bounds are Region Captured. */}
       <div
         ref={cropRef}
         className={cn(
           'relative overflow-hidden',
-          recordingActive ? 'shrink-0' : 'size-full',
-          showDesktopSidebar && 'sm:ml-14 sm:h-full sm:w-[calc(100%-3.5rem)]',
+          captureUiActive
+            ? 'aspect-video h-auto w-full max-h-full max-w-full bg-black'
+            : 'size-full',
+          showDesktopSidebar && 'sm:ml-14 sm:w-[calc(100%-3.5rem)]',
         )}
-        style={recordingViewportStyle}
+        style={captureUiActive
+          ? {
+              width: 'min(100%, calc(100vh * 16 / 9))',
+              height: 'min(100%, calc(100vw * 9 / 16))',
+            }
+          : undefined}
       >
         {isReplayMode && (
           <TrajectoryOverlay
@@ -400,6 +455,26 @@ function MapSectionContent() {
             autoHide={!earthZoomActive}
           />
         </div>
+
+        <AnimatePresence>
+          {!announcementOpen && !isInAnyReplay && !!user && (
+            <EmptyJourneyPrompt
+              open={helpOpen && !uploadDrawerOpen}
+              onSelectPhotos={handleHelpSelectPhotos}
+              onUseDemo={handleHelpUseDemo}
+              onStartReplay={handleHelpStartReplay}
+              onClose={handleCloseHelp}
+              canStartReplay={hasEnoughPhotos || isFragmentMode}
+            />
+          )}
+          {routeReadyPromptOpen && hasEnoughPhotos && !uploadDrawerOpen && !isInAnyReplay && !!user && (
+            <RouteReadyPrompt
+              photoCount={markers.length}
+              onStartReplay={handleRoutesClick}
+              onDismiss={() => setRouteReadyPromptOpen(false)}
+            />
+          )}
+        </AnimatePresence>
 
         <m.div
           initial={{ opacity: 0, scale: 1.02 }}

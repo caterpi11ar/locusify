@@ -87,18 +87,19 @@ export const useReplayStore = create<ReplayState>((set, get) => ({
 
   confirmConfig: () => {
     const { status, templateConfig } = get()
-    if (status === 'configuring') {
-      // Preload audio for the selected template
-      const audio = AudioManager.getInstance()
-      audio.configure(templateConfig.music.volume, templateConfig.music.fadeIn, templateConfig.music.fadeOut)
-      audio.loadTrack(templateConfig.music.trackId).then(() => {
-        // Only transition if still in configuring/paused state (user hasn't exited)
-        const current = get().status
-        if (current === 'configuring' || current === 'paused') {
-          set({ status: 'paused', speedMultiplier: templateConfig.defaultSpeed || 1 })
-        }
-      })
-    }
+    if (status !== 'configuring')
+      return
+
+    // Enter the ready state immediately. Audio loading is best-effort and must
+    // never block the intro/camera sequence or leave replay stuck configuring.
+    set({ status: 'paused', speedMultiplier: templateConfig.defaultSpeed || 1 })
+
+    const audio = AudioManager.getInstance()
+    audio.configure(templateConfig.music.volume, templateConfig.music.fadeIn, templateConfig.music.fadeOut)
+    void audio.loadTrack(templateConfig.music.trackId).then(() => {
+      if (get().status === 'playing')
+        audio.play()
+    })
   },
 
   togglePlayPause: () => {
@@ -108,6 +109,19 @@ export const useReplayStore = create<ReplayState>((set, get) => ({
     }
     else if (status === 'paused') {
       set({ status: 'playing' })
+    }
+    else if (status === 'completed') {
+      const { waypoints } = get()
+      if (waypoints.length < 2)
+        return
+      set({
+        status: 'playing',
+        currentWaypointIndex: 0,
+        segmentProgress: 0,
+        totalProgress: 0,
+        currentPosition: waypoints[0].position,
+        dwellRemaining: 0,
+      })
     }
   },
 

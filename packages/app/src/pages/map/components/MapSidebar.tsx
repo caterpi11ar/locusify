@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import {
   Images,
   Route,
+  CircleHelp,
   Settings,
   Share2,
   Upload,
@@ -21,6 +22,8 @@ interface MapSidebarProps {
   onRoutesClick: () => void
   onGalleryClick: () => void
   onShareClick: () => void
+  onHelpClick: () => void
+  showHelpHint?: boolean
   onSettingsClick: () => void
   onPricingClick: () => void
   onLogout?: () => void
@@ -45,6 +48,8 @@ export function MapSidebar({
   onRoutesClick,
   onGalleryClick,
   onShareClick,
+  onHelpClick,
+  showHelpHint,
   onSettingsClick,
   onPricingClick,
   onLogout,
@@ -111,6 +116,37 @@ export function MapSidebar({
         </nav>
 
         <div className={cn('flex flex-col gap-px', collapsed ? 'px-1' : 'px-3')}>
+          <div className="relative">
+            {showHelpHint && (
+              <m.div
+                aria-hidden
+                className="pointer-events-none absolute inset-1 rounded-xl border border-sky-400/70"
+                animate={{ scale: [1, 1.18, 1.18], opacity: [0, 0.75, 0] }}
+                transition={{ duration: 2.4, repeat: 2, repeatDelay: 0.6 }}
+              />
+            )}
+            <AnimatePresence>
+              {showHelpHint && (
+                <m.div
+                  className="border-fill-tertiary bg-material-opaque text-text pointer-events-none absolute top-1/2 left-full z-100 ml-2 -translate-y-1/2 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-medium shadow-xl backdrop-blur-xl"
+                  initial={{ opacity: 0, x: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -6, scale: 0.96 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="mr-1.5 text-sky-400">?</span>
+                  {t('help.hint')}
+                </m.div>
+              )}
+            </AnimatePresence>
+            <SidebarItem
+              icon={CircleHelp}
+              label={t('help.menu')}
+              shortLabel={t('help.menu.short')}
+              expanded={expanded}
+              onClick={onHelpClick}
+            />
+          </div>
           <SidebarItem
             icon={Settings}
             label={t('settings.title', { defaultValue: 'Settings' })}

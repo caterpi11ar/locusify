@@ -18,6 +18,7 @@ enum DrawerStep {
 interface SelectPhotosDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onPhotosAdded?: (count: number) => void
   contentClassName?: string
   modal?: boolean
   desktopOffset?: number
@@ -26,6 +27,7 @@ interface SelectPhotosDrawerProps {
 export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
   open,
   onOpenChange,
+  onPhotosAdded,
   contentClassName,
   modal,
   desktopOffset = 0,
@@ -51,12 +53,13 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
 
     // Add to context
     addPhotos(filesWithGPS)
+    onPhotosAdded?.(filesWithGPS.length)
 
     // Close drawer and reset
     onOpenChange(false)
     setCurrentStep(DrawerStep.SELECT)
     setSelectedFiles([])
-  }, [selectedFiles, addPhotos, onOpenChange])
+  }, [selectedFiles, addPhotos, onPhotosAdded, onOpenChange])
 
   // Handle cancel
   const handleCancel = useCallback(() => {

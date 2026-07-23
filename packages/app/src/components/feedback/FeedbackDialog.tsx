@@ -68,7 +68,7 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
 
   return (
     <m.div
-      className="pointer-events-none absolute inset-0 z-50 flex items-end justify-end p-4"
+      className="pointer-events-none absolute inset-0 z-50 flex items-end justify-end p-4 sm:pr-20"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

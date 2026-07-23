@@ -108,6 +108,13 @@ export function GPSInfoPanel({
         </div>
       </div>
 
+      {filesWithGPS.length > 0 && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+          <i className="i-mingcute-check-circle-fill text-base" />
+          <span>{t('photos.preview.usable', { count: filesWithGPS.length })}</span>
+        </div>
+      )}
+
       {/* Warning for files without GPS */}
       {filesWithoutGPS.length > 0 && (
         <m.div
@@ -149,6 +156,9 @@ export function GPSInfoPanel({
               <div className="text-sm text-red-700 dark:text-red-300">
                 {t('photos.error.no.gps.description')}
               </div>
+              <div className="mt-2 text-xs leading-relaxed text-red-700/80 dark:text-red-300/80">
+                {t('photos.error.no.gps.help')}
+              </div>
             </div>
           </div>
         </m.div>
@@ -187,11 +197,7 @@ export function GPSInfoPanel({
           onClick={onConfirm}
         >
           <i className="i-mingcute-check-line text-base" />
-          {t('photos.confirm')}
-          {' '}
-          (
-          {filesWithGPS.length}
-          )
+          {t('photos.generateRoute', { count: filesWithGPS.length })}
         </button>
       </m.div>
     </m.div>

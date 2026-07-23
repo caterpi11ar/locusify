@@ -2,10 +2,8 @@
   "error.404.title": "Page Not Found",
   "error.404.description": "The requested page could not be found.",
   "error.404.back": "Go back",
-
   "workspace.title": "Track Playback",
   "workspace.subtitle": "Replay your journey with smooth animation",
-
   "workspace.steps.navigation": "Progress",
   "workspace.steps.upload.title": "Upload Photos",
   "workspace.steps.upload.description": "Select photos with GPS",
@@ -13,7 +11,6 @@
   "workspace.steps.extract.description": "Process location data",
   "workspace.steps.replay.title": "Replay",
   "workspace.steps.replay.description": "View trajectory",
-
   "workspace.upload.title": "Upload Your Photos",
   "workspace.upload.description": "Drag & drop photos or click to browse. Photos must have GPS location data.",
   "workspace.upload.dropzone.idle": "Drag & drop photos or click to browse",
@@ -41,7 +38,6 @@
   "workspace.upload.needMoreGps": "Need {{count}} more with GPS",
   "workspace.upload.loadMockData": "🧪 Load Test Data (Dev)",
   "workspace.upload.loadingMockData": "Loading test data...",
-
   "workspace.gps.title": "GPS Data Extraction",
   "workspace.gps.description": "Extracting GPS coordinates from photo EXIF data to generate your trajectory.",
   "workspace.gps.processing": "Processing {{current}} of {{total}} photos...",
@@ -50,27 +46,22 @@
   "workspace.gps.altitude": "Alt: {{altitude}}m",
   "workspace.gps.insufficientData": "Insufficient GPS Data",
   "workspace.gps.insufficientDataMessage": "At least 2 photos with valid GPS coordinates are required to create a trajectory. Please upload more photos with location data.",
-
   "workspace.gps.stats.total": "Total Photos",
   "workspace.gps.stats.success": "GPS Found",
   "workspace.gps.stats.failed": "Missing GPS",
-
   "workspace.gps.status.valid": "GPS OK",
   "workspace.gps.status.missing": "No GPS",
   "workspace.gps.status.checking": "Checking...",
-
   "workspace.gps.table.title": "GPS Data Details",
   "workspace.gps.table.photo": "Photo",
   "workspace.gps.table.coordinates": "Coordinates",
   "workspace.gps.table.time": "Time",
   "workspace.gps.table.status": "Status",
-
   "workspace.gps.preview.title": "Trajectory Preview",
   "workspace.gps.preview.noData": "No GPS data to display",
   "workspace.gps.preview.noValidGps": "No valid GPS coordinates found",
   "workspace.gps.preview.validPoints": "{{count}} valid GPS points",
   "workspace.gps.preview.invalidPoints": "{{count}} missing GPS",
-
   "workspace.replay.title": "Trajectory Replay",
   "workspace.replay.description": "View and replay your journey on the map.",
   "workspace.replay.progress": "Progress: {{current}} / {{total}}",
@@ -78,13 +69,11 @@
   "workspace.replay.completed": "Replay completed! Click Play to restart.",
   "workspace.replay.noData": "No trajectory data available",
   "workspace.replay.noDataMessage": "At least 2 photos with valid GPS coordinates are required. Please go back and upload more photos.",
-
   "workspace.config.title": "Configure Route",
   "workspace.config.start": "Start Replay",
   "workspace.config.route.title": "Route Configuration",
   "workspace.config.route.next": "Next",
   "workspace.config.route.back": "Back",
-
   "workspace.controls.play": "Play",
   "workspace.controls.pause": "Pause",
   "workspace.controls.replay": "Replay",
@@ -97,7 +86,6 @@
   "workspace.controls.backToGps": "Back to GPS Data",
   "workspace.controls.exit": "Exit",
   "workspace.controls.speed": "Speed",
-
   "workspace.recording.recording": "Recording...",
   "workspace.recording.processing": "Processing...",
   "workspace.recording.converting": "Converting to MP4… {{progress}}%",
@@ -105,9 +93,7 @@
   "workspace.recording.previewUnsupported": "Preview is not available in this browser, but you can still export the video.",
   "workspace.recording.save": "Export",
   "workspace.recording.discard": "Discard",
-
   "workspace.status.completed": "Replay completed! Click Play to restart.",
-
   "explory.found.locations": "Found {{count}} shooting locations",
   "explory.parsing.location": "Parsing location...",
   "explory.loading.map": "Loading map...",
@@ -117,7 +103,6 @@
   "explory.back.to.gallery": "Back to Gallery",
   "explory.cluster.photos": "{{count}} photos",
   "explory.cluster.click.details": "Click to view details",
-
   "photos.select.title": "Select Photos",
   "photos.select.description": "Select photos to add to the map",
   "photos.select.photos": "Select Your Photos",
@@ -126,19 +111,45 @@
   "photos.supported.formats": "Supported: JPG, PNG, HEIC, WebP, AVIF",
   "photos.preview.title": "Review Your Photos",
   "photos.preview.description": "{{total}} photo(s) selected, {{withGPS}} with GPS data",
+  "photos.preview.usable": "{{count}} photo(s) are ready for your route",
   "photos.no.gps.data": "No GPS data",
   "photos.warning.no.gps.title": "Some photos lack GPS data",
   "photos.warning.no.gps.description": "{{count}} photo(s) don't have GPS information and will be skipped.",
   "photos.error.no.gps.title": "No GPS Data Available",
   "photos.error.no.gps.description": "All selected photos lack GPS information. Please select photos with location data.",
-  "photos.previous": "Previous",
+  "photos.error.no.gps.help": "Choose original photos directly from your phone. Photos saved from messaging or social apps may have had their location removed.",
+  "photos.previous": "Choose Again",
   "photos.confirm": "Confirm",
+  "photos.generateRoute": "Create Route ({{count}})",
   "photos.processing.title": "Processing Photos",
   "photos.processing.description": "Extracting metadata from your photos...",
   "photos.complete.title": "Processing Complete!",
   "photos.complete.description": "Photos have been added to the map.",
   "photos.added.count": "{{count}} photos added to map",
-
+  "onboarding.empty.title": "Create your first travel route",
+  "onboarding.empty.description": "Choose 2+ geotagged photos to create a travel route video.",
+  "onboarding.empty.selectPhotos": "Choose My Photos",
+  "onboarding.empty.useDemo": "Try a Demo Journey",
+  "onboarding.empty.manual.title": "No location? Add manually",
+  "onboarding.empty.manual.desktop": "Right-click the map to add photos there.",
+  "onboarding.empty.manual.mobile": "Long-press the map to add photos there.",
+  "onboarding.empty.privacy": "Local processing · No photo uploads",
+  "onboarding.routeReady.title": "Your route is ready",
+  "onboarding.routeReady.description": "{{count}} photos have been placed on the map. Replay them in capture order to see your journey.",
+  "onboarding.routeReady.startReplay": "Start Replay",
+  "onboarding.routeReady.later": "Later",
+  "onboarding.replay.recordingHelp": "Starting the replay will ask for screen-recording access. Choose the current tab to create your video locally.",
+  "onboarding.replay.playAndRecord": "Play & Record",
+  "recording.error.title": "Unable to start recording",
+  "recording.error.busy": "A recording or video processing task is already active. Please try again shortly.",
+  "recording.error.permission-denied": "Recording permission was not granted. Try again and choose the current tab in the browser prompt.",
+  "recording.error.region-capture-unsupported": "This browser cannot record a fixed 16:9 region. Please use the latest Chrome.",
+  "recording.error.crop-failed": "Could not crop the recording to the 16:9 canvas. Use the latest Chrome and choose the current tab.",
+  "recording.error.gotIt": "Got it",
+  "help.menu": "Help",
+  "help.menu.short": "Help",
+  "help.hint": "Need help? Open the guide anytime",
+  "help.close": "Close help",
   "menu.gallery": "My Photos",
   "menu.gallery.short": "Photos",
   "menu.upload": "Upload Photos",
@@ -153,7 +164,6 @@
   "gallery.empty.description": "Upload photos with GPS to see them here",
   "gallery.photo.count": "{{count}} photos",
   "gallery.remove": "Remove photo",
-
   "auth.email.placeholder": "Enter your email",
   "auth.email.sendCode": "Send Code",
   "auth.email.sending": "Sending...",
@@ -168,18 +178,15 @@
   "auth.email.invalidCode": "Invalid or expired code",
   "auth.email.sendError": "Failed to send code",
   "auth.email.separator": "Or continue with",
-
   "auth.logout": "Logout",
   "auth.error": "Login failed. Please try again.",
   "auth.notConfigured": "This login method is not configured yet.",
   "auth.loggedInAs": "Hi, {{name}}",
   "auth.popupBlocked": "Popup was blocked. Please allow popups and try again.",
-
   "auth.drawer.login.title": "Welcome Back",
   "auth.drawer.login.description": "Login to continue your journey",
   "auth.drawer.signup.title": "Get Started",
   "auth.drawer.signup.description": "Create an account to start capturing your travels",
-
   "auth.login.title": "Login to your account",
   "auth.login.description": "Enter your email below to login to your account",
   "auth.login.email.label": "Email",
@@ -195,7 +202,6 @@
   "auth.login.oauth.github": "Login with GitHub",
   "auth.login.switch.text": "Don't have an account?",
   "auth.login.switch.link": "Sign up",
-
   "auth.signup.title": "Create an account",
   "auth.signup.description": "Enter your information to get started",
   "auth.signup.email.label": "Email",
@@ -215,24 +221,19 @@
   "auth.signup.switch.text": "Already have an account?",
   "auth.signup.switch.link": "Sign in",
   "auth.signup.success.message": "Verification email sent to {{email}}. Please check your inbox and verify your email to continue.",
-
   "auth.privacy.agree": "I agree to the",
   "auth.privacy.privacyPolicy": "Privacy Policy",
   "auth.privacy.and": "and",
   "auth.privacy.termsOfService": "Terms of Service",
   "auth.privacy.required": "Please agree to the Privacy Policy and Terms of Service first",
-
   "auth.legal.privacyPolicy.title": "Privacy Policy",
   "auth.legal.termsOfService.title": "Terms of Service",
-
   "auth.login.forgotPassword": "Forgot password?",
-
   "auth.forgotPassword.description": "Enter your email to receive a password reset link",
   "auth.forgotPassword.submit": "Send Reset Link",
   "auth.forgotPassword.submitting": "Sending...",
   "auth.forgotPassword.success": "Reset link sent to {{email}}. Please check your inbox.",
   "auth.forgotPassword.backToLogin": "Back to login",
-
   "auth.resetPassword.title": "Reset Password",
   "auth.resetPassword.description": "Enter your new password",
   "auth.resetPassword.newPassword": "New Password",
@@ -242,12 +243,9 @@
   "auth.resetPassword.success": "Password reset successfully. You can now sign in.",
   "auth.resetPassword.mismatch": "Passwords do not match",
   "auth.resetPassword.invalidCode": "Invalid or expired reset link",
-
   "auth.account.resetPassword": "Reset Password",
-
   "auth.method.otp": "Verification Code",
   "auth.method.password": "Password",
-
   "settings.title": "Settings",
   "settings.title.short": "Settings",
   "settings.section.appearance": "Appearance",
@@ -266,12 +264,10 @@
   "settings.privacy.locationDisplay": "Location data is used for map display and stays on your device unless you upload photos",
   "settings.privacy.localOnly": "All photo processing happens locally on your device",
   "settings.privacy.noTracking": "We use anonymous page-view analytics (Google Analytics) to improve the app — no personal data is shared",
-
   "settings.about.version": "Version",
   "settings.about.website": "Website",
   "settings.about.github": "GitHub",
   "settings.about.appName": "Locusify",
-
   "settings.section.replay": "Replay",
   "settings.avatar": "Avatar",
   "settings.avatarProfile": "Profile",
@@ -286,29 +282,15 @@
   "settings.transport.driving": "Driving",
   "settings.transport.train": "Train",
   "settings.transport.flying": "Flying",
-
   "map.announcement.title": "What's New",
   "map.announcement.body": "Welcome to Locusify! Upload your GPS-tagged photos to generate visual route maps and cinematic travel vlogs automatically.",
   "map.announcement.dismiss": "Got it",
-
   "share.appTitle": "Locusify",
   "share.appText": "Transform your travel photos into visual route maps and cinematic vlogs",
   "share.videoTitle": "My Locusify Journey",
   "share.videoText": "Check out my travel trajectory replay!",
   "share.error": "Failed to share",
-
   "map.contextMenu.addPhotos": "Add",
-
-  "guide.step1.title": "Upload Photos",
-  "guide.step1.description": "Use the upload entry to add GPS-tagged photos to the map",
-  "guide.step2.title": "Quick Add Photos",
-  "guide.step2.description.desktop": "You can also right-click anywhere on the map to quickly add photos to that spot",
-  "guide.step2.description.mobile": "You can also long-press anywhere on the map to quickly add photos to that spot",
-  "guide.step3.title": "Fragment Mode",
-  "guide.step3.description": "Zoom out to enter Fragment Mode — your photos fill country shapes on a world map, giving you a bird's-eye view of everywhere you've been",
-  "guide.dismiss": "Got it",
-  "guide.tapToContinue": "Tap anywhere to continue",
-
   "settings.section.subscription": "Subscription",
   "settings.subscription.currentPlan": "Current Plan",
   "settings.subscription.free": "Free",
@@ -316,7 +298,6 @@
   "settings.subscription.max": "Max",
   "settings.subscription.manage": "Manage",
   "settings.subscription.upgrade": "Upgrade",
-
   "pricing.title": "Choose Your Plan",
   "pricing.description": "Unlock premium templates and features",
   "pricing.plan.free": "Free",
@@ -342,12 +323,10 @@
   "pricing.manage": "Manage",
   "pricing.useRedeemCode": "Use Redeem Code",
   "pricing.included": "Included",
-
   "pricing.sub.expires": "Expires: {{date}}",
   "pricing.sub.daysRemaining": "{{count}} days remaining",
   "pricing.sub.willNotRenew": "Will not renew",
   "pricing.sub.noExpiry": "No expiration",
-
   "template.selector.title": "Choose Template",
   "template.vlog.name": "Vlog Style",
   "template.vlog.description": "Energetic cuts with warm tones and upbeat music",
@@ -359,7 +338,6 @@
   "template.travelDiary.description": "Vintage slides with acoustic guitar",
   "template.nightMode.name": "Night Mode",
   "template.nightMode.description": "Cool tones with ambient music and neon accents",
-
   "template.customize.title": "Customize",
   "template.customize.music": "Music",
   "template.customize.filter": "Filter",
@@ -389,7 +367,6 @@
   "template.customize.pitch": "Pitch",
   "template.customize.bearing": "Bearing",
   "template.customize.damping": "Smoothing",
-
   "template.music.upbeat": "Upbeat",
   "template.music.acoustic": "Acoustic",
   "template.music.cinematic": "Cinematic",
@@ -397,7 +374,6 @@
   "template.music.orchestral": "Orchestral",
   "template.music.none": "None",
   "template.music.unavailable": "Coming Soon",
-
   "template.filter.none": "None",
   "template.filter.vintage": "Vintage",
   "template.filter.warm": "Warm",
@@ -405,46 +381,38 @@
   "template.filter.b&w": "B&W",
   "template.filter.film": "Film",
   "template.filter.cinematic": "Cinematic",
-
   "template.transition.cut": "Cut",
   "template.transition.crossfade": "Crossfade",
   "template.transition.slide-left": "Slide",
   "template.transition.slide-up": "Slide Up",
   "template.transition.zoom-in": "Zoom In",
   "template.transition.blur": "Blur",
-
   "template.textStyle.handwritten": "Handwritten",
   "template.textStyle.minimal": "Minimal",
   "template.textStyle.bold": "Bold",
   "template.textStyle.typewriter": "Typewriter",
   "template.textStyle.neon": "Neon",
-
   "template.position.top-left": "Top Left",
   "template.position.top-right": "Top Right",
   "template.position.bottom-left": "Bottom Left",
   "template.position.bottom-right": "Bottom Right",
   "template.position.center": "Center",
-
   "template.customize.customText": "Custom Caption",
   "template.customize.customTextPlaceholder": "Add your own caption...",
-
   "template.stats.title": "Journey Stats",
   "template.stats.photos": "Photos",
   "template.stats.distance": "Distance",
   "template.stats.duration": "Duration",
-
   "template.ai.recommend": "AI Recommend",
   "template.ai.captions": "AI Captions",
   "template.ai.loading": "AI thinking...",
   "template.ai.proRequired": "Pro subscription required",
-
   "redeem.title": "Redeem Code",
   "redeem.placeholder": "Enter your redemption code",
   "redeem.submit": "Redeem",
   "redeem.submitting": "Redeeming...",
   "redeem.success": "Code redeemed successfully!",
   "redeem.error.generic": "Failed to redeem code",
-
   "stats.bar.duration": "Duration",
   "stats.bar.countries": "Countries",
   "stats.bar.cities": "Cities",
@@ -452,13 +420,11 @@
   "stats.bar.scanQr": "Scan to explore",
   "stats.bar.durationUnit": "d",
   "stats.bar.distanceUnit": "km",
-
   "photo.live.badge": "Live",
   "photo.live.playing": "Playing Live Photo",
   "photo.live.tooltip.desktop": "Click the Live badge to play",
   "photo.live.tooltip.mobile": "Tap the Live badge to play",
   "photo.video.badge": "Video",
-
   "upload.complete.title": "Upload Complete!",
   "upload.uploading.title": "Uploading...",
   "upload.complete.description": "All files have been uploaded successfully.",
@@ -467,15 +433,12 @@
   "upload.files.completed": "{{count}} files uploaded",
   "upload.files.uploading": "{{completed}} of {{total}} files uploaded",
   "upload.complete.hint": "You can now close this page or upload more files.",
-
   "replay.rotateLandscape": "Please rotate your device to landscape mode",
-
   "metadata.editor.edit": "Edit Info",
   "metadata.editor.done": "Done",
   "metadata.editor.title": "Title",
   "metadata.editor.titlePlaceholder": "Enter photo title...",
   "metadata.editor.dateTaken": "Date & Time",
-
   "feedback.title": "Rate Your Experience",
   "feedback.subtitle": "How are you enjoying Locusify?",
   "feedback.textLabel": "Tell us more",
@@ -486,6 +449,5 @@
   "feedback.thankYou.title": "Thank you!",
   "feedback.thankYou.body": "Your feedback helps us make Locusify better for everyone.",
   "feedback.thankYou.dismiss": "Done",
-
   "settings.feedback": "Feedback"
 }

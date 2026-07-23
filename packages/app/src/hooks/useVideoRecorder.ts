@@ -3,6 +3,8 @@ import { convertWebmToMp4 } from '@/lib/webm-to-mp4'
 import { useReplayStore } from '@/stores/replayStore'
 
 export type RecordingStatus = 'idle' | 'recording' | 'processing' | 'unsupported'
+export type RecordingFailureReason = 'busy' | 'permission-denied' | 'region-capture-unsupported' | 'crop-failed'
+export type StartRecordingResult = { ok: true } | { ok: false, reason: RecordingFailureReason }
 
 // ─── Capability detection ──────────────────────────────────────────────────────
 
@@ -39,17 +41,11 @@ class ScreenRecordingSession {
   static async create(
     callbacks: SessionCallbacks,
     cropElement?: HTMLElement,
-  ): Promise<ScreenRecordingSession | null> {
-    try {
-      // Pre-create CropTarget before getDisplayMedia (must be called before capture starts)
-      let cropTarget: CropTarget | null = null
-      if (cropElement && typeof CropTarget !== 'undefined') {
-        try {
-          cropTarget = await CropTarget.fromElement(cropElement)
-        }
-        catch { /* Region Capture unavailable — continue without cropping */ }
-      }
+  ): Promise<{ session: ScreenRecordingSession } | { reason: RecordingFailureReason }> {
+    if (!cropElement || typeof CropTarget === 'undefined')
+      return { reason: 'region-capture-unsupported' }
 
+    try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
           displaySurface: 'browser',
@@ -61,21 +57,27 @@ class ScreenRecordingSession {
         surfaceSwitching: 'exclude',
       } as DisplayMediaStreamOptions)
 
-      // Crop the captured stream to the target element's bounding box
-      if (cropTarget) {
-        try {
-          const videoTrack = stream.getVideoTracks()[0] as BrowserCaptureMediaStreamTrack
-          if (typeof videoTrack.cropTo === 'function') {
-            await videoTrack.cropTo(cropTarget)
-          }
+      // Create the CropTarget only after the user has selected the current tab.
+      // Chrome resolves its exact bounds at this point, after the 16:9 layout is
+      // committed, which avoids stale dimensions and stretched output.
+      try {
+        const cropTarget = await CropTarget.fromElement(cropElement)
+        const videoTrack = stream.getVideoTracks()[0] as BrowserCaptureMediaStreamTrack
+        if (typeof videoTrack.cropTo !== 'function') {
+          stream.getTracks().forEach(track => track.stop())
+          return { reason: 'region-capture-unsupported' }
         }
-        catch { /* cropTo failed — continue with full-tab capture */ }
+        await videoTrack.cropTo(cropTarget)
+      }
+      catch {
+        stream.getTracks().forEach(track => track.stop())
+        return { reason: 'crop-failed' }
       }
 
-      return new ScreenRecordingSession(stream, callbacks)
+      return { session: new ScreenRecordingSession(stream, callbacks) }
     }
     catch {
-      return null // user denied or not supported
+      return { reason: 'permission-denied' }
     }
   }
 
@@ -152,11 +154,11 @@ export function useVideoRecorder() {
 
   /**
    * Starts recording using Screen Capture API.
-   * Returns true if recording started successfully, false if user denied or unsupported.
+   * Returns a typed failure reason so the UI can explain how to recover.
    */
-  const startRecording = useCallback(async (cropElement?: HTMLElement | null): Promise<boolean> => {
+  const startRecording = useCallback(async (cropElement?: HTMLElement | null): Promise<StartRecordingResult> => {
     if (status !== 'idle')
-      return false
+      return { ok: false, reason: 'busy' }
 
     const callbacks: SessionCallbacks = {
       onStopping: () => {
@@ -179,15 +181,16 @@ export function useVideoRecorder() {
       },
     }
 
-    const session = await ScreenRecordingSession.create(callbacks, cropElement ?? undefined)
-    if (!session)
-      return false
+    const result = await ScreenRecordingSession.create(callbacks, cropElement ?? undefined)
+    if ('reason' in result)
+      return { ok: false, reason: result.reason }
 
+    const { session } = result
     sessionRef.current = session
     session.start()
     setStatus('recording')
     useReplayStore.getState().setRecordingActive(true)
-    return true
+    return { ok: true }
   }, [status])
 
   // Auto-stop recording when replay completes

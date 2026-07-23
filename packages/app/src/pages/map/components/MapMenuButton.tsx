@@ -12,6 +12,7 @@ import { cn, glassPanel } from '@/lib/utils'
 import { UserPanel } from './UserPanel'
 
 interface MenuItemProps {
+  id: 'upload' | 'replay' | 'gallery' | 'share' | 'help' | 'settings'
   icon: string
   label: string
   onClick?: () => void
@@ -26,6 +27,8 @@ interface MapMenuButtonProps {
   onPricingClick?: () => void
   onLogout?: () => void
   onGalleryClick?: () => void
+  onHelpClick?: () => void
+  showHelpHint?: boolean
   /** Whether the routes button is disabled (e.g. no photos uploaded) */
   routesDisabled?: boolean
   /** Whether replay mode is active — shows exit button instead of menu */
@@ -51,6 +54,8 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
   onPricingClick,
   onLogout,
   onGalleryClick,
+  onHelpClick,
+  showHelpHint,
   routesDisabled,
   isReplayMode,
   onExitReplay,
@@ -74,6 +79,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
 
   const menuItems: MenuItemProps[] = [
     {
+      id: 'upload',
       icon: 'i-mingcute-add-line',
       label: t('menu.upload', { defaultValue: 'Upload Photos' }),
       onClick: () => {
@@ -81,6 +87,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       },
     },
     {
+      id: 'replay',
       icon: 'i-mingcute-route-line',
       label: t('workspace.controls.viewReplay', { defaultValue: 'View Trajectory' }),
       onClick: () => {
@@ -90,11 +97,13 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       disabled: routesDisabled,
     },
     {
+      id: 'gallery',
       icon: 'i-mingcute-photo-album-line',
       label: t('menu.gallery', { defaultValue: 'Gallery' }),
       onClick: onGalleryClick,
     },
     {
+      id: 'share',
       icon: 'i-mingcute-share-3-line',
       label: t('menu.share', { defaultValue: 'Share' }),
       onClick: () => {
@@ -106,6 +115,13 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       },
     },
     {
+      id: 'help',
+      icon: 'i-mingcute-question-line',
+      label: t('help.menu'),
+      onClick: undefined,
+    },
+    {
+      id: 'settings',
       icon: 'i-mingcute-settings-3-line',
       label: t('settings.title', { defaultValue: 'Settings' }),
       onClick: onSettingsClick,
@@ -171,6 +187,22 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
+        <AnimatePresence>
+          {showHelpHint && !isExpanded && (
+            <m.button
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              className="border-fill-tertiary bg-material-opaque text-text absolute top-0 right-12 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-medium shadow-xl backdrop-blur-xl"
+              initial={{ opacity: 0, x: 8, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 6, scale: 0.96 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="mr-1.5 text-sky-400">?</span>
+              {t('help.hint')}
+            </m.button>
+          )}
+        </AnimatePresence>
         <div className={cn(glassPanel, 'overflow-hidden')}>
           <button
             type="button"
@@ -222,7 +254,10 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
                     disabled={item.disabled}
                     onClick={() => {
                       if (!item.disabled) {
-                        item.onClick?.()
+                        if (item.id === 'help')
+                          onHelpClick?.()
+                        else
+                          item.onClick?.()
                         setIsExpanded(false)
                       }
                     }}
@@ -234,7 +269,17 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
                     )}
                     title={item.label}
                   >
-                    <i className={cn(item.icon, 'size-5 shrink-0')} />
+                    <span className="relative flex size-5 shrink-0 items-center justify-center">
+                      {item.id === 'help' && (
+                        <m.span
+                          aria-hidden
+                          className="pointer-events-none absolute -inset-1 rounded-full border border-sky-400/70"
+                          animate={{ scale: [1, 1.6, 1.6], opacity: [0, 0.8, 0] }}
+                          transition={{ duration: 2.4, repeat: 2, repeatDelay: 0.6 }}
+                        />
+                      )}
+                      <i className={cn(item.icon, 'size-5')} />
+                    </span>
                     <span className="truncate">{item.label}</span>
                   </button>
                 ))}

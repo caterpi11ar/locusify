@@ -34,11 +34,9 @@ export function EarthZoomController() {
       return id
     }
 
-    const unsub = useReplayStore.subscribe((state, prev) => {
-      const phase = state.earthZoomPhase
-      if (phase === prev.earthZoomPhase)
-        return
+    function handlePhase(phase: ReturnType<typeof useReplayStore.getState>['earthZoomPhase']) {
       phaseRef.current = phase
+      const state = useReplayStore.getState()
 
       if (phase === 'setup') {
         const { waypoints } = state
@@ -57,7 +55,6 @@ export function EarthZoomController() {
 
         mapInstance.jumpTo({ center: firstPos, zoom: computeOrbitZoom() })
 
-        // Self-advance: after intro hold, push to revealing (no longer depends on intro callback)
         safeTimeout(() => {
           if (phaseRef.current !== 'setup')
             return
@@ -67,23 +64,20 @@ export function EarthZoomController() {
 
       if (phase === 'revealing') {
         const { waypoints } = state
+        if (waypoints.length < 2)
+          return
         const firstPos = waypoints[0].position
 
-        // Calculate target zoom from trajectory bounds
         let minLng = Infinity
         let maxLng = -Infinity
         let minLat = Infinity
         let maxLat = -Infinity
         for (const wp of waypoints) {
           const [lng, lat] = wp.position
-          if (lng < minLng)
-            minLng = lng
-          if (lng > maxLng)
-            maxLng = lng
-          if (lat < minLat)
-            minLat = lat
-          if (lat > maxLat)
-            maxLat = lat
+          if (lng < minLng) minLng = lng
+          if (lng > maxLng) maxLng = lng
+          if (lat < minLat) minLat = lat
+          if (lat > maxLat) maxLat = lat
         }
 
         const cam = mapInstance.cameraForBounds(
@@ -92,30 +86,25 @@ export function EarthZoomController() {
         )
         const landZoom = cam?.zoom ?? 10
 
-        // Wait for intro overlay to clear, then single continuous flyTo
         safeTimeout(() => {
           if (phaseRef.current !== 'revealing')
             return
 
           useReplayStore.getState().setEarthZoomPhase('flying')
-
-          // One continuous zoom from space to target — no intermediate stop
           mapInstance.flyTo({
             center: firstPos,
             zoom: landZoom,
             duration: FLY_DURATION,
-            easing: (t: number) => 1 - (1 - t) ** 3, // ease-out cubic
+            easing: (t: number) => 1 - (1 - t) ** 3,
           })
         }, REVEAL_DELAY)
       }
 
       if (phase === 'flying') {
-        // After single flyTo completes: switch to mercator and finish
         safeTimeout(() => {
           if (phaseRef.current !== 'flying')
             return
 
-          // At high zoom the globe→mercator switch is imperceptible
           mapInstance.setProjection({ type: 'mercator' })
           mapInstance.setSky({ 'atmosphere-blend': 0 })
           const canvas = mapInstance.getCanvas()
@@ -128,9 +117,22 @@ export function EarthZoomController() {
       }
 
       if (phase === 'done') {
-        useReplayStore.getState().togglePlayPause()
+        const current = useReplayStore.getState()
+        if (current.status === 'paused')
+          current.togglePlayPause()
       }
+    }
+
+    const unsub = useReplayStore.subscribe((state, prev) => {
+      if (state.earthZoomPhase !== prev.earthZoomPhase)
+        handlePhase(state.earthZoomPhase)
     })
+
+    // The controller can mount after startEarthZoom() changed the phase. Process
+    // the current phase once so the setup transition cannot be missed.
+    const initialPhase = useReplayStore.getState().earthZoomPhase
+    if (initialPhase !== 'idle' && initialPhase !== 'done')
+      handlePhase(initialPhase)
 
     return () => {
       unsub()

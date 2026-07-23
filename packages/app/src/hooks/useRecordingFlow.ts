@@ -1,5 +1,7 @@
 import type { RefObject } from 'react'
+import type { RecordingFailureReason } from './useVideoRecorder'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { useReplayStore } from '@/stores/replayStore'
 import { useVideoRecorder } from './useVideoRecorder'
@@ -42,6 +44,7 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
 
   // Save dialog state
   const [videoDialogOpen, setVideoDialogOpen] = useState(false)
+  const [recordingError, setRecordingError] = useState<RecordingFailureReason | null>(null)
 
   // Recording active flag (shared via replayStore)
   const recordingActive = useReplayStore(s => s.recordingActive)
@@ -64,9 +67,21 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
    */
   const beginRecording = useCallback(async (onPlaybackStart: () => void) => {
     recorderDiscard()
+    setRecordingError(null)
     onPlaybackStartRef.current = onPlaybackStart
-    setIntroVisible(true)
-    await startRecording(cropRef?.current)
+    // Commit the 16:9 capture layout before CropTarget is created. The intro is
+    // started only after MediaRecorder is active, so the logo is part of the
+    // exported video instead of finishing behind the browser share prompt.
+    flushSync(() => useReplayStore.getState().setRecordingActive(true))
+    const result = await startRecording(cropRef?.current)
+    if (result.ok) {
+      setIntroVisible(true)
+    }
+    else {
+      useReplayStore.getState().setRecordingActive(false)
+      setRecordingError(result.reason)
+      onPlaybackStartRef.current = null
+    }
   }, [startRecording, recorderDiscard, cropRef])
 
   /**
@@ -162,6 +177,7 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   const exitRecording = useCallback(() => {
     recorderDiscard()
     setVideoDialogOpen(false)
+    setRecordingError(null)
   }, [recorderDiscard])
 
   return {
@@ -173,6 +189,7 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     isProcessing,
     pendingVideo,
     conversionProgress,
+    recordingError,
     // Actions
     beginRecording,
     showIntro,
@@ -180,5 +197,6 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     saveVideo,
     discardVideo,
     exitRecording,
+    dismissRecordingError: () => setRecordingError(null),
   }
 }
