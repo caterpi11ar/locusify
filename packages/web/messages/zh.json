@@ -195,43 +195,32 @@
     },
     "free": {
       "name": "免费版",
-      "price": "¥0",
+      "price": "$0",
       "period": "",
-      "description": "基础功能，永久免费",
+      "description": "使用基础地图和轨迹回放能力，开始整理你的旅行照片。",
       "cta": "免费开始",
-      "feature1": "GPS 照片定位（50张/次）",
-      "feature2": "交互地图",
-      "feature3": "基础轨迹回放",
-      "feature4": "JPEG / PNG",
-      "feature5": "本地处理"
+      "feature1": "基础模板（Vlog、极简）",
+      "feature2": "无限照片上传",
+      "feature3": "地图轨迹回放"
     },
     "pro": {
-      "name": "专业版",
-      "price": "¥18",
+      "name": "Pro",
+      "price": "$3",
       "period": "/月",
-      "description": "为旅行摄影师和深度玩家",
-      "cta": "升级专业版",
-      "feature1": "免费版全部功能",
-      "feature2": "无限上传",
-      "feature3": "1080p 导出",
-      "feature4": "HEIC / WebP / AVIF",
-      "feature5": "自定义样式",
-      "feature6": "批量处理",
-      "feature7": "优先支持"
+      "description": "解锁高级模板和完整自定义配置，制作更丰富的视频。",
+      "cta": "使用兑换码",
+      "feature1": "全部高级模板",
+      "feature2": "完整自定义配置"
     },
-    "flagship": {
-      "name": "旗舰版",
-      "price": "¥38",
+    "max": {
+      "name": "Max",
+      "price": "$6",
       "period": "/月",
-      "description": "内容创作者的终极工具",
-      "cta": "升级旗舰版",
-      "feature1": "专业版全部功能",
-      "feature2": "4K 导出",
-      "feature3": "品牌水印",
-      "feature4": "高级动画",
-      "feature5": "GPX / KML 导入",
-      "feature6": "多语言标注",
-      "feature7": "专属客服"
+      "description": "包含 Pro 全部能力，并获得优先支持和新功能抢先体验。",
+      "cta": "使用兑换码",
+      "feature1": "包含 Pro 所有功能",
+      "feature2": "优先客服支持",
+      "feature3": "抢先体验新功能"
     }
   },
   "Editorial": {
@@ -269,7 +258,7 @@
     },
     "q2": {
       "question": "Locusify 免费吗？",
-      "answer": "是的！GPS 照片定位、交互地图和基础轨迹回放等核心功能完全免费。专业版和旗舰版解锁无限上传、高清/4K 导出和高级功能。"
+      "answer": "是的！免费版包含基础模板、无限照片上传和地图轨迹回放。Pro 解锁全部高级模板和完整自定义配置，Max 在此基础上提供优先支持和新功能抢先体验。"
     },
     "q3": {
       "question": "Locusify 会上传我的照片到服务器吗？",
@@ -277,7 +266,7 @@
     },
     "q4": {
       "question": "Locusify 支持哪些照片格式？",
-      "answer": "Locusify 支持 JPEG、PNG、HEIC、WebP 和 AVIF。任何包含 GPS 数据的照片都可以使用。专业版支持更多格式和批量处理。"
+      "answer": "Locusify 支持 JPEG、PNG、HEIC、WebP 和 AVIF。任何包含 GPS 数据的照片都可以使用，所有套餐均可无限上传照片。"
     },
     "q5": {
       "question": "轨迹回放动画是怎么工作的？",
@@ -285,7 +274,7 @@
     },
     "q6": {
       "question": "我可以将旅行路线导出为视频吗？",
-      "answer": "可以！你可以将路线回放动画录制为视频并下载或直接分享。免费版支持基础导出，专业版支持 1080p，旗舰版支持 4K 画质。"
+      "answer": "可以！你可以录制路线回放动画，并在预览后下载视频。视频录制依赖浏览器的屏幕捕获与区域录制能力，推荐使用最新版 Chrome。"
     }
   },
   "Footer": {

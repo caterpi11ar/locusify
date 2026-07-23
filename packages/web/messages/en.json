@@ -197,41 +197,30 @@
       "name": "Free",
       "price": "$0",
       "period": "",
-      "description": "Basic features, free forever",
+      "description": "Start with the core map and replay tools for your travel photos.",
       "cta": "Get Started Free",
-      "feature1": "GPS photo location (50 photos/batch)",
-      "feature2": "Interactive map",
-      "feature3": "Basic route replay",
-      "feature4": "JPEG / PNG",
-      "feature5": "Local processing"
+      "feature1": "Basic templates (Vlog, Minimal)",
+      "feature2": "Unlimited photo uploads",
+      "feature3": "Map trajectory replay"
     },
     "pro": {
       "name": "Pro",
       "price": "$3",
       "period": "/mo",
-      "description": "For travel photographers and power users",
-      "cta": "Upgrade to Pro",
-      "feature1": "All Free features",
-      "feature2": "Unlimited uploads",
-      "feature3": "1080p export",
-      "feature4": "HEIC / WebP / AVIF",
-      "feature5": "Custom styles",
-      "feature6": "Batch processing",
-      "feature7": "Priority support"
+      "description": "Unlock premium templates and full customization for richer videos.",
+      "cta": "Use Redeem Code",
+      "feature1": "All premium templates",
+      "feature2": "Full customization options"
     },
-    "flagship": {
-      "name": "Flagship",
+    "max": {
+      "name": "Max",
       "price": "$6",
       "period": "/mo",
-      "description": "The ultimate tool for content creators",
-      "cta": "Upgrade to Flagship",
-      "feature1": "All Pro features",
-      "feature2": "4K export",
-      "feature3": "Brand watermark",
-      "feature4": "Advanced animations",
-      "feature5": "GPX / KML import",
-      "feature6": "Multilingual labels",
-      "feature7": "Dedicated support"
+      "description": "Get everything in Pro plus priority support and early feature access.",
+      "cta": "Use Redeem Code",
+      "feature1": "Everything in Pro",
+      "feature2": "Priority support",
+      "feature3": "Early access to new features"
     }
   },
   "Editorial": {
@@ -269,7 +258,7 @@
     },
     "q2": {
       "question": "Is Locusify free to use?",
-      "answer": "Yes! Core features like GPS photo location mapping, interactive maps, and basic route replay are completely free. Pro and Flagship plans unlock unlimited uploads, HD/4K export, and advanced features."
+      "answer": "Yes! Free includes basic templates, unlimited photo uploads, and map trajectory replay. Pro unlocks all premium templates and full customization, while Max adds priority support and early access to new features."
     },
     "q3": {
       "question": "Does Locusify upload my photos to a server?",
@@ -277,7 +266,7 @@
     },
     "q4": {
       "question": "What photo formats does Locusify support?",
-      "answer": "Locusify supports JPEG, PNG, HEIC, WebP, and AVIF. Any photo with embedded GPS data will work. Pro plans add support for additional formats and batch processing."
+      "answer": "Locusify supports JPEG, PNG, HEIC, WebP, and AVIF. Any photo with embedded GPS data will work, and every plan includes unlimited photo uploads."
     },
     "q5": {
       "question": "How does the route replay animation work?",
@@ -285,7 +274,7 @@
     },
     "q6": {
       "question": "Can I export my travel route as a video?",
-      "answer": "Yes! You can record your route replay animation as a video and download or share it directly. Free users get basic export, Pro gets 1080p, and Flagship gets 4K quality."
+      "answer": "Yes! You can record your route replay animation, preview it, and download the video. Recording relies on browser screen and region capture capabilities, so the latest version of Chrome is recommended."
     }
   },
   "Footer": {
