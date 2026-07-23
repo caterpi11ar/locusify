@@ -22,6 +22,13 @@
   },
   "Hero": {
     "eyebrow": "让旅程跃然地图",
+    "promotion": {
+      "title": "恭喜发现隐藏彩蛋：MAX 会员 10 年兑换码",
+      "code": "LOCUSIFY-MAX-BETA",
+      "copy": "复制",
+      "copied": "已复制",
+      "close": "关闭横幅"
+    },
     "alt": {
       "side1": "旅行者拍照留念",
       "side2": "古镇水城旅行",

@@ -8,7 +8,7 @@ import { LanguageSwitcher } from '@/components/language-switcher'
 import { Link } from '@/i18n/navigation'
 import { APP_URL } from '@/lib/app-url'
 
-export function Header() {
+export function Header({ hasAnnouncement = false }: { hasAnnouncement?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const t = useTranslations('Header')
@@ -24,7 +24,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-3 left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${isScrolled ? 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
+      className={`fixed left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${hasAnnouncement ? 'top-12' : 'top-3'} ${isScrolled ? 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
       style={{
         boxShadow: isScrolled ? 'rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px' : 'none',
       }}

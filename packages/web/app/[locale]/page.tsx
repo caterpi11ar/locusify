@@ -1,5 +1,5 @@
 import { setRequestLocale } from 'next-intl/server'
-import { Header } from '@/components/header'
+import { SiteHeader } from '@/components/site-header'
 import { CollectionSection } from '@/components/sections/collection-section'
 import { EditorialSection } from '@/components/sections/editorial-section'
 import { FAQSection } from '@/components/sections/faq-section'
@@ -23,7 +23,7 @@ export default async function Home({
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
-      <Header />
+      <SiteHeader />
       <HeroSection />
       <PhilosophySection />
       <HowItWorksSection />
