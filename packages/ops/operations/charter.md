@@ -78,6 +78,26 @@ Team 评审候选动作，按以下顺序：
 
 Coordinator 先进行证据核验和交叉质证，再采用**最小可验证行动**。至少两个角色支持、Brand 无高风险 blocking objection、目标和证据链清晰，才可成为 Team 共识。任一角色失败/超时、引用不存在的证据或条件不满足时，输出 `defer`；不可由 Coordinator 模拟缺失角色。
 
+## 每日行动协议
+
+每个采集和三角色评审均成功的每日 Run，Team 必须从真实证据出发，形成至少一个参数完整、当日可执行的小红书写动作；基线采集与行动实验并行。
+
+Team 从以下动作中选择最有价值的一项或少量组合，而不是把发帖作为每日默认动作：
+
+1. 回复真实且适合回应的新增评论；
+2. 在发布频率门禁允许时，发布或定时发布一个低成本、单变量内容实验；
+3. 对与当前目标高度相关的真实笔记执行至多一项非批量点赞、收藏或有实质内容的评论。
+
+### 发布频率门禁
+
+- 目标节奏为每个滚动 7 天发布 2—3 条，硬上限为 3 条；
+- 任意两条实际发布时间至少间隔 48 小时，同一自然日最多发布 1 条；
+- 定时发布按计划发布时间计入额度，已有待发布任务也占用对应窗口；不得通过一次安排多条未来内容绕过限制；
+- 发布前检查最近执行记录、账号公开笔记变化和已知定时任务。无法确认 48 小时间隔或滚动 7 天额度时，当日选择非发布动作；
+- 达到上限、内容质量不足或缺少合规媒体时，不得发布；每日有动作不等于每日发帖。
+
+Team 必须产出最终文案和参数，而不是只留下候选 brief。数据不完整会降低动作规模和结论置信度，但不自动阻止最小实验。不得为了满足“每日有动作”而刷量、机械互动、发布低质量内容、编造目标 ID/Token，或重复执行同一非幂等动作。若认证、真实目标、临时参数、合规媒体或完整 Team 决策确实不可用，决策必须是 `defer`，并记录 `dailyActionStatus: blocked` 和具体阻塞；不得把这种 Run 写成已完成的正常运营日。
+
 ### 决策结果格式
 
 ```text
@@ -92,7 +112,11 @@ stopCondition: 停止条件
 requiresUserApproval: true | false
 teamComplete: true | false
 brandBlockingObjection: none | 阻断说明
-approvedActions: 带 actionId、Tool、最终参数摘要、Owner 的动作清单 | none
+approvedActions: 带 actionId、Tool、最终参数摘要、Owner 的动作清单 | none（仅 blocked/defer/escalate 时允许）
+dailyActionStatus: executed | partial | blocked
+publishWindow: eligible | capped | unknown | not_applicable
+rolling7dPublished: 数量 | unknown
+nextPublishAt: ISO 8601 | unknown | not_applicable
 cost: low | medium | high
 qualityGate: pass | fail
 executionGate: pass | fail | not_applicable
@@ -110,6 +134,6 @@ nextReviewDate: YYYY-MM-DD
 4. 每个写动作以最终参数列入 `approvedActions`；
 5. 确定性报告审计为 `qualityGate=pass`。
 
-满足后 `requiresUserApproval=false`、`executionGate=pass`，Coordinator 执行全部已批准动作并逐项记录结果。`defer`、`escalate`、任一角色失败、参数不完整或审计失败时一律 `executionGate=fail`，不得执行。
+满足后 `requiresUserApproval=false`、`executionGate=pass`，Coordinator 执行全部已批准动作并逐项记录结果。成功的正常每日运营 Run 不允许 `decision=approve` 且 `approvedActions=none`；这种结果必须在同一 Run 内重新形成最小行动，仍无法形成时改为 `defer` 和 `dailyActionStatus=blocked`。`defer`、`escalate`、任一角色失败、参数不完整或审计失败时一律 `executionGate=fail`，不得执行。
 
 账号切换、登录/重新登录、Cookie/凭据、`delete_cookies`、Cron/Gateway/MCP/主配置、Backup 恢复，以及超出已确认运营目标的高成本或破坏性动作不属于 Team 自动放行范围，必须 `requiresUserApproval=true` 并等待用户明确确认。

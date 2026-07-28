@@ -86,13 +86,18 @@
 
 ## 外部写操作准出
 
-平台运营写操作采用 Team 默认放行：
+平台运营写操作采用 Team 默认放行。每个采集与 Team 评审成功的每日 Run 必须至少形成并执行一个有意义的写动作；基线与实验并行。动作可选择真实评论回复、单条非批量相关互动或通过频率门禁的内容实验，每天有动作不等于每天发布。缺少安全真实目标或完整参数时必须标记 `blocked`，不得为了完成数量制造互动。
+
+发布/定时发布必须满足：滚动 7 天最多 3 条、任意两条实际发布时间至少间隔 48 小时、同一自然日最多 1 条；已知待发布任务按计划发布时间占用额度。无法核验发布历史或额度时不得发布，改选非发布动作。
+
+准出条件：
 
 1. 三个角色独立评审全部完成；
 2. Coordinator 完成证据核验和交叉质证；
 3. Team 决策为 `approve`，Brand 无高风险 blocking objection；
 4. `approvedActions` 给出每项最终 Tool、目标、内容/媒体/可见范围、Owner、成功信号和停止条件；
-5. `ops-report-audit.py` 执行前审计为 `pass`；
-6. Coordinator 执行全部明确批准的动作，逐项记录结果，再运行报告审计和 Secret 扫描。
+5. 发布动作已核验频率额度、相邻发布时间和待发布任务；
+6. `ops-report-audit.py` 执行前审计为 `pass`；
+7. Coordinator 执行全部明确批准的动作，逐项记录结果，再运行报告审计和 Secret 扫描。
 
-上述条件满足后 `requiresUserApproval=false`，无需等待用户逐项确认。账号切换、登录/Cookie/凭据、`delete_cookies`、Cron/配置/Backup 变更仍写 `requiresUserApproval=true`，必须转交 `openclaw-config-manager` 或交互式会话并获得用户确认。
+上述条件满足后 `requiresUserApproval=false`，无需等待用户逐项确认。正常完成的 Run 不允许 `approve + approvedActions:none`；Coordinator 必须在同一 Run 内收敛最终动作并执行，否则改为 `defer`、`executionGate=fail`、`dailyActionStatus=blocked`。账号切换、登录/Cookie/凭据、`delete_cookies`、Cron/配置/Backup 变更仍写 `requiresUserApproval=true`，必须转交 `openclaw-config-manager` 或交互式会话并获得用户确认。

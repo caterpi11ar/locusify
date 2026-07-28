@@ -117,14 +117,18 @@
 - 需要用户确认：是/否
 - teamComplete：true / false
 - brandBlockingObjection：none / 阻断说明
-- approvedActions：none，或逐项列出 actionId、tool、目标、最终参数摘要、Owner
+- approvedActions：逐项列出 actionId、tool、目标、最终参数摘要、Owner；仅 blocked/defer/escalate 时可为 none
+- dailyActionStatus：executed / partial / blocked
+- publishWindow：eligible / capped / unknown / not_applicable
+- rolling7dPublished：数量 / unknown
+- nextPublishAt：ISO 8601 / unknown / not_applicable
 - 成本：low / medium / high
 - 质量门禁：pass / fail
 - executionGate：pass / fail / not_applicable
 - executionResult：executed / partial / not_executed / not_applicable
 - 下次复盘：YYYY-MM-DD
 
-只有 Team 共识可以出现在“下一步”和 `approvedActions`；角色候选动作不得自动成为最终建议。发布、评论、回复、点赞和收藏在 `teamComplete=true`、Team=`approve`、Brand 无高风险 blocking objection 且质量门禁通过后自动放行。
+只有 Team 共识可以出现在“下一步”和 `approvedActions`；角色候选动作不得自动成为最终建议。发布、评论、回复、点赞和收藏在 `teamComplete=true`、Team=`approve`、Brand 无高风险 blocking objection 且质量门禁通过后自动放行。正常完成的每日 Run 必须至少执行一个有意义的平台动作，不允许以 `approve + approvedActions:none` 结束；无法形成安全动作时改为 `defer` 并标记 `dailyActionStatus: blocked`。
 
 ## 12. 目标与执行进展
 
@@ -155,5 +159,8 @@
 - 每个 Team 决策必须映射一个有效目标 ID，并保留分歧。
 - 不输出 Token、Cookie、二维码、绝对用户 Home 路径。
 - `partial` 时把数据质量放到摘要首位。
-- 没有上一份完整快照时只报告当前值，不生成趋势判断。
+- 没有上一份完整快照时只报告当前值，不生成趋势判断，但仍可执行低成本单变量实验。
+- 当日动作根据真实信号从评论回复、单条非批量互动和内容实验中选择；每天有动作不等于每天发帖。
+- 发布/定时发布遵守滚动 7 天最多 3 条、任意两条实际发布时间至少间隔 48 小时、同日最多 1 条，并计入已知待发布任务。
+- 当日决策需包含可执行的最终动作，不得为了满足动作要求刷量或制造无意义互动。
 - 非幂等写操作结果不明确时不得写成成功或盲目重试；执行后必须再次审计并做 Secret 扫描。

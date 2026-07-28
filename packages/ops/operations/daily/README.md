@@ -57,7 +57,11 @@
 - requiresUserApproval：
 - teamComplete：true / false
 - brandBlockingObjection：none / 阻断说明
-- approvedActions：none / 带 actionId、tool、最终参数摘要和 owner 的清单
+- approvedActions：带 actionId、tool、最终参数摘要和 owner 的清单；仅 blocked/defer/escalate 时可为 none
+- dailyActionStatus：executed / partial / blocked
+- publishWindow：eligible / capped / unknown / not_applicable
+- rolling7dPublished：数量 / unknown
+- nextPublishAt：ISO 8601 / unknown / not_applicable
 - nextReviewDate：
 
 - qualityGate：pass / fail
@@ -83,4 +87,4 @@
 - 待复盘：
 ```
 
-规则：保留角色分歧；不能把任一角色的提案伪装成 Team 共识；没有足够证据时必须 `defer`。只有 `teamComplete=true`、Team=`approve`、无高风险 blocking objection 且 `qualityGate=pass` 时才可 `executionGate=pass` 并自动执行 `approvedActions`。
+规则：保留角色分歧；不能把任一角色的提案伪装成 Team 共识；没有足够证据时必须 `defer`。只有 `teamComplete=true`、Team=`approve`、无高风险 blocking objection 且 `qualityGate=pass` 时才可 `executionGate=pass` 并自动执行 `approvedActions`。每个正常完成的每日 Run 必须至少执行一个有意义动作，不允许 `approve + approvedActions:none`；无法安全执行时标记 `dailyActionStatus=blocked`。

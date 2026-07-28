@@ -34,6 +34,10 @@ REQUIRED = {
     "team_complete": re.compile(r"(?i)teamComplete[：:]\s*(true|false)"),
     "brand_blocker": re.compile(r"(?i)brandBlockingObjection[：:]"),
     "approved_actions": re.compile(r"(?i)approvedActions[：:]"),
+    "daily_action_status": re.compile(r"(?i)dailyActionStatus[：:]\s*(executed|partial|blocked)"),
+    "publish_window": re.compile(r"(?i)publishWindow[：:]\s*(eligible|capped|unknown|not_applicable)"),
+    "rolling_7d_published": re.compile(r"(?i)rolling7dPublished[：:]\s*(\d+|unknown)"),
+    "next_publish_at": re.compile(r"(?i)nextPublishAt[：:]"),
     "quality_gate": re.compile(r"(?i)(qualityGate|质量门禁)[：:]\s*(pass|fail)"),
     "execution_gate": re.compile(r"(?i)(executionGate|执行门禁)[：:]\s*(pass|fail|not_applicable)"),
     "execution_result": re.compile(
@@ -95,6 +99,14 @@ def audit(text: str) -> dict:
         r"executed|partial|not_executed|not_applicable",
     )
     requires_approval = field_value(text, r"requiresUserApproval|需要用户确认", r"true|false|是|否")
+    daily_action_status = field_value(text, r"dailyActionStatus", r"executed|partial|blocked")
+    publish_window = field_value(text, r"publishWindow", r"eligible|capped|unknown|not_applicable")
+    rolling_7d_match = re.search(r"(?im)^\s*(?:-\s*)?rolling7dPublished[：:]\s*(\d+|unknown)\s*$", text)
+    rolling_7d_published = (
+        int(rolling_7d_match.group(1))
+        if rolling_7d_match and rolling_7d_match.group(1).isdigit()
+        else None
+    )
     approved_actions = re.search(r"(?im)^\s*(?:-\s*)?approvedActions[：:]\s*(.*)$", text)
     has_approved_actions = bool(
         approved_actions and approved_actions.group(1).strip().lower() not in {"none", "无", "not_applicable"}
@@ -118,6 +130,13 @@ def audit(text: str) -> dict:
         if not has_approved_actions:
             errors.append({"code": "gate.no_actions", "message": "执行门禁通过但 approvedActions 为空"})
 
+    if rolling_7d_published is not None and rolling_7d_published > 3:
+        errors.append({"code": "publish.rolling_limit", "message": "滚动 7 天发布数量超过 3 条硬上限"})
+
+    if decision == "approve" and not has_approved_actions:
+        errors.append({"code": "gate.approve_without_action", "message": "正常每日运营不得 approve 但 approvedActions 为空"})
+    if decision == "approve" and daily_action_status == "blocked":
+        errors.append({"code": "gate.approve_blocked", "message": "approve 决策不得标记 dailyActionStatus=blocked"})
     if decision in {"defer", "escalate"} and execution_gate == "pass":
         errors.append({"code": "gate.non_approve", "message": "defer/escalate 决策不得执行"})
     if execution_result in {"executed", "partial"} and execution_gate != "pass":
@@ -126,6 +145,8 @@ def audit(text: str) -> dict:
         errors.append({"code": "gate.approved_not_released", "message": "Team 已批准的自动动作未进入执行门禁"})
 
     tool_lines = re.findall(r"(?im)^\s*(?:-\s*)?tool[：:]\s*([a-zA-Z0-9_]+)\s*$", text)
+    if any(tool in {"publish_content", "publish_with_video"} for tool in tool_lines) and publish_window != "eligible":
+        errors.append({"code": "publish.window", "message": "发布动作要求 publishWindow=eligible"})
     for tool_name in tool_lines:
         if tool_name in FORBIDDEN_AUTO_TOOLS:
             errors.append({"code": "tool.forbidden", "message": f"自动放行清单包含禁止 Tool: {tool_name}"})

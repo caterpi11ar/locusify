@@ -25,6 +25,8 @@ description: |
 
 这是**先只读决策、后条件执行**的每日运营任务。采集、Evidence Pack、三个角色评审和交叉质证阶段严格只读；任何单一角色只能提出提案，不能代表 Team 决策。只有三个角色均完成、Team 决策为 `approve`、Brand 无高风险 blocking objection、动作参数完整且确定性质量门禁为 `pass` 后，Coordinator 才自动执行共同决策中明确列出的平台运营动作。
 
+每个采集和 Team 评审成功的每日 Run 都必须形成并执行至少一个有意义、低成本、参数完整的平台写动作；O1 基线与 O2/O3 实验并行。数据缺失时缩小实验并降低结论置信度。不得为了满足动作数量而刷量、机械互动或发布低质量内容；确实没有安全可执行动作时必须 `defer` 并标记 `dailyActionStatus: blocked`。
+
 ## 强制禁止
 
 每日任务始终不得调用或实施：
@@ -147,9 +149,13 @@ Coordinator（`xhs-ops`）必须在同一轮中调用 3 次 `sessions_spawn`，�
 
 读取 `operations/charter.md`，核验每个角色引用的证据 ID，找出共识、冲突、无证据主张和 Brand 的 blocking objection。Coordinator 只综合，不新增未出现在 Evidence Pack 的事实。
 
-共同决策必须包含 `approve / defer / escalate`、目标 ID、Owner、支持意见、分歧、成功信号、停止条件、成本、`teamComplete`、`brandBlockingObjection`、`requiresUserApproval`、`approvedActions` 和复盘日期。至少两个角色支持且无高风险 blocking objection 才可 `approve`；否则 `defer` 或 `escalate`。允许冲突，禁止用平均分掩盖冲突。
+共同决策必须包含 `approve / defer / escalate`、目标 ID、Owner、支持意见、分歧、成功信号、停止条件、成本、`teamComplete`、`brandBlockingObjection`、`requiresUserApproval`、`approvedActions`、`dailyActionStatus`、`publishWindow`、`rolling7dPublished`、`nextPublishAt` 和复盘日期。至少两个角色支持且无高风险 blocking objection 才可 `approve`；否则 `defer` 或 `escalate`。允许冲突，禁止用平均分掩盖冲突。
 
-对发布、评论、回复、点赞和收藏，Team=`approve` 即代表默认放行，`requiresUserApproval=false`。每个 `approvedActions` 条目必须包含稳定 action ID、精确 Tool、来自真实证据的目标、最终内容/媒体/可见范围等完整参数摘要、Owner、成功信号和停止条件；不得把角色候选动作直接当成已批准动作。账号切换、登录/Cookie/凭据、`delete_cookies`、Cron/配置/Backup 变更不属于 Team 自动放行范围，必须写 `requiresUserApproval=true` 且本 Run 不执行。不得建议批量互动、引流、搬运或规避风控。
+每个正常完成的 Run 必须从真实证据选择至少一个当日动作，但不得把发布作为每日默认动作。优先处理真实待回复评论；发布必须通过下述频率门禁；不适合发布时，对目标高度相关的真实笔记执行至多一项非批量点赞、收藏或实质评论。Coordinator 必须把候选方案收敛成最终文案和参数，不能只输出“准备草案/brief”。
+
+发布频率门禁：目标为滚动 7 天发布 2—3 条，硬上限 3 条；任意两条实际发布时间至少间隔 48 小时，同一自然日最多 1 条。定时发布按计划发布时间计入额度，已有待发布任务占用对应窗口，禁止集中安排多条未来内容规避限制。发布前必须根据执行记录、公开笔记变化和已知定时任务核验额度；无法确认时选择非发布动作。
+
+对发布、评论、回复、点赞和收藏，Team=`approve` 即代表默认放行，`requiresUserApproval=false`。每个 `approvedActions` 条目必须包含稳定 action ID、精确 Tool、来自真实证据的目标、最终内容/媒体/可见范围等完整参数摘要、Owner、成功信号和停止条件；不得把角色候选动作直接当成已批准动作。`decision=approve` 时 `approvedActions` 不得为空，且 `executionGate` 必须进入 `pass`；无法安全生成完整动作时改为 `defer`、`executionGate=fail`、`dailyActionStatus=blocked` 并写明阻塞。账号切换、登录/Cookie/凭据、`delete_cookies`、Cron/配置/Backup 变更不属于 Team 自动放行范围，必须写 `requiresUserApproval=true` 且本 Run 不执行。不得建议批量互动、引流、搬运或规避风控。
 
 ### 11. 生成、审计并准出决策
 
@@ -186,11 +192,12 @@ python3 "$LOCUSIFY_REPO_ROOT/packages/ops/scripts/ops-report-audit.py" \
 2. `decision=approve`、`qualityGate=pass`、无高风险 blocking objection；
 3. 动作属于 `publish_content`、`publish_with_video`、`post_comment_to_feed`、`reply_comment_in_feed`、`like_feed` 或 `favorite_feed`；
 4. 动作已列入 `approvedActions`，最终参数完整，目标 ID/临时 Token 来自本 Run 的真实工具结果，媒体文件存在且发布内容符合平台约束；
-5. 动作不涉及账号/登录、Cookie、凭据、Cron、配置、Backup、批量互动或其他强制禁止项。
+5. 发布/定时发布动作满足滚动 7 天最多 3 条、相邻实际发布时间至少 48 小时、同日最多 1 条的频率门禁，并已计入已知待发布任务；
+6. 动作不涉及账号/登录、Cookie、凭据、Cron、配置、Backup、批量互动或其他强制禁止项。
 
 全部条件满足时，不再等待用户确认，按 `approvedActions` 顺序执行全部已批准动作。执行前再次检查登录状态；对发布和评论等非幂等动作，遇到超时或结果不明确时禁止盲目重试，以免重复发布。单项失败时记录真实错误，停止依赖它的后续动作；不把失败写成成功，也不临时改写 Team 决策。
 
-`defer`、`escalate`、角色缺失、blocking objection、参数不完整、质量门禁失败或没有 `approvedActions` 时不执行平台动作，并记录明确原因。
+`defer`、`escalate`、角色缺失、blocking objection、参数不完整或质量门禁失败时不执行平台动作，并记录 `dailyActionStatus=blocked` 和明确原因。正常完成的 Run 若暂时没有 `approvedActions`，必须在同一 Run 内回到 Team 决策生成最小可验证动作。
 
 ### 13. 记录执行结果并复审
 
