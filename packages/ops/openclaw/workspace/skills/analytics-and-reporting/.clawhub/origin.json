@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "registry": "https://clawhub.ai",
+  "slug": "analytics-and-reporting",
+  "ownerHandle": "social-media-skills",
+  "installedVersion": "1.0.0",
+  "installedAt": 1785052281452,
+  "artifact": {
+    "kind": "archive",
+    "sha256": "5d85ce7313d936388f98d24840b02de1800dcaa841b7c9e44a0c0d5c8ec7dd4c",
+    "integrity": "sha256-XYXOcxPZNjiPmNJIQLAt4YANyqhBt8nkSgwNXI7H3Uw="
+  },
+  "skillFile": {
+    "path": "SKILL.md",
+    "sha256": "7db7fda199d031d88bab9ba8970e29eee7fbae0e9b3394ca5a9d04283374bcc6"
+  }
+}

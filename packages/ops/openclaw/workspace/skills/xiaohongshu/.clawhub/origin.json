@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "registry": "https://clawhub.ai",
+  "slug": "xiaohongshu",
+  "ownerHandle": "zhangifonly",
+  "installedVersion": "2.0.0",
+  "installedAt": 1785052326594,
+  "artifact": {
+    "kind": "archive",
+    "sha256": "3ee92761fc50922cb3b7412b35a711e13afaf545cc204f598a93de05767cd5bd",
+    "integrity": "sha256-PuknYfxQkiyzt0ErNacR4Tr69UXMIE9ZipPeBXZ81b0="
+  },
+  "skillFile": {
+    "path": "SKILL.md",
+    "sha256": "092248449dde7ce2e018da39347bfddd953a3d6d408767c94245df8e23b8f8f3"
+  }
+}

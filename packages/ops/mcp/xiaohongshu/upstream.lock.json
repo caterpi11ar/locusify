@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/xpzouying/xiaohongshu-mcp",
+  "release": "v1.2.8",
+  "commit": "a32150a83f783aeaea88a58628cd7d1d7a70b7b1",
+  "mcpEndpoint": "http://127.0.0.1:18060/mcp",
+  "httpBaseUrl": "http://127.0.0.1:18060",
+  "registeredToolCount": 13,
+  "license": null,
+  "licenseReviewRequired": true
+}

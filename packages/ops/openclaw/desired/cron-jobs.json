@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "name": "locusify-xhs-daily-ops",
+      "description": "每天自动分层汇总运营上下文，只读同步小红书数据，由三角色 Team 决策，并自动执行通过质量门禁的批准动作",
+      "agent": "xhs-ops",
+      "schedule": {
+        "kind": "cron",
+        "expression": "0 9 * * *",
+        "timezone": "Asia/Shanghai",
+        "exact": true
+      },
+      "session": "isolated",
+      "timeoutSeconds": 1200,
+      "expectFinal": true,
+      "enabledOnImport": false,
+      "payload": {
+        "kind": "agentTurn",
+        "message": "执行 locusify-xhs-daily-ops skill：预检、维护有界上下文、只读采集并冻结 Evidence Pack；使用 sessions_spawn 在隔离会话并行派发 growth-analyst、product-value-analyst、brand-community-analyst，使用 sessions_yield 等待，不轮询。任一角色失败则 defer，不由 Coordinator 补写。交叉质证后形成 Team 决策；仅当 teamComplete=true、decision=approve、Brand 无高风险 blocking objection、approvedActions 参数完整且 ops-report-audit.py 通过时，自动执行全部已批准的发布/评论/回复/点赞/收藏动作，逐项记录结果并再次审计和 Secret 扫描。禁止 delete_cookies、账号/登录/Cookie/凭据、Cron/配置/Backup 变更、批量互动和持久化 xsecToken。最终必须在同一 Cron Run 内等待三个角色完成并返回最终状态、Team 决策、执行结果、审计结果和产物路径。"
+      },
+      "requiredSkill": "locusify-xhs-daily-ops",
+      "requiredMcp": "xiaohongshu"
+    }
+  ]
+}

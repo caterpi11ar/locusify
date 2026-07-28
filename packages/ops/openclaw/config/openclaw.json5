@@ -1,0 +1,228 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "loopback",
+    "port": 18790,
+    "auth": {
+      "mode": "token",
+      "token": {
+        "source": "file",
+        "provider": "locusify_gateway",
+        "id": "value"
+      }
+    },
+    "reload": {
+      "mode": "hybrid"
+    },
+    "tools": {
+      "allow": [
+        "cron",
+        "gateway"
+      ]
+    },
+    "remote": {
+      "token": {
+        "source": "file",
+        "provider": "locusify_gateway",
+        "id": "value"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "codex/gpt-5.5"
+      },
+      "models": {
+        "codex/gpt-5.5": {}
+      },
+      "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+      "skipBootstrap": true,
+      "skipOptionalBootstrapFiles": [
+        "SOUL.md",
+        "USER.md",
+        "HEARTBEAT.md",
+        "IDENTITY.md"
+      ],
+      "skills": [
+        "openclaw-config-manager",
+        "locusify-xhs-daily-ops",
+        "小红书",
+        "analytics-and-reporting"
+      ],
+      "subagents": {
+        "maxConcurrent": 3,
+        "maxChildrenPerAgent": 3,
+        "maxSpawnDepth": 1,
+        "runTimeoutSeconds": 300,
+        "archiveAfterMinutes": 30
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "default": true,
+        "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+        "skills": [
+          "openclaw-config-manager",
+          "locusify-xhs-daily-ops",
+          "小红书",
+          "analytics-and-reporting"
+        ],
+        "tools": {
+          "deny": [
+            "xiaohongshu__publish_content",
+            "xiaohongshu__publish_with_video",
+            "xiaohongshu__post_comment_to_feed",
+            "xiaohongshu__reply_comment_in_feed",
+            "xiaohongshu__like_feed",
+            "xiaohongshu__favorite_feed",
+            "xiaohongshu__delete_cookies",
+            "xiaohongshu__get_login_qrcode"
+          ]
+        }
+      },
+      {
+        "id": "xhs-ops",
+        "name": "Locusify XHS Operations Team",
+        "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+        "skills": [
+          "locusify-xhs-daily-ops",
+          "analytics-and-reporting"
+        ],
+        "subagents": {
+          "allowAgents": [
+            "growth-analyst",
+            "product-value-analyst",
+            "brand-community-analyst"
+          ],
+          "requireAgentId": true,
+          "delegationMode": "prefer"
+        },
+        "tools": {
+          "alsoAllow": [
+            "sessions_spawn",
+            "sessions_yield",
+            "subagents",
+            "agents_list"
+          ],
+          "deny": [
+            "cron",
+            "gateway",
+            "message",
+            "xiaohongshu__get_login_qrcode",
+            "xiaohongshu__delete_cookies"
+          ]
+        }
+      },
+      {
+        "id": "growth-analyst",
+        "name": "Locusify Growth Lead",
+        "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+        "skills": [
+          "locusify-growth-analyst"
+        ],
+        "tools": {
+          "allow": [
+            "read"
+          ]
+        }
+      },
+      {
+        "id": "product-value-analyst",
+        "name": "Locusify Product Value Lead",
+        "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+        "skills": [
+          "locusify-product-value-analyst"
+        ],
+        "tools": {
+          "allow": [
+            "read"
+          ]
+        }
+      },
+      {
+        "id": "brand-community-analyst",
+        "name": "Locusify Brand Community Lead",
+        "workspace": "${LOCUSIFY_OPENCLAW_WORKSPACE}",
+        "skills": [
+          "locusify-brand-community-analyst"
+        ],
+        "tools": {
+          "allow": [
+            "read"
+          ]
+        }
+      }
+    ]
+  },
+  "mcp": {
+    "servers": {
+      "xiaohongshu": {
+        "enabled": true,
+        "url": "http://127.0.0.1:18060/mcp",
+        "transport": "streamable-http",
+        "connectionTimeoutMs": 15000,
+        "requestTimeoutMs": 120000
+      },
+      "xiaohongshu-readonly": {
+        "enabled": true,
+        "url": "http://127.0.0.1:18060/mcp",
+        "transport": "streamable-http",
+        "connectionTimeoutMs": 15000,
+        "requestTimeoutMs": 120000,
+        "toolFilter": {
+          "include": [
+            "check_login_status",
+            "list_feeds",
+            "search_feeds",
+            "get_feed_detail",
+            "user_profile"
+          ]
+        }
+      }
+    }
+  },
+  "skills": {
+    "load": {
+      "extraDirs": [
+        "${LOCUSIFY_REPO_ROOT}/packages/ops/skills"
+      ],
+      "watch": true,
+      "watchDebounceMs": 500
+    }
+  },
+  "plugins": {
+    "bundledDiscovery": "compat",
+    "allow": [
+      "codex"
+    ],
+    "entries": {
+      "codex": {
+        "enabled": true,
+        "config": {
+          "discovery": {
+            "enabled": true,
+            "timeoutMs": 10000
+          },
+          "appServer": {
+            "transport": "stdio"
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.6.10",
+    "lastTouchedAt": "2026-07-27T09:55:14.821Z"
+  },
+  "secrets": {
+    "providers": {
+      "locusify_gateway": {
+        "source": "file",
+        "path": "${OPENCLAW_STATE_DIR}/secrets/gateway-token",
+        "mode": "singleValue"
+      }
+    }
+  }
+}

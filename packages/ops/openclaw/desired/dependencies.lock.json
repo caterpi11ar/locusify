@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "openclaw": {
+    "testedVersion": "2026.6.10",
+    "minimumVersion": "2026.6.10"
+  },
+  "xiaohongshuMcp": {
+    "repository": "https://github.com/xpzouying/xiaohongshu-mcp",
+    "release": "v1.2.8",
+    "commit": "a32150a83f783aeaea88a58628cd7d1d7a70b7b1",
+    "defaultEndpoint": "http://127.0.0.1:18060/mcp",
+    "defaultHttpBaseUrl": "http://127.0.0.1:18060"
+  },
+  "xiaohongshuSkills": {
+    "repository": "https://github.com/autoclaw-cc/xiaohongshu-mcp-skills",
+    "license": "MIT",
+    "commit": "c79206ce4191fdb5f4c72d62155ed8ac49e7d0ae",
+    "note": "已按该 commit 审阅 README、根 Skill 及各小红书子 Skill；升级前必须重新评审。"
+  },
+  "communityOperationsSkills": {
+    "analyticsAndReporting": {
+      "registry": "https://clawhub.ai",
+      "owner": "social-media-skills",
+      "slug": "analytics-and-reporting",
+      "version": "1.0.0",
+      "artifactSha256": "5d85ce7313d936388f98d24840b02de1800dcaa841b7c9e44a0c0d5c8ec7dd4c",
+      "role": "METER 指标框架、目标映射、诚实报告"
+    },
+    "xiaohongshu": {
+      "registry": "https://clawhub.ai",
+      "owner": "zhangifonly",
+      "slug": "xiaohongshu",
+      "version": "2.0.0",
+      "artifactSha256": "3ee92761fc50922cb3b7412b35a711e13afaf545cc204f598a93de05767cd5bd",
+      "role": "小红书双引擎、内容漏斗诊断、合规方法论"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+# Generated dependency and language caches
+node_modules/
+__pycache__/
+*.py[cod]
+
+# Runtime-only OpenClaw state (configuration under openclaw/config remains tracked)
+openclaw/state/
+openclaw/agent/
+openclaw/config/*.bak*
+openclaw/config/*.last-good
+
+# Keep reviewed community skills in Git; ignore other generated workspace files.
+openclaw/workspace/*
+!openclaw/workspace/skills/
+!openclaw/workspace/skills/**
+# Re-apply generated-cache exclusions after the workspace negation above.
+openclaw/workspace/skills/**/__pycache__/
+openclaw/workspace/skills/**/*.py[cod]
+
+# Downloaded MCP executables and sensitive/runtime data
+mcp/xiaohongshu/bin/
+mcp/xiaohongshu/data/
+mcp/xiaohongshu/logs/
+
+# Daily runtime output; commit only explicitly reviewed/redacted exports
+runtime/
