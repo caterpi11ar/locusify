@@ -2,7 +2,7 @@
 
 ## 启动与目的
 
-用户只说“开始运营”时，默认执行一次完整运营流程：不启用/修改 Cron，不自动 Git Commit；采集和 Team 评审阶段只读，只有 Team=`approve`、Brand 无高风险阻断、动作参数完整且质量门禁=`pass` 后才自动执行批准的发布/互动动作。预检确认仓库/规划器、只读采集服务、受控执行 MCP、账号、输出冲突、Coordinator 与三个 Analyst 的真实模型 Turn 可用；失败时不归档、不访问平台。持续自动运营必须由用户单独确认，并额外验证 subagent allowlist、读写 MCP 边界、同名 Cron、Writer Lock、质量门禁和一次完整无写动作的流程验证；任一失败均 Fail Closed。
+用户只说“开始运营”时，默认执行一次完整运营流程：不启用/修改 Cron，不自动 Git Commit；采集和 Team 评审阶段只读，只有 Team=`approve`、Brand 无高风险阻断、动作参数完整且质量门禁=`pass` 后才自动执行批准的发布/互动动作。预检确认仓库/规划器、只读采集服务、受控执行 MCP、账号、输出冲突、Coordinator 与三个 Analyst 的真实模型 Turn 可用；失败时不归档、不访问平台。持续自动运营必须由用户单独确认，并额外验证 subagent allowlist、读写 MCP 边界、同名 Cron、Writer Lock、质量门禁和一次完整无写动作的流程验证；任一失败均 Fail Closed。每日 Cron 使用 Gateway command payload 运行 `scripts/run-xhs-daily-ops.sh`。Supervisor 为每次运行创建独立 Coordinator session，允许 `sessions_yield` 后由 completion events 恢复后续 Turn，并持续等待日报、报告、快照及审计全部完成；Cron 不直接把 yielded Agent Turn 当作任务完成。若 OpenClaw 将最后一个已成功子任务的 completion 留在 pending，Supervisor 可启动有界恢复 Turn；Coordinator 只能从既有 child session 取回独立原始评审，不得重派、模拟或补写。
 
 为防止 Agent 每次分析加载长期累积的所有日报，历史信息按固定层级压缩：
 

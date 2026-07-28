@@ -141,7 +141,9 @@ Coordinator（`xhs-ops`）必须在同一轮中调用 3 次 `sessions_spawn`，�
 | `product-value-analyst` | `product_value_review` | `locusify-product-value-analyst`：用户价值、激活、反馈闭环 |
 | `brand-community-analyst` | `brand_community_review` | `locusify-brand-community-analyst`：品牌、社区、隐私和合规 |
 
-派发后调用 `sessions_yield` 等待完成事件；禁止用 shell sleep、`sessions_list` 或循环轮询。子 Agent 只能返回结构化评审，不得采集平台数据、写文件或查看其他角色结果。
+派发后调用 `sessions_yield` 等待完成事件；禁止 Agent 用 shell sleep、`sessions_list` 或循环轮询。`sessions_yield` 只结束当前 Turn，不代表每日任务完成；completion events 返回同一 Coordinator session 后继续执行交叉质证、决策、写入、条件执行和审计。Cron 的外层 Supervisor 只检查最终产物与审计结果，不读取或模拟角色结果。未生成最终日报与审计结果前不得报告成功。子 Agent 只能返回结构化评审，不得采集平台数据、写文件或查看其他角色结果。
+
+如果 OpenClaw 已将某个既有子任务标为 `succeeded`，但 completion delivery 因竞态仍为 `pending`，外层 Supervisor 可触发有界恢复 Turn；Coordinator 只可核验既有 `subagents list` 状态，并通过该既有 `childSessionKey` 的 `sessions_history` 取回独立原始评审。不得重新派发、模拟、补写或修改角色结论。除此恢复分支外禁止轮询。
 
 如果任何子 Agent 失败或超时：不在 Coordinator 内模拟补写该角色；Team 决策默认 `defer`，记录缺失角色并可在下一次 Run 重试。这样“独立评审”不会静默降级成单 Agent 表演。
 
