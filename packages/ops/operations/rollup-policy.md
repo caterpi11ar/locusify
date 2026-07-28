@@ -66,7 +66,7 @@ operations/
 
 正常每日分析**禁止 glob 并读取全部历史日报**。只加载：
 
-1. `goals.md`、`charter.md`、`context-index.md`；
+1. `goals.md`、`account-stage.md`、`charter.md`、`context-index.md`；
 2. 今天已存在的日报和仍未周结的当周日报，最多 7 份；
 3. 最近 2 份周报（含开放周的滚动信息）；
 4. 最近 2 份月报；

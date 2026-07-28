@@ -10,14 +10,15 @@ description: |
 
 1. `../../README.md`
 2. `../../operations/goals.md`
-3. `../../operations/charter.md`
-4. `../../operations/context-index.md`
-5. `../../operations/rollup-policy.md`
-6. `references/tool-policy.md`
-7. `references/atomic-operations.md`
-8. 读取 `<OpenClaw Workspace>/skills/analytics-and-reporting/SKILL.md` 及其 References，使用 METER 指标和诚实报告规范。
-9. 写入快照时读 `references/snapshot-schema.md`
-10. 生成报告和每日进展时读 `references/report-format.md`
+3. `../../operations/account-stage.md`
+4. `../../operations/charter.md`
+5. `../../operations/context-index.md`
+6. `../../operations/rollup-policy.md`
+7. `references/tool-policy.md`
+8. `references/atomic-operations.md`
+9. 读取 `<OpenClaw Workspace>/skills/analytics-and-reporting/SKILL.md` 及其 References，使用 METER 指标和诚实报告规范。
+10. 写入快照时读 `references/snapshot-schema.md`
+11. 生成报告和每日进展时读 `references/report-format.md`
 
 所有相对路径以本 Skill 所在目录为基准解析。
 
@@ -149,13 +150,15 @@ Coordinator（`xhs-ops`）必须在同一轮中调用 3 次 `sessions_spawn`，�
 
 ### 10. Coordinator 交叉质证与 Team 决策
 
-读取 `operations/charter.md`，核验每个角色引用的证据 ID，找出共识、冲突、无证据主张和 Brand 的 blocking objection。Coordinator 只综合，不新增未出现在 Evidence Pack 的事实。
+读取 `operations/account-stage.md` 和 `operations/charter.md`，核验每个角色引用的证据 ID，找出共识、冲突、无证据主张和 Brand 的 blocking objection。Coordinator 只综合，不新增未出现在 Evidence Pack 的事实。
+
+当 `accountStage=new_account_bootstrap` 时，新账号粉丝少、单日无增长以及产品访问/激活/留存数据缺失只降低结论置信度，不得单独成为发布 blocking objection。Brand 必须针对具体动作指出隐私、真实性、素材、文案、参数或发布窗口风险；Coordinator 必须区分硬阻塞与评估缺口，并优先收敛一个低成本、单变量内容实验。
 
 共同决策必须包含 `approve / defer / escalate`、目标 ID、Owner、支持意见、分歧、成功信号、停止条件、成本、`teamComplete`、`brandBlockingObjection`、`requiresUserApproval`、`approvedActions`、`dailyActionStatus`、`publishWindow`、`rolling7dPublished`、`nextPublishAt` 和复盘日期。至少两个角色支持且无高风险 blocking objection 才可 `approve`；否则 `defer` 或 `escalate`。允许冲突，禁止用平均分掩盖冲突。
 
 每个正常完成的 Run 必须从真实证据选择至少一个当日动作，但不得把发布作为每日默认动作。优先处理真实待回复评论；发布必须通过下述频率门禁；不适合发布时，对目标高度相关的真实笔记执行至多一项非批量点赞、收藏或实质评论。Coordinator 必须把候选方案收敛成最终文案和参数，不能只输出“准备草案/brief”。
 
-发布频率门禁：目标为滚动 7 天发布 2—3 条，硬上限 3 条；任意两条实际发布时间至少间隔 48 小时，同一自然日最多 1 条。定时发布按计划发布时间计入额度，已有待发布任务占用对应窗口，禁止集中安排多条未来内容规避限制。发布前必须根据执行记录、公开笔记变化和已知定时任务核验额度；无法确认时选择非发布动作。
+发布频率门禁：目标为滚动 7 天发布 2—3 条，硬上限 3 条；任意两条实际发布时间至少间隔 48 小时，同一自然日最多 1 条。定时发布按计划发布时间计入额度，已有待发布任务占用对应窗口，禁止集中安排多条未来内容规避限制。发布前必须根据执行记录、公开笔记变化和已知定时任务核验额度；一般情况下无法确认时选择非发布动作。若 `accountStage=new_account_bootstrap` 且平台历史发布时间不可得，可严格按 `operations/account-stage.md` 的保守冷启动锚点核验；仓库外发布状态不明、同日已发布或有待发布冲突时仍为 `unknown/capped`，不得发布。
 
 对发布、评论、回复、点赞和收藏，Team=`approve` 即代表默认放行，`requiresUserApproval=false`。每个 `approvedActions` 条目必须包含稳定 action ID、精确 Tool、来自真实证据的目标、最终内容/媒体/可见范围等完整参数摘要、Owner、成功信号和停止条件；不得把角色候选动作直接当成已批准动作。`decision=approve` 时 `approvedActions` 不得为空，且 `executionGate` 必须进入 `pass`；无法安全生成完整动作时改为 `defer`、`executionGate=fail`、`dailyActionStatus=blocked` 并写明阻塞。账号切换、登录/Cookie/凭据、`delete_cookies`、Cron/配置/Backup 变更不属于 Team 自动放行范围，必须写 `requiresUserApproval=true` 且本 Run 不执行。不得建议批量互动、引流、搬运或规避风控。
 

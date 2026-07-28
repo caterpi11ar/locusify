@@ -113,6 +113,7 @@
 运营目标、角色章程、重大决策和分层进展维护在：
 
 - `operations/goals.md`
+- `operations/account-stage.md`
 - `operations/charter.md`
 - `operations/context-index.md`
 - `operations/rollup-policy.md`
