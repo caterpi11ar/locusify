@@ -75,7 +75,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), var(--font-noto-sans-sc), system-ui, sans-serif;
+  --font-sans: var(--font-inter), 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'PP Editorial New', 'Times New Roman', serif;
   --color-background: var(--background);

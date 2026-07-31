@@ -1,23 +1,26 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import NextLink from 'next/link'
 import { Link } from '@/i18n/navigation'
 import { APP_URL } from '@/lib/app-url'
 
 export function FooterSection({ variant = 'default' }: { variant?: 'default' | 'dark' }) {
   const t = useTranslations('Footer')
+  const locale = useLocale()
   const isDark = variant === 'dark'
 
   const footerLinks = {
     product: [
       { label: t('links.features'), href: '#features' },
-      { label: t('links.privacy'), href: '#technology' },
+      { label: t('links.privacy'), href: '/privacy' },
       { label: t('links.faq'), href: '#faq' },
       { label: t('links.blog'), href: '/blog' },
     ],
     social: [
       { label: 'GitHub', href: 'https://github.com/caterpi11ar' },
+      { label: 'Buy Me a Coffee', href: 'https://www.buymeacoffee.com/daiqin1046z' },
+      { label: 'RSS', href: locale === 'zh' ? '/rss.xml' : '/en/rss.xml' },
     ],
   }
 
@@ -71,8 +74,8 @@ export function FooterSection({ variant = 'default' }: { variant?: 'default' | '
                 <li key={link.label}>
                   <NextLink
                     href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     className={`text-sm transition-colors ${isDark ? 'text-zinc-400 hover:text-zinc-100' : 'text-muted-foreground hover:text-foreground'}`}
                   >
                     {link.label}

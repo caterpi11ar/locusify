@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
+  NEXT_PUBLIC_SITE_URL: z.url().default('https://locusify.cn'),
 })
 
 export type Env = z.infer<typeof envSchema>
@@ -13,6 +14,8 @@ function validateEnv(): Env {
       // Importing `process` from node:process prevents client-side replacement.
       // eslint-disable-next-line node/prefer-global/process
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      // eslint-disable-next-line node/prefer-global/process
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     })
   }
   catch (error) {

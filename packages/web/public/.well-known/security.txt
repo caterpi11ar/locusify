@@ -1,0 +1,4 @@
+Contact: https://github.com/caterpi11ar/locusify/security/advisories/new
+Expires: 2027-07-31T00:00:00.000Z
+Preferred-Languages: zh, en
+Canonical: https://locusify.cn/.well-known/security.txt

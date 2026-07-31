@@ -1,3 +1,4 @@
+import { richBlogContent } from './blog-rich-content'
 import releaseNotes from './release-notes.json'
 
 export type BlogCategory = 'updates' | 'guides' | 'stories'
@@ -52,6 +53,7 @@ export interface BlogFaqItem {
 export interface BlogLongFormSection {
   heading: string
   paragraphs: string[]
+  steps?: string[]
 }
 
 export interface BlogVariantSet {
@@ -84,17 +86,8 @@ function extractBody(markdown: string) {
 }
 
 function extractTitle(markdown: string, version: string, locale: 'en' | 'zh') {
-  const section = markdown
-    .split('\n')
-    .find(line => line.trim().startsWith('## '))
-    ?.replace(/^##\s+/, '')
-    .trim()
-
-  if (!section) {
-    return locale === 'zh' ? `${version} 版本更新` : `${version} Release Notes`
-  }
-
-  return `${version} · ${section}`
+  void markdown
+  return locale === 'zh' ? `${version} 版本更新` : `${version} Release Notes`
 }
 
 function toVersionSlug(version: string) {
@@ -725,6 +718,29 @@ export function getAllBlogPosts() {
   return allPosts
 }
 
+export function isSearchReadyBlogPost(post: BlogPost) {
+  return post.category === 'updates' || Boolean(richBlogContent[post.slug])
+}
+
+export function getSearchReadyBlogPosts() {
+  return allPosts.filter(isSearchReadyBlogPost)
+}
+
+export function getBlogPostImage(post: BlogPost) {
+  const images: Record<string, string> = {
+    'how-to-create-an-animated-travel-map': '/images/travel-hero-main.jpg',
+    'map-your-trip-using-gps-photos': '/images/travel-tech-main.jpg',
+    'visualize-travel-route-from-iphone-photos': '/images/travel-gallery-2.jpg',
+    'travel-map-generator-tools-comparison': '/images/travel-collection-3.jpg',
+  }
+
+  return images[post.slug] ?? '/images/travel-hero-main.jpg'
+}
+
+export function getBlogPostModifiedDate(post: BlogPost) {
+  return richBlogContent[post.slug] ? '2026-07-31' : post.date
+}
+
 export function getBlogPostBySlug(slug: string) {
   const normalized = slug.toLowerCase()
   return allPosts.find((post) => {
@@ -734,7 +750,7 @@ export function getBlogPostBySlug(slug: string) {
 }
 
 export function getRelatedBlogPosts(post: BlogPost, limit = 3) {
-  return allPosts
+  return getSearchReadyBlogPosts()
     .filter(candidate => candidate.slug !== post.slug)
     .sort((a, b) => {
       if (a.intent === post.intent && b.intent !== post.intent)
@@ -841,7 +857,7 @@ function inferTopicsForPost(post: BlogPost): BlogTopic[] {
 
 export function getAllBlogTopics(): BlogTopic[] {
   const topics = new Set<BlogTopic>()
-  for (const post of allPosts) {
+  for (const post of getSearchReadyBlogPosts()) {
     for (const topic of inferTopicsForPost(post)) {
       topics.add(topic)
     }
@@ -850,108 +866,202 @@ export function getAllBlogTopics(): BlogTopic[] {
 }
 
 export function getBlogPostsByTopic(topic: BlogTopic) {
-  return allPosts.filter(post => inferTopicsForPost(post).includes(topic))
+  return getSearchReadyBlogPosts().filter(post => inferTopicsForPost(post).includes(topic))
 }
 
 export function getEstimatedReadMinutes(post: BlogPost, locale: 'zh' | 'en') {
   const longFormSections = getBlogLongFormSections(post, locale)
   const longFormText = longFormSections
-    .flatMap(section => [section.heading, ...section.paragraphs])
+    .flatMap(section => [section.heading, ...section.paragraphs, ...(section.steps ?? [])])
     .join(' ')
   const text
     = locale === 'zh'
       ? [post.title.zh, post.summary.zh, ...post.content.zh, longFormText].join(' ')
       : [post.title.en, post.summary.en, ...post.content.en, longFormText].join(' ')
+  if (locale === 'zh') {
+    const characterCount = text.replace(/\s+/g, '').length
+    return Math.max(1, Math.ceil(characterCount / 450))
+  }
+
   const wordCount = text.split(/\s+/).filter(Boolean).length
   return Math.max(1, Math.ceil(wordCount / 220))
 }
 
 export function getBlogPostFaq(post: BlogPost, locale: 'zh' | 'en'): BlogFaqItem[] {
-  const keywords = locale === 'zh' ? post.targetKeywords.zh : post.targetKeywords.en
-  const primaryKeyword = keywords[0] ?? (locale === 'zh' ? '旅行地图' : 'travel map')
-
-  if (locale === 'zh') {
-    return [
-      {
-        question: `什么是“${primaryKeyword}”最实用的开始方式？`,
-        answer:
-          '先用一段最近旅行素材跑通完整流程：导入照片、校验时间线、修复异常点、导出短版本。先完成，再优化。',
-      },
-      {
-        question: '如果照片里有缺失 GPS 信息怎么办？',
-        answer:
-          '可以先按有坐标素材生成主路线，再把无坐标照片作为补充素材放在章节节点，不要强行参与轨迹连线。',
-      },
-      {
-        question: '如何让输出内容更适合社交平台传播？',
-        answer:
-          '优先短时长和清晰节奏：开场总览、关键节点、结尾收束，同时按目标平台画幅导出，减少二次裁切损耗。',
-      },
-      {
-        question: 'Locusify 在这个流程里适合什么场景？',
-        answer: post.cta.zh,
-      },
-    ]
-  }
-
-  return [
-    {
-      question: `What is the fastest way to start with ${primaryKeyword}?`,
-      answer:
-        'Use one recent trip folder and run the full flow once: import, timeline check, outlier cleanup, and short replay export.',
-    },
-    {
-      question: 'What if some photos do not contain GPS metadata?',
-      answer:
-        'Build the core route from geotagged photos first, then place non-geotagged images as chapter visuals instead of route points.',
-    },
-    {
-      question: 'How do I make outputs more shareable on social channels?',
-      answer:
-        'Keep runtime concise, start with route overview, highlight key stops, and export directly in the target aspect ratio.',
-    },
-    {
-      question: 'Where does Locusify fit in this workflow?',
-      answer: post.cta.en,
-    },
-  ]
+  return richBlogContent[post.slug]?.[locale].faq ?? []
 }
 
 export function getBlogLongFormSections(post: BlogPost, locale: 'zh' | 'en'): BlogLongFormSection[] {
-  const keywords = locale === 'zh' ? post.targetKeywords.zh : post.targetKeywords.en
-  const primaryKeyword = keywords[0] ?? (locale === 'zh' ? '旅行地图' : 'travel map')
-  const secondaryKeyword = keywords[1] ?? (locale === 'zh' ? '旅行轨迹可视化' : 'trip visualization')
-  const summary = locale === 'zh' ? post.summary.zh : post.summary.en
-  const content = locale === 'zh' ? post.content.zh : post.content.en
-  const painPoint = content[0] ?? summary
-  const workflow = content.slice(1, 4)
-  const intent = post.intent
+  const authoredSections = richBlogContent[post.slug]?.[locale].sections
+  if (authoredSections)
+    return authoredSections
 
-  if (locale === 'zh') {
+  if (false) {
+    const keywords = locale === 'zh' ? post.targetKeywords.zh : post.targetKeywords.en
+    const primaryKeyword = keywords[0] ?? (locale === 'zh' ? '旅行地图' : 'travel map')
+    const secondaryKeyword = keywords[1] ?? (locale === 'zh' ? '旅行轨迹可视化' : 'trip visualization')
+    const summary = locale === 'zh' ? post.summary.zh : post.summary.en
+    const content = locale === 'zh' ? post.content.zh : post.content.en
+    const painPoint = content[0] ?? summary
+    const workflow = content.slice(1, 4)
+    const intent = post.intent
+
+    if (locale === 'zh') {
+      if (intent === 'top') {
+        return [
+          {
+            heading: '为什么用户会搜索这个关键词',
+            paragraphs: [
+              `“${primaryKeyword}”属于典型的探索型关键词，用户多数还在找方法，而不是马上选工具。此时内容目标不是卖点堆砌，而是降低理解门槛，让用户快速看到可执行路径。`,
+              `在 Top 阶段，文章应优先回答“我该从哪里开始”，并用一个低风险流程让用户在短时间获得第一个正反馈。`,
+              `你的摘要已经给出方向：${summary}。接下来所有章节都要围绕“让新手先跑通”这个核心目标展开。`,
+            ],
+          },
+          {
+            heading: '从 0 到 1 的最小闭环',
+            paragraphs: [
+              `先选一次单独旅行素材做演练，不要混入多次行程。素材范围越小，学习成本越低，结果也更可控。`,
+              `按主流程执行：${workflow.join(' ')}。目标是做出可用版本，而不是一次做成终版。`,
+              `完成首版后，再补节奏、字幕、画幅等发布优化。这种“先跑通再优化”的顺序对新用户成功率最高。`,
+            ],
+          },
+          {
+            heading: '内容分发建议（Top 流量）',
+            paragraphs: [
+              `Top 内容适合做“教程型 + 清单型”双版本。教程解决“怎么做”，清单解决“怕漏做”。两者组合更容易拿到搜索点击。`,
+              `标题要明确动作与结果，例如“如何制作”“一步步完成”，避免抽象命名。首屏要在 20 秒内给读者看到产出预期。`,
+              `把工具描述放进步骤语句里而不是广告句里，平台与用户都更容易接受。`,
+            ],
+          },
+        ]
+      }
+
+      if (intent === 'middle') {
+        return [
+          {
+            heading: '问题定位：用户已经有需求，但卡在执行细节',
+            paragraphs: [
+              `Middle 关键词用户通常已经知道要做什么，卡点在于流程不稳、结果不一致或发布效果不理想。`,
+              `这类文章要把“原理解释”缩短，把“排错与参数建议”放大，帮助用户减少返工。`,
+              `当前内容中的核心痛点是：${painPoint}。你需要围绕这个问题给清晰可复用的修正动作。`,
+            ],
+          },
+          {
+            heading: '稳定产出的执行框架',
+            paragraphs: [
+              `建议把流程分成三层：输入质量、路径修正、输出发布。先修输入，再修路径，最后调输出。`,
+              `可直接执行的主链路：${workflow.join(' ')}。每一步都设一个“完成标准”，避免只凭感觉判断是否可发布。`,
+              `当结果不稳定时，优先回查时间线与异常跳点，通常比调视觉参数更有效。`,
+            ],
+          },
+          {
+            heading: '转化强化（Middle 到 Bottom）',
+            paragraphs: [
+              `Middle 阶段最有效的转化方式是“对比前后效率差异”，例如手工流程耗时 vs 自动流程耗时。`,
+              `在文末给出具体下一步：用最近一组素材复现流程并记录耗时，再决定是否长期采用。`,
+              `这类内容可以自然承接到对比页和品牌词页，为 Bottom 转化做铺垫。`,
+            ],
+          },
+        ]
+      }
+
+      if (intent === 'bottom') {
+        return [
+          {
+            heading: '决策阶段关注点：可信度、迁移成本、结果确定性',
+            paragraphs: [
+              `Bottom 阶段用户已经在比较方案，真正关心的是“值不值得切换”和“能不能稳定产出”。`,
+              `这时文章应聚焦决策维度：上手时间、替换成本、结果可控性，而不是泛泛功能列表。`,
+              `围绕关键词“${primaryKeyword}”应明确你的差异化判断标准，帮助读者快速做选择。`,
+            ],
+          },
+          {
+            heading: '比较框架与验证方法',
+            paragraphs: [
+              `建议用同一份真实素材进行并行测试，并记录三项指标：完成时间、修正次数、最终可发布质量。`,
+              `可参考主流程：${workflow.join(' ')}。如果对比文章只停留在主观体验，转化说服力会很弱。`,
+              `把结论写成“适用人群 + 场景边界”，而不是绝对优劣，更容易建立信任。`,
+            ],
+          },
+          {
+            heading: 'Bottom 转化动作',
+            paragraphs: [
+              `文末要给明确动作：下载试跑、导入真实素材、导出首个版本。动作越具体，决策推进越快。`,
+              `同时保留风险说明与替代路径，能降低用户的心理防御，反而提升实际转化。`,
+              `对于品牌词内容，相关文章应优先链接教程页与案例页，形成“比较 -> 试用 -> 复盘”的闭环。`,
+            ],
+          },
+        ]
+      }
+
+      return [
+        {
+          heading: '搜索意图与内容目标',
+          paragraphs: [
+            `这篇内容的核心关键词是“${primaryKeyword}”，次级关键词是“${secondaryKeyword}”。要真正拿到搜索流量，文章不能停留在功能介绍，而要直接回应用户搜索背后的任务目标。用户点进来通常不是想了解产品历史，而是想知道“我现在怎么做，才能更快得到结果”。`,
+            `因此正文需要围绕“问题 -> 方法 -> 结果”展开。先明确当前阻力，再给可执行流程，最后给到能立即验证的输出方式。对于这类旅行内容，最有效的路径通常是先做一个小版本跑通，再迭代优化。`,
+            `当前文章摘要已经定义了目标方向：${summary}。后续段落要持续回到这个结果，避免被功能细节带偏。`,
+          ],
+        },
+        {
+          heading: '执行流程（可直接照做）',
+          paragraphs: [
+            `先完成一次低成本素材准备：只选最近一次旅行的照片，保证时间线尽量连续。素材越统一，后续路线越稳定，也更容易定位问题。很多人第一步就把多年素材混在一起，导致噪声过高，反而看不清路径。`,
+            `接着执行主流程：${workflow.join(' ')}。这一步建议先做“可用版本”，不要一开始追求完美风格。能导出、能看懂、能分享，才是第一阶段目标。`,
+            `完成首版后，再补节奏优化和视觉表达。比如先给路线总览，再展示关键节点，最后用收束画面结束。这样观众更容易在短时间理解你的旅程脉络。`,
+          ],
+        },
+        {
+          heading: '常见错误与修正方法',
+          paragraphs: [
+            `最常见的问题是把“素材堆叠”误当成“内容完成”。如果你只是把所有照片按时间输出，结果通常冗长、无重点、跳点明显。这个痛点在当前文章也已经提到：${painPoint}。`,
+            `修正时优先做三件事：第一，删除重复视角；第二，保留关键转折节点；第三，检查异常跨城跳点。只要这三件事做对，路线可读性会明显提升。`,
+            `另一个高频错误是导出尺寸和发布平台不匹配。建议发布前就按目标平台画幅导出，避免二次裁切破坏地图信息和字幕安全区。`,
+          ],
+        },
+        {
+          heading: '分发与转化清单',
+          paragraphs: [
+            `内容完成后不要只发布一次。把同一条主路线拆成“教程版、对比版、案例版”三个角度，能覆盖更多搜索入口和社交受众。教程版承接泛流量，对比版承接竞品词，案例版提升可信度。`,
+            `每次发布都要附上明确动作：让读者知道下一步做什么。比如“用最近一次旅行素材跑一遍流程，再回头优化风格”。可执行动作越具体，转化率越高。`,
+            `自然嵌入产品时，优先用场景语言而不是广告语言。把工具放进解决方案链路里，而不是单独喊口号，这样既更像内容，也更容易被平台和用户接受。`,
+          ],
+        },
+        {
+          heading: '落地建议（接下来 7 天）',
+          paragraphs: [
+            `第 1-2 天：按本文流程完成首版并导出。第 3-4 天：根据反馈修正节点与节奏。第 5 天：发布对比向和教程向两个衍生版本。第 6-7 天：根据搜索词和完读数据回改标题与首段。`,
+            `如果你希望持续增长，把同类关键词文章串成专题集群页，再通过相关文章模块互相导流。这样每一篇都不是孤立页面，而是搜索网络中的节点，长期累积效果更稳。`,
+            `在这个过程中，像 Locusify 这样的工具价值在于缩短“素材 -> 地图 -> 回放 -> 导出”的链路时间，让你把更多精力放在叙事和分发，而不是重复手工处理。`,
+          ],
+        },
+      ]
+    }
+
     if (intent === 'top') {
       return [
         {
-          heading: '为什么用户会搜索这个关键词',
+          heading: 'Why People Search This Keyword',
           paragraphs: [
-            `“${primaryKeyword}”属于典型的探索型关键词，用户多数还在找方法，而不是马上选工具。此时内容目标不是卖点堆砌，而是降低理解门槛，让用户快速看到可执行路径。`,
-            `在 Top 阶段，文章应优先回答“我该从哪里开始”，并用一个低风险流程让用户在短时间获得第一个正反馈。`,
-            `你的摘要已经给出方向：${summary}。接下来所有章节都要围绕“让新手先跑通”这个核心目标展开。`,
+            `"${primaryKeyword}" is usually a discovery-stage query. Readers are exploring approaches, not selecting a final tool yet. Your goal here is clarity and momentum, not feature depth.`,
+            `Top-funnel content should answer one question first: where do I start right now? If the reader can complete one small output quickly, trust increases naturally.`,
+            `The current summary defines your target outcome clearly: ${summary}. Keep each section aligned with first-result success.`,
           ],
         },
         {
-          heading: '从 0 到 1 的最小闭环',
+          heading: 'The 0-to-1 Starter Workflow',
           paragraphs: [
-            `先选一次单独旅行素材做演练，不要混入多次行程。素材范围越小，学习成本越低，结果也更可控。`,
-            `按主流程执行：${workflow.join(' ')}。目标是做出可用版本，而不是一次做成终版。`,
-            `完成首版后，再补节奏、字幕、画幅等发布优化。这种“先跑通再优化”的顺序对新用户成功率最高。`,
+            `Use one recent trip dataset only. Narrow scope reduces noise and improves execution speed for first-time users.`,
+            `Run the core chain: ${workflow.join(' ')}. Prioritize a usable draft over a perfect version.`,
+            `After first export, optimize pacing and delivery format. Sequencing matters: completion first, polish second.`,
           ],
         },
         {
-          heading: '内容分发建议（Top 流量）',
+          heading: 'Top-Funnel Distribution Pattern',
           paragraphs: [
-            `Top 内容适合做“教程型 + 清单型”双版本。教程解决“怎么做”，清单解决“怕漏做”。两者组合更容易拿到搜索点击。`,
-            `标题要明确动作与结果，例如“如何制作”“一步步完成”，避免抽象命名。首屏要在 20 秒内给读者看到产出预期。`,
-            `把工具描述放进步骤语句里而不是广告句里，平台与用户都更容易接受。`,
+            `Package this article into tutorial + checklist formats. Tutorials attract intent traffic; checklists improve save/share behavior.`,
+            `Headline and intro should be action-led and outcome-specific. Readers should understand expected output in seconds.`,
+            `Embed product naturally inside workflow language, not promotional slogans, to keep trust and retention high.`,
           ],
         },
       ]
@@ -960,27 +1070,27 @@ export function getBlogLongFormSections(post: BlogPost, locale: 'zh' | 'en'): Bl
     if (intent === 'middle') {
       return [
         {
-          heading: '问题定位：用户已经有需求，但卡在执行细节',
+          heading: 'Problem Framing for Middle-Funnel Readers',
           paragraphs: [
-            `Middle 关键词用户通常已经知道要做什么，卡点在于流程不稳、结果不一致或发布效果不理想。`,
-            `这类文章要把“原理解释”缩短，把“排错与参数建议”放大，帮助用户减少返工。`,
-            `当前内容中的核心痛点是：${painPoint}。你需要围绕这个问题给清晰可复用的修正动作。`,
+            `Middle-funnel readers usually know what they want but struggle with consistency: unstable routes, cleanup overhead, or weak publishing output.`,
+            `This stage needs practical troubleshooting and decision criteria more than concept explanation.`,
+            `Your primary pain signal is already present: ${painPoint}. Build the section around repeatable fixes.`,
           ],
         },
         {
-          heading: '稳定产出的执行框架',
+          heading: 'Reliable Production Framework',
           paragraphs: [
-            `建议把流程分成三层：输入质量、路径修正、输出发布。先修输入，再修路径，最后调输出。`,
-            `可直接执行的主链路：${workflow.join(' ')}。每一步都设一个“完成标准”，避免只凭感觉判断是否可发布。`,
-            `当结果不稳定时，优先回查时间线与异常跳点，通常比调视觉参数更有效。`,
+            `Split execution into three layers: input quality, route correction, and output packaging. Fix in that order to avoid wasted effort.`,
+            `Use this core sequence: ${workflow.join(' ')}. Define completion checks for each step to remove ambiguity.`,
+            `When output quality drops, debug timeline continuity and outlier jumps before visual styling adjustments.`,
           ],
         },
         {
-          heading: '转化强化（Middle 到 Bottom）',
+          heading: 'Conversion Bridge to Bottom Funnel',
           paragraphs: [
-            `Middle 阶段最有效的转化方式是“对比前后效率差异”，例如手工流程耗时 vs 自动流程耗时。`,
-            `在文末给出具体下一步：用最近一组素材复现流程并记录耗时，再决定是否长期采用。`,
-            `这类内容可以自然承接到对比页和品牌词页，为 Bottom 转化做铺垫。`,
+            `The strongest middle-funnel conversion trigger is measurable efficiency gain: time spent, edits required, and publish readiness.`,
+            `Give readers one concrete next step: run the same workflow on a recent trip and compare effort against their current process.`,
+            `Link this content to comparison and brand-intent pages to create a smooth transition into decision-stage content.`,
           ],
         },
       ]
@@ -989,27 +1099,27 @@ export function getBlogLongFormSections(post: BlogPost, locale: 'zh' | 'en'): Bl
     if (intent === 'bottom') {
       return [
         {
-          heading: '决策阶段关注点：可信度、迁移成本、结果确定性',
+          heading: 'Decision Criteria at Bottom Funnel',
           paragraphs: [
-            `Bottom 阶段用户已经在比较方案，真正关心的是“值不值得切换”和“能不能稳定产出”。`,
-            `这时文章应聚焦决策维度：上手时间、替换成本、结果可控性，而不是泛泛功能列表。`,
-            `围绕关键词“${primaryKeyword}”应明确你的差异化判断标准，帮助读者快速做选择。`,
+            `Bottom-funnel readers are evaluating confidence, switching cost, and output predictability. Generic feature lists are rarely enough.`,
+            `Content should prioritize decision dimensions: onboarding time, migration friction, and quality consistency.`,
+            `For "${primaryKeyword}", define clear evaluation criteria so readers can choose quickly based on their workflow reality.`,
           ],
         },
         {
-          heading: '比较框架与验证方法',
+          heading: 'Comparison Method That Builds Trust',
           paragraphs: [
-            `建议用同一份真实素材进行并行测试，并记录三项指标：完成时间、修正次数、最终可发布质量。`,
-            `可参考主流程：${workflow.join(' ')}。如果对比文章只停留在主观体验，转化说服力会很弱。`,
-            `把结论写成“适用人群 + 场景边界”，而不是绝对优劣，更容易建立信任。`,
+            `Use one real dataset across tools and compare three metrics: completion time, correction workload, and final publish quality.`,
+            `A practical baseline flow remains: ${workflow.join(' ')}. Keep claims tied to observable process outcomes.`,
+            `Write conclusions as fit-by-scenario, not absolute winner claims. This increases credibility and conversion quality.`,
           ],
         },
         {
-          heading: 'Bottom 转化动作',
+          heading: 'Bottom-Funnel Conversion Actions',
           paragraphs: [
-            `文末要给明确动作：下载试跑、导入真实素材、导出首个版本。动作越具体，决策推进越快。`,
-            `同时保留风险说明与替代路径，能降低用户的心理防御，反而提升实际转化。`,
-            `对于品牌词内容，相关文章应优先链接教程页与案例页，形成“比较 -> 试用 -> 复盘”的闭环。`,
+            `End with explicit actions: test run, import real assets, export first version. Concrete actions move decisions forward.`,
+            `Include risk notes and fallback paths. Balanced framing often converts better than aggressive claims.`,
+            `Interlink to tutorial and case-study pages to complete the comparison -> trial -> validation loop.`,
           ],
         },
       ]
@@ -1017,177 +1127,49 @@ export function getBlogLongFormSections(post: BlogPost, locale: 'zh' | 'en'): Bl
 
     return [
       {
-        heading: '搜索意图与内容目标',
+        heading: 'Search Intent and Content Goal',
         paragraphs: [
-          `这篇内容的核心关键词是“${primaryKeyword}”，次级关键词是“${secondaryKeyword}”。要真正拿到搜索流量，文章不能停留在功能介绍，而要直接回应用户搜索背后的任务目标。用户点进来通常不是想了解产品历史，而是想知道“我现在怎么做，才能更快得到结果”。`,
-          `因此正文需要围绕“问题 -> 方法 -> 结果”展开。先明确当前阻力，再给可执行流程，最后给到能立即验证的输出方式。对于这类旅行内容，最有效的路径通常是先做一个小版本跑通，再迭代优化。`,
-          `当前文章摘要已经定义了目标方向：${summary}。后续段落要持续回到这个结果，避免被功能细节带偏。`,
+          `This article targets "${primaryKeyword}" with a supporting focus on "${secondaryKeyword}". To rank and convert, the page needs to answer a job-to-be-done, not just describe features. Most visitors are trying to complete a workflow quickly, so the structure should always move from problem to method to outcome.`,
+          `The safest way to win this search intent is to give a repeatable process readers can execute immediately. Once users complete one successful output, they naturally become more willing to evaluate tools and advanced options.`,
+          `Your current summary already defines the target outcome: ${summary}. Keep every section aligned with that outcome and avoid drifting into product log style writing.`,
         ],
       },
       {
-        heading: '执行流程（可直接照做）',
+        heading: 'Execution Workflow You Can Follow',
         paragraphs: [
-          `先完成一次低成本素材准备：只选最近一次旅行的照片，保证时间线尽量连续。素材越统一，后续路线越稳定，也更容易定位问题。很多人第一步就把多年素材混在一起，导致噪声过高，反而看不清路径。`,
-          `接着执行主流程：${workflow.join(' ')}。这一步建议先做“可用版本”，不要一开始追求完美风格。能导出、能看懂、能分享，才是第一阶段目标。`,
-          `完成首版后，再补节奏优化和视觉表达。比如先给路线总览，再展示关键节点，最后用收束画面结束。这样观众更容易在短时间理解你的旅程脉络。`,
+          `Start with one recent trip dataset. A constrained dataset reduces noise and makes route errors easier to debug. Many creators fail early because they combine multiple trips and timezones before validating the core pipeline.`,
+          `Then run the core sequence: ${workflow.join(' ')}. The first goal is a usable output, not a perfect one. If you can produce a clear short replay, you already have a strong foundation for iteration.`,
+          `After first export, improve pacing and narrative clarity. Open with a route overview, zoom into key stops, and end with a recap frame. This pattern improves retention and makes your map story easier to consume.`,
         ],
       },
       {
-        heading: '常见错误与修正方法',
+        heading: 'Common Mistakes and Fixes',
         paragraphs: [
-          `最常见的问题是把“素材堆叠”误当成“内容完成”。如果你只是把所有照片按时间输出，结果通常冗长、无重点、跳点明显。这个痛点在当前文章也已经提到：${painPoint}。`,
-          `修正时优先做三件事：第一，删除重复视角；第二，保留关键转折节点；第三，检查异常跨城跳点。只要这三件事做对，路线可读性会明显提升。`,
-          `另一个高频错误是导出尺寸和发布平台不匹配。建议发布前就按目标平台画幅导出，避免二次裁切破坏地图信息和字幕安全区。`,
+          `The most common mistake is treating asset volume as quality. Dumping every photo into one replay usually creates weak pacing and low readability. The pain point in this article reflects that directly: ${painPoint}.`,
+          `Fixes should be prioritized in order: remove repetitive shots, preserve key transition points, and correct long-distance outliers. These three changes usually deliver the biggest readability gain with minimal effort.`,
+          `Another frequent issue is distribution mismatch. Export in your target aspect ratio first instead of cropping later. This avoids losing map context, labels, and caption-safe layout.`,
         ],
       },
       {
-        heading: '分发与转化清单',
+        heading: 'Distribution and Conversion Checklist',
         paragraphs: [
-          `内容完成后不要只发布一次。把同一条主路线拆成“教程版、对比版、案例版”三个角度，能覆盖更多搜索入口和社交受众。教程版承接泛流量，对比版承接竞品词，案例版提升可信度。`,
-          `每次发布都要附上明确动作：让读者知道下一步做什么。比如“用最近一次旅行素材跑一遍流程，再回头优化风格”。可执行动作越具体，转化率越高。`,
-          `自然嵌入产品时，优先用场景语言而不是广告语言。把工具放进解决方案链路里，而不是单独喊口号，这样既更像内容，也更容易被平台和用户接受。`,
+          `Do not publish a single version only. Split the same route into three angles: tutorial, comparison, and case study. This gives you broader SEO entry points and better social reuse without redoing the entire production process.`,
+          `Every post needs one explicit next action. Tell readers exactly what to do after reading: run the workflow on their latest trip, validate output quality, then optimize style. Concrete CTAs consistently outperform generic prompts.`,
+          `When introducing your product, keep it inside the solution narrative. Content-first wording performs better than ad-like wording and is less likely to be filtered as promotion.`,
         ],
       },
       {
-        heading: '落地建议（接下来 7 天）',
+        heading: '7-Day Implementation Plan',
         paragraphs: [
-          `第 1-2 天：按本文流程完成首版并导出。第 3-4 天：根据反馈修正节点与节奏。第 5 天：发布对比向和教程向两个衍生版本。第 6-7 天：根据搜索词和完读数据回改标题与首段。`,
-          `如果你希望持续增长，把同类关键词文章串成专题集群页，再通过相关文章模块互相导流。这样每一篇都不是孤立页面，而是搜索网络中的节点，长期累积效果更稳。`,
-          `在这个过程中，像 Locusify 这样的工具价值在于缩短“素材 -> 地图 -> 回放 -> 导出”的链路时间，让你把更多精力放在叙事和分发，而不是重复手工处理。`,
+          `Day 1-2: build and export the first version. Day 3-4: revise pacing and waypoint clarity based on feedback. Day 5: publish tutorial and comparison derivatives. Day 6-7: update title, intro, and FAQ based on query signals and completion metrics.`,
+          `For long-term growth, interlink related articles through topic clusters and related modules. That turns single posts into a compounding SEO network rather than isolated pages.`,
+          `Tools like Locusify are most valuable when they compress the path from assets to map replay output, so your time goes to narrative quality and distribution, not repetitive manual processing.`,
         ],
       },
     ]
   }
 
-  if (intent === 'top') {
-    return [
-      {
-        heading: 'Why People Search This Keyword',
-        paragraphs: [
-          `"${primaryKeyword}" is usually a discovery-stage query. Readers are exploring approaches, not selecting a final tool yet. Your goal here is clarity and momentum, not feature depth.`,
-          `Top-funnel content should answer one question first: where do I start right now? If the reader can complete one small output quickly, trust increases naturally.`,
-          `The current summary defines your target outcome clearly: ${summary}. Keep each section aligned with first-result success.`,
-        ],
-      },
-      {
-        heading: 'The 0-to-1 Starter Workflow',
-        paragraphs: [
-          `Use one recent trip dataset only. Narrow scope reduces noise and improves execution speed for first-time users.`,
-          `Run the core chain: ${workflow.join(' ')}. Prioritize a usable draft over a perfect version.`,
-          `After first export, optimize pacing and delivery format. Sequencing matters: completion first, polish second.`,
-        ],
-      },
-      {
-        heading: 'Top-Funnel Distribution Pattern',
-        paragraphs: [
-          `Package this article into tutorial + checklist formats. Tutorials attract intent traffic; checklists improve save/share behavior.`,
-          `Headline and intro should be action-led and outcome-specific. Readers should understand expected output in seconds.`,
-          `Embed product naturally inside workflow language, not promotional slogans, to keep trust and retention high.`,
-        ],
-      },
-    ]
-  }
-
-  if (intent === 'middle') {
-    return [
-      {
-        heading: 'Problem Framing for Middle-Funnel Readers',
-        paragraphs: [
-          `Middle-funnel readers usually know what they want but struggle with consistency: unstable routes, cleanup overhead, or weak publishing output.`,
-          `This stage needs practical troubleshooting and decision criteria more than concept explanation.`,
-          `Your primary pain signal is already present: ${painPoint}. Build the section around repeatable fixes.`,
-        ],
-      },
-      {
-        heading: 'Reliable Production Framework',
-        paragraphs: [
-          `Split execution into three layers: input quality, route correction, and output packaging. Fix in that order to avoid wasted effort.`,
-          `Use this core sequence: ${workflow.join(' ')}. Define completion checks for each step to remove ambiguity.`,
-          `When output quality drops, debug timeline continuity and outlier jumps before visual styling adjustments.`,
-        ],
-      },
-      {
-        heading: 'Conversion Bridge to Bottom Funnel',
-        paragraphs: [
-          `The strongest middle-funnel conversion trigger is measurable efficiency gain: time spent, edits required, and publish readiness.`,
-          `Give readers one concrete next step: run the same workflow on a recent trip and compare effort against their current process.`,
-          `Link this content to comparison and brand-intent pages to create a smooth transition into decision-stage content.`,
-        ],
-      },
-    ]
-  }
-
-  if (intent === 'bottom') {
-    return [
-      {
-        heading: 'Decision Criteria at Bottom Funnel',
-        paragraphs: [
-          `Bottom-funnel readers are evaluating confidence, switching cost, and output predictability. Generic feature lists are rarely enough.`,
-          `Content should prioritize decision dimensions: onboarding time, migration friction, and quality consistency.`,
-          `For "${primaryKeyword}", define clear evaluation criteria so readers can choose quickly based on their workflow reality.`,
-        ],
-      },
-      {
-        heading: 'Comparison Method That Builds Trust',
-        paragraphs: [
-          `Use one real dataset across tools and compare three metrics: completion time, correction workload, and final publish quality.`,
-          `A practical baseline flow remains: ${workflow.join(' ')}. Keep claims tied to observable process outcomes.`,
-          `Write conclusions as fit-by-scenario, not absolute winner claims. This increases credibility and conversion quality.`,
-        ],
-      },
-      {
-        heading: 'Bottom-Funnel Conversion Actions',
-        paragraphs: [
-          `End with explicit actions: test run, import real assets, export first version. Concrete actions move decisions forward.`,
-          `Include risk notes and fallback paths. Balanced framing often converts better than aggressive claims.`,
-          `Interlink to tutorial and case-study pages to complete the comparison -> trial -> validation loop.`,
-        ],
-      },
-    ]
-  }
-
-  return [
-    {
-      heading: 'Search Intent and Content Goal',
-      paragraphs: [
-        `This article targets "${primaryKeyword}" with a supporting focus on "${secondaryKeyword}". To rank and convert, the page needs to answer a job-to-be-done, not just describe features. Most visitors are trying to complete a workflow quickly, so the structure should always move from problem to method to outcome.`,
-        `The safest way to win this search intent is to give a repeatable process readers can execute immediately. Once users complete one successful output, they naturally become more willing to evaluate tools and advanced options.`,
-        `Your current summary already defines the target outcome: ${summary}. Keep every section aligned with that outcome and avoid drifting into product log style writing.`,
-      ],
-    },
-    {
-      heading: 'Execution Workflow You Can Follow',
-      paragraphs: [
-        `Start with one recent trip dataset. A constrained dataset reduces noise and makes route errors easier to debug. Many creators fail early because they combine multiple trips and timezones before validating the core pipeline.`,
-        `Then run the core sequence: ${workflow.join(' ')}. The first goal is a usable output, not a perfect one. If you can produce a clear short replay, you already have a strong foundation for iteration.`,
-        `After first export, improve pacing and narrative clarity. Open with a route overview, zoom into key stops, and end with a recap frame. This pattern improves retention and makes your map story easier to consume.`,
-      ],
-    },
-    {
-      heading: 'Common Mistakes and Fixes',
-      paragraphs: [
-        `The most common mistake is treating asset volume as quality. Dumping every photo into one replay usually creates weak pacing and low readability. The pain point in this article reflects that directly: ${painPoint}.`,
-        `Fixes should be prioritized in order: remove repetitive shots, preserve key transition points, and correct long-distance outliers. These three changes usually deliver the biggest readability gain with minimal effort.`,
-        `Another frequent issue is distribution mismatch. Export in your target aspect ratio first instead of cropping later. This avoids losing map context, labels, and caption-safe layout.`,
-      ],
-    },
-    {
-      heading: 'Distribution and Conversion Checklist',
-      paragraphs: [
-        `Do not publish a single version only. Split the same route into three angles: tutorial, comparison, and case study. This gives you broader SEO entry points and better social reuse without redoing the entire production process.`,
-        `Every post needs one explicit next action. Tell readers exactly what to do after reading: run the workflow on their latest trip, validate output quality, then optimize style. Concrete CTAs consistently outperform generic prompts.`,
-        `When introducing your product, keep it inside the solution narrative. Content-first wording performs better than ad-like wording and is less likely to be filtered as promotion.`,
-      ],
-    },
-    {
-      heading: '7-Day Implementation Plan',
-      paragraphs: [
-        `Day 1-2: build and export the first version. Day 3-4: revise pacing and waypoint clarity based on feedback. Day 5: publish tutorial and comparison derivatives. Day 6-7: update title, intro, and FAQ based on query signals and completion metrics.`,
-        `For long-term growth, interlink related articles through topic clusters and related modules. That turns single posts into a compounding SEO network rather than isolated pages.`,
-        `Tools like Locusify are most valuable when they compress the path from assets to map replay output, so your time goes to narrative quality and distribution, not repetitive manual processing.`,
-      ],
-    },
-  ]
+  return []
 }
 
 export function getBlogTitleVariants(post: BlogPost, locale: 'zh' | 'en'): BlogVariantSet {

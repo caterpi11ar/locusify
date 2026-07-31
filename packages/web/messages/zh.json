@@ -328,10 +328,12 @@
     "backToBlog": "返回博客",
     "article": {
       "keywordHeading": "目标关键词",
+      "tryHeading": "用你的照片实际测试",
       "cta": "用你的旅行照片试试 Locusify",
       "relatedHeading": "相关文章",
       "faqHeading": "常见问题",
       "readTime": "阅读约 {minutes} 分钟",
+      "updated": "更新于 {date}",
       "sections": {
         "problem": "问题",
         "pain": "痛点",
@@ -340,12 +342,12 @@
       }
     },
     "topic": {
-      "heading": "{topic} 主题内容聚合",
-      "description": "按关键词聚合相关文章，增强主题权重与站内内链结构。"
+      "heading": "{topic} 专题",
+      "description": "浏览这个主题下的教程、问题排查与工具选择建议。"
     },
     "meta": {
       "title": "旅行地图博客 | 教程、对比与替代方案",
-      "description": "阅读旅行地图动画、GPS 照片轨迹可视化、工具对比和 Locusify 产品更新相关内容。"
+      "description": "阅读 GPS 照片地图、旅行路线动画、轨迹可视化、隐私保护与工具对比教程，掌握从照片整理到地图回放和视频导出的完整方法。"
     }
   }
 }

@@ -1,5 +1,5 @@
-import { setRequestLocale } from 'next-intl/server'
-import { SiteHeader } from '@/components/site-header'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { JsonLd } from '@/components/json-ld'
 import { CollectionSection } from '@/components/sections/collection-section'
 import { EditorialSection } from '@/components/sections/editorial-section'
 import { FAQSection } from '@/components/sections/faq-section'
@@ -12,6 +12,7 @@ import { PhilosophySection } from '@/components/sections/philosophy-section'
 import { PricingSection } from '@/components/sections/pricing-section'
 import { TechnologySection } from '@/components/sections/technology-section'
 import { TestimonialsSection } from '@/components/sections/testimonials-section'
+import { SiteHeader } from '@/components/site-header'
 
 export default async function Home({
   params,
@@ -20,9 +21,23 @@ export default async function Home({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+  const t = await getTranslations({ locale, namespace: 'FAQ' })
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': Array.from({ length: 6 }, (_, index) => ({
+      '@type': 'Question',
+      'name': t(`q${index + 1}.question`),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t(`q${index + 1}.answer`),
+      },
+    })),
+  }
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
+      <JsonLd data={faqJsonLd} />
       <SiteHeader />
       <HeroSection />
       <PhilosophySection />

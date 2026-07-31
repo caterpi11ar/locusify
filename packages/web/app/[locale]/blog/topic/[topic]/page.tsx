@@ -3,6 +3,7 @@ import type { BlogTopic } from '@/lib/blog'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/header'
+import { JsonLd } from '@/components/json-ld'
 import { FooterSection } from '@/components/sections/footer-section'
 import { Link } from '@/i18n/navigation'
 import {
@@ -11,17 +12,14 @@ import {
   getBlogPostsByTopic,
   getTopicLabel,
 } from '@/lib/blog'
-
-const BASE_URL = 'https://app.locusify.cn'
+import { absoluteUrl, SITE_NAME, toSiteLocale, WEBSITE_ID } from '@/lib/site'
 
 function isBlogTopic(value: string): value is BlogTopic {
   return getAllBlogTopics().includes(value as BlogTopic)
 }
 
 function getTopicUrl(locale: string, topic: string) {
-  return locale === 'zh'
-    ? `${BASE_URL}/blog/topic/${topic}`
-    : `${BASE_URL}/en/blog/topic/${topic}`
+  return absoluteUrl(toSiteLocale(locale), `/blog/topic/${topic}`)
 }
 
 export function generateStaticParams() {
@@ -45,8 +43,8 @@ export async function generateMetadata({
       : `${topicLabel} Articles | Locusify Blog`
   const description
     = currentLocale === 'zh'
-      ? `聚合 ${topicLabel} 相关教程、对比和案例，帮助你找到可执行的旅行地图方案。`
-      : `Browse tutorials, comparisons, and case studies about ${topicLabel.toLowerCase()}.`
+      ? `浏览 Locusify 精选的 ${topicLabel} 教程、工具对比与真实案例，了解 GPS 照片整理、旅行路线制作、动画导出和隐私保护的可执行方法。`
+      : `Explore practical ${topicLabel.toLowerCase()} tutorials, tool comparisons, and examples for GPS photo organization, travel route creation, animation export, and privacy.`
   const canonical = getTopicUrl(locale, topic)
 
   return {
@@ -55,9 +53,9 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        'zh': `${BASE_URL}/blog/topic/${topic}`,
-        'en': `${BASE_URL}/en/blog/topic/${topic}`,
-        'x-default': `${BASE_URL}/blog/topic/${topic}`,
+        'zh': absoluteUrl('zh', `/blog/topic/${topic}`),
+        'en': absoluteUrl('en', `/blog/topic/${topic}`),
+        'x-default': absoluteUrl('zh', `/blog/topic/${topic}`),
       },
     },
     openGraph: {
@@ -65,6 +63,13 @@ export async function generateMetadata({
       description,
       url: canonical,
       type: 'website',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
     },
   }
 }
@@ -85,9 +90,43 @@ export default async function BlogTopicPage({
   const posts = getBlogPostsByTopic(topic)
   const dateLocale = locale === 'zh' ? 'zh-CN' : 'en-US'
   const topicLabel = getTopicLabel(topic, locale === 'zh' ? 'zh' : 'en')
+  const currentLocale = toSiteLocale(locale)
+  const topicUrl = absoluteUrl(currentLocale, `/blog/topic/${topic}`)
+  const blogUrl = absoluteUrl(currentLocale, '/blog')
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${topicUrl}#collection`,
+        'name': topicLabel,
+        'url': topicUrl,
+        'isPartOf': { '@id': WEBSITE_ID },
+        'mainEntity': {
+          '@type': 'ItemList',
+          'itemListElement': posts.map((post, index) => ({
+            '@type': 'ListItem',
+            'position': index + 1,
+            'url': absoluteUrl(currentLocale, `/blog/${post.slug}`),
+            'name': currentLocale === 'zh' ? post.title.zh : post.title.en,
+          })),
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${topicUrl}#breadcrumb`,
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': SITE_NAME, 'item': absoluteUrl(currentLocale) },
+          { '@type': 'ListItem', 'position': 2, 'name': currentLocale === 'zh' ? '博客' : 'Blog', 'item': blogUrl },
+          { '@type': 'ListItem', 'position': 3, 'name': topicLabel, 'item': topicUrl },
+        ],
+      },
+    ],
+  }
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-zinc-950 text-zinc-100">
+      <JsonLd data={collectionJsonLd} />
       <Header mode="content" />
       <section className="mx-auto max-w-5xl px-6 pb-20 pt-28 md:px-12 md:pt-32 lg:px-20">
         <Link href="/blog" className="text-sm text-zinc-400 underline underline-offset-4">

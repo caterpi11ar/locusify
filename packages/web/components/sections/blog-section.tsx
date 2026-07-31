@@ -1,13 +1,13 @@
 import type { SearchIntent } from '@/lib/blog'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/navigation'
-import { getAllBlogPosts, getAllBlogTopics, getTopicLabel } from '@/lib/blog'
+import { getAllBlogTopics, getSearchReadyBlogPosts, getTopicLabel } from '@/lib/blog'
 
 const INTENT_ORDER: SearchIntent[] = ['top', 'middle', 'bottom']
 
 export async function BlogSection({ locale }: { locale: string }) {
   const t = await getTranslations('Blog')
-  const posts = getAllBlogPosts()
+  const posts = getSearchReadyBlogPosts()
   const topics = getAllBlogTopics()
   const dateLocale = locale === 'zh' ? 'zh-CN' : 'en-US'
 
@@ -66,18 +66,6 @@ export async function BlogSection({ locale }: { locale: string }) {
                       <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                         {locale === 'zh' ? post.summary.zh : post.summary.en}
                       </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {(locale === 'zh' ? post.targetKeywords.zh : post.targetKeywords.en)
-                          .slice(0, 3)
-                          .map(keyword => (
-                            <span
-                              key={keyword}
-                              className="rounded-full border border-zinc-700 px-2 py-1 text-xs text-zinc-300"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                      </div>
                       <Link
                         href={`/blog/${post.slug}`}
                         className="mt-4 inline-block text-sm font-medium text-zinc-200 underline underline-offset-4 hover:text-white"

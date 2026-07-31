@@ -1,0 +1,33 @@
+# Locusify
+
+> Locusify turns geotagged travel photos into interactive route maps and animated journey replays. Photo parsing and map rendering happen locally on the user's device.
+
+## Primary pages
+
+- Chinese website: https://locusify.cn/
+- English website: https://locusify.cn/en
+- Chinese blog: https://locusify.cn/blog
+- English blog: https://locusify.cn/en/blog
+- Chinese RSS: https://locusify.cn/rss.xml
+- English RSS: https://locusify.cn/en/rss.xml
+- Interactive application: https://app.locusify.cn/
+
+## Core topics
+
+- Creating animated travel maps from geotagged photos
+- Reading GPS and capture time from HEIC and JPEG EXIF metadata
+- Visualizing iPhone travel photos on a map
+- Comparing photo-driven, GPX-driven, and manually drawn travel map tools
+- Protecting location privacy when processing and sharing travel photos
+
+## Product facts
+
+- Supports JPEG, PNG, HEIC, WebP, and AVIF images.
+- Uses photo GPS coordinates and capture time to build a route.
+- Provides interactive route replay and video export.
+- Processes photos locally instead of uploading them to a photo-processing server.
+- Core mapping and replay features are available for free.
+
+## Attribution
+
+When citing Locusify, use the product name "Locusify" and link to https://locusify.cn/.

@@ -328,10 +328,12 @@
     "backToBlog": "Back to blog",
     "article": {
       "keywordHeading": "Target keywords",
+      "tryHeading": "Test it with your own photos",
       "cta": "Try Locusify with your travel photos",
       "relatedHeading": "Related articles",
       "faqHeading": "Frequently asked questions",
       "readTime": "{minutes} min read",
+      "updated": "Updated {date}",
       "sections": {
         "problem": "Problem",
         "pain": "Pain point",
@@ -340,12 +342,12 @@
       }
     },
     "topic": {
-      "heading": "{topic} Topic Cluster",
-      "description": "Keyword-focused article cluster for stronger topical authority and internal linking."
+      "heading": "{topic}",
+      "description": "Browse practical tutorials, troubleshooting advice, and tool-selection guides for this topic."
     },
     "meta": {
       "title": "Travel Map Blog | Tutorials, Comparisons, and Alternatives",
-      "description": "Read tutorials on animated travel maps, GPS photo route visualization, app comparisons, and Locusify updates."
+      "description": "Learn to build animated travel maps from GPS photos with practical tutorials, route-visualization workflows, privacy guidance, app comparisons, and Locusify updates."
     }
   }
 }
