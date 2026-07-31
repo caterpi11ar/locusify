@@ -13,9 +13,70 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/blog",
+      "destination": "https://locusify.cn/blog",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "https://locusify.cn/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/en/blog",
+      "destination": "https://locusify.cn/en/blog",
+      "permanent": true
+    },
+    {
+      "source": "/en/blog/:path*",
+      "destination": "https://locusify.cn/en/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/zh-CN/blog",
+      "destination": "https://locusify.cn/blog",
+      "permanent": true
+    },
+    {
+      "source": "/zh-CN/blog/:path*",
+      "destination": "https://locusify.cn/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/rss.xml",
+      "destination": "https://locusify.cn/rss.xml",
+      "permanent": true
+    },
+    {
+      "source": "/en/rss.xml",
+      "destination": "https://locusify.cn/en/rss.xml",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "https://locusify.cn/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/en/privacy",
+      "destination": "https://locusify.cn/en/privacy",
+      "permanent": true
+    },
+    {
+      "source": "/zh-CN/privacy",
+      "destination": "https://locusify.cn/privacy",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/auth/callback",
+      "destination": "/"
+    },
+    {
+      "source": "/reset-password",
       "destination": "/"
     }
   ]
