@@ -5,6 +5,9 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    manifest: true,
+  },
   resolve: {
     tsconfigPaths: true,
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],

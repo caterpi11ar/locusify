@@ -8,6 +8,8 @@ interface LazyVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
 
 export function LazyVideo({ src, className, ...props }: LazyVideoProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const inViewportRef = useRef(false)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -18,21 +20,37 @@ export function LazyVideo({ src, className, ...props }: LazyVideoProps) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          inViewportRef.current = true
           setIsVisible(true)
-          observer.disconnect()
+          if (!document.hidden)
+            void videoRef.current?.play()
+        }
+        else {
+          inViewportRef.current = false
+          videoRef.current?.pause()
         }
       },
       { rootMargin: '200px' },
     )
 
     observer.observe(el)
-    return () => observer.disconnect()
+    const handleVisibility = () => {
+      if (document.hidden)
+        videoRef.current?.pause()
+      else if (inViewportRef.current)
+        void videoRef.current?.play()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
   }, [])
 
   return (
     <div ref={ref} className="relative h-full w-full">
       {isVisible && (
-        <video src={src} className={className} {...props} />
+        <video ref={videoRef} src={src} className={className} preload="metadata" {...props} />
       )}
     </div>
   )

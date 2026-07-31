@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "budget": "node scripts/check-bundle-budget.mjs",
     "dev": "next dev",
     "lint": "eslint --fix",
     "start": "next start"
@@ -38,6 +39,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@vercel/analytics": "1.3.1",
+    "@vercel/speed-insights": "^2.0.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

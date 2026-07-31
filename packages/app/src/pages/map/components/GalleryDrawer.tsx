@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -18,12 +18,11 @@ import { usePhotoStore } from '@/stores/photoStore'
 interface GalleryDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
 
-export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, contentClassName, modal, desktopOffset = 0 }) => {
+export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
   const photos = usePhotoStore(s => s.photos)
@@ -41,7 +40,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, cont
   }
 
   return (
-    <AntDrawer
+    <Drawer
       open={open}
       onClose={() => onOpenChange(false)}
       placement={isMobile ? 'bottom' : 'left'}
@@ -50,11 +49,9 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, cont
       zIndex={!isMobile && modal === false ? 900 : undefined}
       closable={false}
       destroyOnHidden
-      rootClassName={cn('locusify-drawer', contentClassName)}
       rootStyle={!isMobile ? { left: desktopOffset } : undefined}
       styles={{
         wrapper: isMobile ? { maxHeight: '80dvh' } : { height: '100dvh', width: 480 },
-        section: { background: 'transparent', boxShadow: 'none' },
         body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
       }}
     >
@@ -135,6 +132,6 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, cont
               )}
         </div>
       </div>
-    </AntDrawer>
+    </Drawer>
   )
 }

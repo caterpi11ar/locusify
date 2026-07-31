@@ -3,8 +3,8 @@ import { initializeAuth } from '@/stores/authStore'
 
 async function initialize() {
   await import('@/i18n')
-  await initializeReactScan()
-  initializeAuth()
+  void initializeReactScan()
+  void initializeAuth()
 }
 
 export default initialize

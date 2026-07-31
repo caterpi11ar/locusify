@@ -7,7 +7,7 @@ import { Header } from '@/components/header'
 const DISMISSED_KEY = 'locusify-announcement-dismissed'
 
 export function SiteHeader() {
-  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false)
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true)
 
   useEffect(() => {
     setIsAnnouncementVisible(sessionStorage.getItem(DISMISSED_KEY) !== 'true')
@@ -15,6 +15,7 @@ export function SiteHeader() {
 
   const closeAnnouncement = () => {
     sessionStorage.setItem(DISMISSED_KEY, 'true')
+    document.documentElement.dataset.announcementDismissed = 'true'
     setIsAnnouncementVisible(false)
   }
 

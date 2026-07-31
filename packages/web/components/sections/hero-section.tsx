@@ -22,11 +22,34 @@ export function HeroSection() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setShouldLoad(true)
+          const loadPreview = () => {
+            if (!document.querySelector(`link[data-app-origin="${APP_URL}"]`)) {
+              const preconnect = document.createElement('link')
+              preconnect.rel = 'preconnect'
+              preconnect.href = APP_URL
+              preconnect.crossOrigin = 'anonymous'
+              preconnect.dataset.appOrigin = APP_URL
+              document.head.appendChild(preconnect)
+            }
+            setShouldLoad(true)
+          }
+          const scheduleIdle = () => {
+            const requestIdle = (window as Window & { requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number }).requestIdleCallback
+            if (requestIdle) {
+              requestIdle(loadPreview, { timeout: 2500 })
+            }
+            else {
+              window.setTimeout(loadPreview, 250)
+            }
+          }
+          if (document.readyState === 'complete')
+            scheduleIdle()
+          else
+            window.addEventListener('load', scheduleIdle, { once: true })
           observer.disconnect()
         }
       },
-      { rootMargin: '600px 0px' },
+      { rootMargin: '400px 0px' },
     )
 
     observer.observe(preview)

@@ -3,6 +3,22 @@
 @import 'tailwindcss-uikit-colors/v4/macos.css';
 @plugin '@egoist/tailwindcss-icons';
 
+@font-face {
+  font-family: 'Inconsolata Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('@fontsource-variable/inconsolata/files/inconsolata-latin-wght-normal.woff2') format('woff2-variations');
+}
+
+@font-face {
+  font-family: 'Caveat Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url('@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2') format('woff2-variations');
+}
+
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme inline {
@@ -62,4 +78,49 @@
   body {
     @apply bg-background text-foreground font-family-sans;
   }
+}
+
+@keyframes locusify-splash-in {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes locusify-splash-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.locusify-splash {
+  animation: locusify-splash-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.locusify-splash-logo {
+  animation: locusify-splash-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .locusify-splash,
+  .locusify-splash-logo { animation: none; }
+}
+
+/* Keep Ant Design Drawer slide motion without fading the panel itself. */
+.ant-drawer-panel-motion-left-enter,
+.ant-drawer-panel-motion-left-appear,
+.ant-drawer-panel-motion-left-leave,
+.ant-drawer-panel-motion-right-enter,
+.ant-drawer-panel-motion-right-appear,
+.ant-drawer-panel-motion-right-leave,
+.ant-drawer-panel-motion-top-enter,
+.ant-drawer-panel-motion-top-appear,
+.ant-drawer-panel-motion-top-leave,
+.ant-drawer-panel-motion-bottom-enter,
+.ant-drawer-panel-motion-bottom-appear,
+.ant-drawer-panel-motion-bottom-leave {
+  opacity: 1 !important;
+}
+
+/* Let the existing material panel define the Drawer color and blur. */
+.ant-drawer-section {
+  background: transparent !important;
+  box-shadow: none !important;
 }

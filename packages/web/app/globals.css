@@ -129,6 +129,14 @@
   }
 }
 
+html[data-announcement-dismissed='true'] [data-announcement-banner] {
+  display: none;
+}
+
+html[data-announcement-dismissed='true'] [data-site-header] {
+  top: 0.75rem;
+}
+
 @layer components {
   [data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"] {
     stroke: color-mix(in oklab, var(--border) 50%, transparent);
@@ -266,20 +274,4 @@
 
 .clip-diagonal-reverse {
   clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
-}
-
-/* Fade in animation for images */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(1.02);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.7s ease-out forwards;
 }

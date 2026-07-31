@@ -24,15 +24,15 @@ export function CollectionSection() {
       </div>
 
       <div className="pb-24">
-        <div className="flex gap-6 overflow-x-auto px-6 pb-4 md:hidden snap-x snap-mandatory scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-3 md:overflow-visible md:px-12 lg:px-20">
           {scenarios.map(scenario => (
-            <div key={scenario.id} className="group flex-shrink-0 w-[75vw] snap-center">
+            <div key={scenario.id} className="group w-[75vw] flex-shrink-0 snap-center md:w-auto">
               <div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-secondary">
                 <FadeImage
                   src={scenario.image || '/placeholder.svg'}
                   alt={scenario.name}
                   fill
-                  sizes="75vw"
+                  sizes="(max-width: 767px) 75vw, 33vw"
                   className="object-cover group-hover:scale-105"
                 />
               </div>
@@ -48,29 +48,6 @@ export function CollectionSection() {
           ))}
         </div>
 
-        <div className="hidden md:grid md:grid-cols-3 gap-8 md:px-12 lg:px-20">
-          {scenarios.map(scenario => (
-            <div key={scenario.id} className="group">
-              <div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-secondary">
-                <FadeImage
-                  src={scenario.image || '/placeholder.svg'}
-                  alt={scenario.name}
-                  fill
-                  sizes="33vw"
-                  className="object-cover group-hover:scale-105"
-                />
-              </div>
-              <div className="py-6">
-                <h3 className="text-lg font-medium leading-snug text-foreground">
-                  {scenario.name}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {scenario.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   )

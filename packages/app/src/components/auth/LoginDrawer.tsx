@@ -1,6 +1,6 @@
 import type { ComponentType, FC } from 'react'
 import type { AuthProvider, AuthProviderType } from '@/lib/auth/types'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import { X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +23,6 @@ interface LoginDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   dismissible?: boolean
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
@@ -35,7 +34,7 @@ const providerIcons: Record<Exclude<AuthProviderType, 'email'>, ComponentType> =
   github: GitHubIcon,
 }
 
-export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissible = true, contentClassName, modal, desktopOffset = 0 }) => {
+export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissible = true, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
   const isLoggingIn = useAuthStore(s => s.isLoggingIn)
@@ -71,7 +70,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
 
   return (
     <>
-      <AntDrawer
+      <Drawer
         open={open}
         onClose={() => dismissible && onOpenChange(false)}
         placement={isMobile ? 'bottom' : 'left'}
@@ -81,11 +80,9 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
         zIndex={!isMobile && modal === false ? 900 : undefined}
         closable={false}
         destroyOnHidden
-        rootClassName={cn('locusify-drawer', contentClassName)}
         rootStyle={!isMobile ? { left: desktopOffset } : undefined}
         styles={{
           wrapper: isMobile ? { maxHeight: '95dvh' } : { height: '100dvh', width: 480 },
-          section: { background: 'transparent', boxShadow: 'none' },
           body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
         }}
       >
@@ -211,13 +208,12 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
             </div>
           </div>
         </div>
-      </AntDrawer>
+      </Drawer>
       {legalType && (
         <LegalDrawer
           type={legalType}
           open
           onOpenChange={open => !open && setLegalType(null)}
-          contentClassName={contentClassName}
           modal={modal}
           desktopOffset={desktopOffset}
         />

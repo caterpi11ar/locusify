@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Inter } from 'next/font/google'
@@ -173,8 +174,11 @@ export default async function LocaleLayout({
           title={locale === 'zh' ? 'Locusify 旅行地图博客 RSS' : 'Locusify Travel Map Blog RSS'}
           href={rssUrl(toSiteLocale(locale))}
         />
-        <link rel="preconnect" href={APP_URL} crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href={APP_URL} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{document.documentElement.dataset.announcementDismissed=sessionStorage.getItem('locusify-announcement-dismissed')==='true'?'true':'false'}catch{document.documentElement.dataset.announcementDismissed='false'}`,
+          }}
+        />
         <JsonLd data={jsonLd} />
       </head>
       <body className="font-sans antialiased">
@@ -182,6 +186,7 @@ export default async function LocaleLayout({
           {children}
         </NextIntlClientProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

@@ -120,14 +120,13 @@ export async function logout() {
 }
 
 export async function initializeAuth() {
-  const { accessToken } = await getTokens()
-  if (!accessToken) {
-    useAuthStore.getState().clearUser()
-    useAuthStore.setState({ authReady: true })
-    return
-  }
-
   try {
+    const { accessToken } = await getTokens()
+    if (!accessToken) {
+      useAuthStore.getState().clearUser()
+      return
+    }
+
     const me = await fetchAuthMe()
     const profile = await fetchProfileSafe()
 

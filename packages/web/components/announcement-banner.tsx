@@ -12,7 +12,7 @@ export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
     if (!isCopied)
       return
 
-    const timeout = window.setTimeout(() => setIsCopied(false), 2000)
+    const timeout = window.setTimeout(setIsCopied, 2000, false)
     return () => window.clearTimeout(timeout)
   }, [isCopied])
 
@@ -24,6 +24,7 @@ export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
   return (
     <aside
       aria-label={t('title')}
+      data-announcement-banner
       className="fixed inset-x-0 top-0 z-[60] flex min-h-9 items-center justify-center bg-[#24241f] px-3 py-1.5 text-center text-xs text-white sm:text-sm"
     >
       <div className="flex items-center justify-center gap-2">

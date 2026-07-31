@@ -31,7 +31,17 @@ export function setupReplayLoop(
   subscribe: (listener: (state: ReplayState, prevState: ReplayState) => void) => () => void,
   getState: () => ReplayState,
 ) {
-  return subscribe((state, prevState) => {
+  const handleVisibility = () => {
+    if (document.hidden) {
+      stopLoop()
+    }
+    else if (getState().status === 'playing') {
+      startLoop(getState)
+    }
+  }
+  if (typeof document !== 'undefined')
+    document.addEventListener('visibilitychange', handleVisibility)
+  const unsubscribe = subscribe((state, prevState) => {
     if (state.status === 'playing' && prevState.status !== 'playing') {
       startLoop(getState)
     }
@@ -43,4 +53,10 @@ export function setupReplayLoop(
       AudioManager.getInstance().syncWithReplayStatus(state.status)
     }
   })
+  return () => {
+    unsubscribe()
+    stopLoop()
+    if (typeof document !== 'undefined')
+      document.removeEventListener('visibilitychange', handleVisibility)
+  }
 }

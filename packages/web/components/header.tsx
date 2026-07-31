@@ -31,6 +31,7 @@ export function Header({
 
   return (
     <header
+      data-site-header
       className={`fixed left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${isContent ? 'dark' : ''} ${hasAnnouncement ? 'top-12' : 'top-3'} ${isScrolled ? isContent ? 'border border-white/10 bg-zinc-950/85 backdrop-blur-md' : 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
       style={{
         boxShadow: isScrolled ? 'rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px' : 'none',

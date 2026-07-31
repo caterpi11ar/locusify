@@ -68,6 +68,10 @@ export function StarfieldCanvas() {
     let raf = 0
 
     function frame() {
+      raf = 0
+      if (document.hidden)
+        return
+
       // Opaque space background
       ctx.globalAlpha = 1
       ctx.fillStyle = BG_COLOR
@@ -83,14 +87,34 @@ export function StarfieldCanvas() {
         ctx.fillRect(Math.round(x), Math.round(y), 1, 1)
       }
       ctx.globalAlpha = 1
-      raf = requestAnimationFrame(frame)
+      start()
     }
 
-    raf = requestAnimationFrame(frame)
+    function start() {
+      if (!raf && !document.hidden)
+        raf = requestAnimationFrame(frame)
+    }
+
+    function stop() {
+      if (raf) {
+        cancelAnimationFrame(raf)
+        raf = 0
+      }
+    }
+
+    start()
+    const handleVisibility = () => {
+      if (document.hidden)
+        stop()
+      else
+        start()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
 
     return () => {
-      cancelAnimationFrame(raf)
+      stop()
       ro.disconnect()
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [showStarfield])
 

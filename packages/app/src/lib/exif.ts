@@ -1,7 +1,6 @@
 import type { Tags } from 'exiftool-vendored'
 import type { PickedExif } from '@/types/map'
 import { isNil } from 'es-toolkit'
-import exifr from 'exifr'
 
 /**
  * exifr 解析结果类型
@@ -133,6 +132,7 @@ export async function extractExifData(
 
   try {
     log.info('开始提取 EXIF 数据:', file.name)
+    const { default: exifr } = await import('exifr')
 
     const exifData = (await exifr.parse(file, {
       gps: true,

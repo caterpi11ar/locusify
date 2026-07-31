@@ -1,7 +1,7 @@
-import type { FC } from 'react'
 import type { LucideIcon } from 'lucide-react'
+import type { FC } from 'react'
 import type { Plan } from '@/stores/subscriptionStore'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import {
   BadgeCheck,
   Headphones,
@@ -25,7 +25,6 @@ import { useSubscriptionStore } from '@/stores/subscriptionStore'
 interface PricingDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
@@ -75,7 +74,7 @@ const featureIconMap: Record<string, LucideIcon> = {
   'pricing.feature.earlyAccess': Sparkles,
 }
 
-export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, contentClassName, modal, desktopOffset = 0 }) => {
+export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const user = useAuthStore(s => s.user)
   const { isPro, subscription } = useSubscriptionStore()
@@ -96,7 +95,7 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, cont
   }
 
   return (
-    <AntDrawer
+    <Drawer
       open={open}
       onClose={() => onOpenChange(false)}
       placement={isMobile ? 'bottom' : 'left'}
@@ -105,11 +104,9 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, cont
       zIndex={!isMobile && modal === false ? 900 : undefined}
       closable={false}
       destroyOnHidden
-      rootClassName={cn('locusify-drawer', contentClassName)}
       rootStyle={!isMobile ? { left: desktopOffset } : undefined}
       styles={{
         wrapper: isMobile ? { maxHeight: '85dvh' } : { height: '100dvh', width: drawerWidth },
-        section: { background: 'transparent', boxShadow: 'none' },
         body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
       }}
     >
@@ -204,12 +201,12 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, cont
                           )
                         : (
                             <button
-                            type="button"
-                            onClick={handleUpgrade}
-                            className={cn(
-                              'flex h-9 w-fit min-w-32 cursor-pointer items-center justify-center rounded-full px-4 text-sm font-medium transition-colors',
-                              'bg-white text-black hover:bg-white/90',
-                            )}
+                              type="button"
+                              onClick={handleUpgrade}
+                              className={cn(
+                                'flex h-9 w-fit min-w-32 cursor-pointer items-center justify-center rounded-full px-4 text-sm font-medium transition-colors',
+                                'bg-white text-black hover:bg-white/90',
+                              )}
                             >
                               {t('pricing.useRedeemCode')}
                             </button>
@@ -245,7 +242,7 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, cont
         </div>
       </div>
 
-    </AntDrawer>
+    </Drawer>
   )
 }
 

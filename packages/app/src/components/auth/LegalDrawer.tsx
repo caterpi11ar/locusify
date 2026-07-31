@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import type { Components } from 'react-markdown'
 import { useQuery } from '@tanstack/react-query'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
@@ -15,7 +15,6 @@ interface LegalDrawerProps {
   type: LegalType
   open: boolean
   onOpenChange: (open: boolean) => void
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
@@ -51,7 +50,7 @@ function useLegalContent(type: LegalType) {
   })
 }
 
-export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, contentClassName, modal, desktopOffset = 0 }) => {
+export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const { data: content, isLoading } = useLegalContent(type)
   const isMobile = useIsMobile()
@@ -61,7 +60,7 @@ export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, co
     : t('auth.legal.termsOfService.title')
 
   return (
-    <AntDrawer
+    <Drawer
       open={open}
       onClose={() => onOpenChange(false)}
       placement={isMobile ? 'bottom' : 'left'}
@@ -70,11 +69,9 @@ export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, co
       zIndex={!isMobile && modal === false ? 900 : undefined}
       closable={false}
       destroyOnHidden
-      rootClassName={cn('locusify-drawer', contentClassName)}
       rootStyle={!isMobile ? { left: desktopOffset } : undefined}
       styles={{
         wrapper: isMobile ? { maxHeight: '95dvh' } : { height: '100dvh', width: 480 },
-        section: { background: 'transparent', boxShadow: 'none' },
         body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
       }}
     >
@@ -106,6 +103,6 @@ export const LegalDrawer: FC<LegalDrawerProps> = ({ type, open, onOpenChange, co
               : null}
         </div>
       </div>
-    </AntDrawer>
+    </Drawer>
   )
 }

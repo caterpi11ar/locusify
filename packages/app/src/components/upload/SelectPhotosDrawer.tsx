@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import type { Photo } from '@/types/photo'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import { X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -19,7 +19,6 @@ interface SelectPhotosDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onPhotosAdded?: (count: number) => void
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
@@ -28,7 +27,6 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
   open,
   onOpenChange,
   onPhotosAdded,
-  contentClassName,
   modal,
   desktopOffset = 0,
 }) => {
@@ -99,7 +97,7 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
   )
 
   return (
-    <AntDrawer
+    <Drawer
       open={open}
       onClose={() => handleOpenChange(false)}
       placement={isMobile ? 'bottom' : 'left'}
@@ -108,13 +106,11 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
       zIndex={!isMobile && modal === false ? 900 : undefined}
       closable={false}
       destroyOnHidden
-      rootClassName={cn('locusify-drawer', contentClassName)}
       rootStyle={!isMobile ? { left: desktopOffset } : undefined}
       styles={{
         wrapper: isMobile
           ? { maxHeight: '90dvh' }
           : { height: '100dvh', width: 480 },
-        section: { background: 'transparent', boxShadow: 'none' },
         body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
       }}
     >
@@ -150,6 +146,6 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
           )}
         </div>
       </div>
-    </AntDrawer>
+    </Drawer>
   )
 }

@@ -2,14 +2,13 @@
 
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export function GallerySection() {
   const galleryRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const [sectionHeight, setSectionHeight] = useState('100vh')
-  const [translateX, setTranslateX] = useState(0)
   const rafRef = useRef<number | null>(null)
+  const isActiveRef = useRef(false)
   const t = useTranslations('Gallery')
 
   const images = [
@@ -31,14 +30,16 @@ export function GallerySection() {
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
       const totalHeight = viewportHeight + (containerWidth - viewportWidth)
-      setSectionHeight(`${totalHeight}px`)
+      galleryRef.current?.style.setProperty('--gallery-height', `${Math.max(viewportHeight, totalHeight)}px`)
     }
 
-    const timer = setTimeout(calculateHeight, 100)
-    window.addEventListener('resize', calculateHeight)
+    const resizeObserver = new ResizeObserver(calculateHeight)
+    if (containerRef.current)
+      resizeObserver.observe(containerRef.current)
+    resizeObserver.observe(document.documentElement)
+    calculateHeight()
     return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', calculateHeight)
+      resizeObserver.disconnect()
     }
   }, [])
 
@@ -55,22 +56,31 @@ export function GallerySection() {
     const progress = Math.min(1, scrolled / totalScrollDistance)
     const newTranslateX = progress * -totalScrollDistance
 
-    setTranslateX(newTranslateX)
+    containerRef.current.style.setProperty('--gallery-x', `${newTranslateX}px`)
   }, [])
 
   useEffect(() => {
     const handleScroll = () => {
+      if (!isActiveRef.current)
+        return
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
       }
       rafRef.current = requestAnimationFrame(updateTransform)
     }
 
+    const observer = new IntersectionObserver(([entry]) => {
+      isActiveRef.current = entry.isIntersecting
+      if (entry.isIntersecting)
+        updateTransform()
+    }, { rootMargin: '100% 0px' })
+    if (galleryRef.current)
+      observer.observe(galleryRef.current)
     window.addEventListener('scroll', handleScroll, { passive: true })
-    updateTransform()
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      observer.disconnect()
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
       }
@@ -82,7 +92,7 @@ export function GallerySection() {
       id="gallery"
       ref={galleryRef}
       className="relative bg-background"
-      style={{ height: sectionHeight }}
+      style={{ height: 'var(--gallery-height, 100vh)' }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="flex h-full items-center">
@@ -90,8 +100,8 @@ export function GallerySection() {
             ref={containerRef}
             className="flex gap-6 px-6"
             style={{
-              transform: `translate3d(${translateX}px, 0, 0)`,
-              WebkitTransform: `translate3d(${translateX}px, 0, 0)`,
+              transform: 'translate3d(var(--gallery-x, 0px), 0, 0)',
+              WebkitTransform: 'translate3d(var(--gallery-x, 0px), 0, 0)',
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               perspective: 1000,
@@ -114,7 +124,6 @@ export function GallerySection() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 85vw, (max-width: 1024px) 60vw, 45vw"
-                  priority={index < 3}
                 />
               </div>
             ))}

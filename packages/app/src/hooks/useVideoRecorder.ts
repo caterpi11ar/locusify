@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { convertWebmToMp4 } from '@/lib/webm-to-mp4'
 import { useReplayStore } from '@/stores/replayStore'
 
 export type RecordingStatus = 'idle' | 'recording' | 'processing' | 'unsupported'
@@ -168,6 +167,7 @@ export function useVideoRecorder() {
       onComplete: async (blob) => {
         setConversionProgress(0)
         try {
+          const { convertWebmToMp4 } = await import('@/lib/webm-to-mp4')
           const mp4Blob = await convertWebmToMp4(blob, setConversionProgress)
           setPendingVideo({ blob: mp4Blob, mimeType: 'video/mp4' })
         }

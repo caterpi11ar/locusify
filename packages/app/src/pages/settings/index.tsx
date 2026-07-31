@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { Drawer as AntDrawer } from 'antd'
+import { Drawer } from 'antd'
 import { X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,12 +24,11 @@ interface SettingsDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onLogout?: () => void
-  contentClassName?: string
   modal?: boolean
   desktopOffset?: number
 }
 
-export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, onLogout, contentClassName, modal, desktopOffset = 0 }) => {
+export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, onLogout, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
   const user = useAuthStore(s => s.user)
@@ -49,7 +48,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
 
   return (
     <>
-      <AntDrawer
+      <Drawer
         open={open}
         onClose={() => onOpenChange(false)}
         placement={isMobile ? 'bottom' : 'left'}
@@ -58,11 +57,9 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
         zIndex={!isMobile && modal === false ? 900 : undefined}
         closable={false}
         destroyOnHidden
-        rootClassName={cn('locusify-drawer', contentClassName)}
         rootStyle={!isMobile ? { left: desktopOffset } : undefined}
         styles={{
           wrapper: isMobile ? { maxHeight: '80dvh' } : { height: '100dvh', width: 480 },
-          section: { background: 'transparent', boxShadow: 'none' },
           body: { padding: 0, background: 'transparent', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' },
         }}
       >
@@ -163,15 +160,14 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
             </div>
           </div>
         </div>
-      </AntDrawer>
-      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} contentClassName={contentClassName} modal={modal} desktopOffset={desktopOffset} />
+      </Drawer>
+      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} modal={modal} desktopOffset={desktopOffset} />
       <FeedbackDialog open={feedbackOpen} onClose={handleCloseFeedback} />
       {legalType && (
         <LegalDrawer
           type={legalType}
           open
           onOpenChange={open => !open && setLegalType(null)}
-          contentClassName={contentClassName}
           modal={modal}
           desktopOffset={desktopOffset}
         />

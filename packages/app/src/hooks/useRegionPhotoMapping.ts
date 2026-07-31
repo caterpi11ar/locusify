@@ -1,5 +1,3 @@
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon'
-import { point as turfPoint } from '@turf/helpers'
 import { useEffect, useRef } from 'react'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
@@ -27,34 +25,42 @@ export function useRegionPhotoMapping() {
   useEffect(() => {
     if (!boundaryData || markers.length === 0)
       return
+    let cancelled = false
+    void Promise.all([
+      import('@turf/boolean-point-in-polygon'),
+      import('@turf/helpers'),
+    ]).then(([{ default: booleanPointInPolygon }, { point: turfPoint }]) => {
+      if (cancelled)
+        return
+      const { regionPhotos, assignPhotoToRegion } = useRegionStore.getState()
+      const pending: { regionId: string, name: string, markerId: string, photoUrl: string }[] = []
 
-    const { regionPhotos, assignPhotoToRegion } = useRegionStore.getState()
-    const pending: { regionId: string, name: string, markerId: string, photoUrl: string }[] = []
+      for (const marker of markers) {
+        const pt = turfPoint([marker.longitude, marker.latitude])
 
-    for (const marker of markers) {
-      const pt = turfPoint([marker.longitude, marker.latitude])
+        for (const feature of boundaryData.features) {
+          const regionId = feature.id as string
+          if (regionPhotos.has(regionId))
+            continue
 
-      for (const feature of boundaryData.features) {
-        const regionId = feature.id as string
-        if (regionPhotos.has(regionId))
-          continue
-
-        try {
-          if (booleanPointInPolygon(pt, feature as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>)) {
-            const name = feature.properties?.NAME ?? regionId
-            pending.push({ regionId, name, markerId: marker.id, photoUrl: marker.photo.thumbnailUrl })
-            break
+          try {
+            if (booleanPointInPolygon(pt, feature as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>)) {
+              const name = feature.properties?.NAME ?? regionId
+              pending.push({ regionId, name, markerId: marker.id, photoUrl: marker.photo.thumbnailUrl })
+              break
+            }
+          }
+          catch {
+            // skip features with invalid geometry
           }
         }
-        catch {
-          // skip features with invalid geometry
-        }
       }
-    }
 
-    // Batch all assignments in one pass — no cascading re-renders
-    for (const p of pending) {
-      assignPhotoToRegion(p.regionId, p.name, p.markerId, p.photoUrl)
+      for (const p of pending)
+        assignPhotoToRegion(p.regionId, p.name, p.markerId, p.photoUrl)
+    })
+    return () => {
+      cancelled = true
     }
   }, [markers, boundaryData])
 

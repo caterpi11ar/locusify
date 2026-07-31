@@ -151,3 +151,14 @@ useGlobeOrbitStore.subscribe((state, prevState) => {
     stopLoop()
   }
 })
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopLoop()
+    }
+    else if (useGlobeOrbitStore.getState().status === 'playing') {
+      startLoop()
+    }
+  })
+}
