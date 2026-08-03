@@ -19,6 +19,13 @@ const nextConfig = {
     NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SITE_URL,
   },
+  images: {
+    // Keep optimized variants at the edge instead of regenerating them on
+    // every visit. Source filenames are stable, so use a bounded TTL rather
+    // than immutable caching to keep replacements recoverable.
+    minimumCacheTTL: 86400,
+    formats: ['image/avif', 'image/webp'],
+  },
   async redirects() {
     return [
       {
@@ -31,6 +38,15 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [

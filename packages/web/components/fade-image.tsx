@@ -22,12 +22,12 @@ export function FadeImage({ className, fadeDelay = 0, ...props }: FadeImageProps
   const [isLoaded, setIsLoaded] = useState(false)
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden bg-secondary">
       <Image
         {...props}
         loading={props.preload ? undefined : (props.loading ?? 'lazy')}
         className={`${className || ''} transition-all duration-700 ease-out ${
-          isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
+          isLoaded ? 'scale-100 blur-0' : 'scale-[1.02] blur-sm'
         }`}
         onLoad={() => {
           if (fadeDelay > 0)
