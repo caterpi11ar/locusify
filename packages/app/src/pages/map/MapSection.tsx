@@ -1,12 +1,8 @@
 import type { MapLayerMouseEvent, MapRef } from 'react-map-gl/maplibre'
 import type { PhotoMarker } from '@/types/map'
 import { AnimatePresence, m } from 'motion/react'
-import { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LoginDrawer } from '@/components/auth'
-import { FeedbackDialog } from '@/components/feedback'
-import { PricingDrawer } from '@/components/pricing'
-import { SelectPhotosDrawer } from '@/components/upload'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
@@ -14,23 +10,17 @@ import { useRegionPhotoMapping } from '@/hooks/useRegionPhotoMapping'
 import { useWebShare } from '@/hooks/useWebShare'
 import { createDemoPhotos } from '@/lib/demo-photos'
 import { cn } from '@/lib/utils'
-import { SettingsDrawer } from '@/pages/settings'
 import { useAuthStore } from '@/stores/authStore'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
-import { AnnouncementDialog } from './components/AnnouncementDialog'
-import { GalleryDrawer } from './components/GalleryDrawer'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
-import { EmptyJourneyPrompt, RouteReadyPrompt } from './components/FirstJourneyPrompt'
 import { MapMenuButton } from './components/MapMenuButton'
 import { MapSidebar } from './components/MapSidebar'
 import { PortraitLockOverlay } from './components/replay/PortraitLockOverlay'
 import { ReplayIntroOverlay } from './components/replay/ReplayIntroOverlay'
-import { RecordingErrorDialog } from './components/RecordingErrorDialog'
-import { SaveVideoDialog } from './components/SaveVideoDialog'
 import { TrajectoryOverlay } from './components/TrajectoryOverlay'
 import {
   ANNOUNCEMENT_STORAGE_KEY,
@@ -44,6 +34,43 @@ import { getInitialViewStateForMarkers } from './utils'
 
 const Maplibre = lazy(() =>
   import('./MapLibre').then(m => ({ default: m.Maplibre })),
+)
+
+// Keep secondary dialogs and drawers out of the map's core chunk. Most of
+// these surfaces are closed on first paint, and some pull in sizeable feature
+// dependencies such as react-markdown, upload parsing, or settings forms.
+const AnnouncementDialog = lazy(() =>
+  import('./components/AnnouncementDialog').then(m => ({ default: m.AnnouncementDialog })),
+)
+const EmptyJourneyPrompt = lazy(() =>
+  import('./components/FirstJourneyPrompt').then(m => ({ default: m.EmptyJourneyPrompt })),
+)
+const FeedbackDialog = lazy(() =>
+  import('@/components/feedback').then(m => ({ default: m.FeedbackDialog })),
+)
+const GalleryDrawer = lazy(() =>
+  import('./components/GalleryDrawer').then(m => ({ default: m.GalleryDrawer })),
+)
+const LoginDrawer = lazy(() =>
+  import('@/components/auth').then(m => ({ default: m.LoginDrawer })),
+)
+const PricingDrawer = lazy(() =>
+  import('@/components/pricing').then(m => ({ default: m.PricingDrawer })),
+)
+const RecordingErrorDialog = lazy(() =>
+  import('./components/RecordingErrorDialog').then(m => ({ default: m.RecordingErrorDialog })),
+)
+const RouteReadyPrompt = lazy(() =>
+  import('./components/FirstJourneyPrompt').then(m => ({ default: m.RouteReadyPrompt })),
+)
+const SaveVideoDialog = lazy(() =>
+  import('./components/SaveVideoDialog').then(m => ({ default: m.SaveVideoDialog })),
+)
+const SelectPhotosDrawer = lazy(() =>
+  import('@/components/upload').then(m => ({ default: m.SelectPhotosDrawer })),
+)
+const SettingsDrawer = lazy(() =>
+  import('@/pages/settings').then(m => ({ default: m.SettingsDrawer })),
 )
 
 function MapSectionContent() {
@@ -360,55 +387,74 @@ function MapSectionContent() {
         />
       )}
 
-      <SelectPhotosDrawer
-        open={uploadDrawerOpen}
-        onOpenChange={setUploadDrawerOpen}
-        onPhotosAdded={handlePhotosAdded}
-        modal={mapDrawerModal}
-        desktopOffset={mapDrawerDesktopOffset}
-      />
-
-      <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} onLogout={handleLoginClick} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
-      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
-      <GalleryDrawer open={galleryOpen} onOpenChange={setGalleryOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
-      <LoginDrawer open={loginDrawerOpen} onOpenChange={setLoginDrawerOpen} dismissible={!!user} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
-      <RecordingErrorDialog reason={recordingError} onClose={dismissRecordingError} />
+      <Suspense fallback={null}>
+        {uploadDrawerOpen && (
+          <SelectPhotosDrawer
+            open
+            onOpenChange={setUploadDrawerOpen}
+            onPhotosAdded={handlePhotosAdded}
+            modal={mapDrawerModal}
+            desktopOffset={mapDrawerDesktopOffset}
+          />
+        )}
+        {settingsOpen && (
+          <SettingsDrawer open onOpenChange={setSettingsOpen} onLogout={handleLoginClick} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+        )}
+        {pricingOpen && (
+          <PricingDrawer open onOpenChange={setPricingOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+        )}
+        {galleryOpen && (
+          <GalleryDrawer open onOpenChange={setGalleryOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+        )}
+        {loginDrawerOpen && (
+          <LoginDrawer open onOpenChange={setLoginDrawerOpen} dismissible={!!user} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+        )}
+        {recordingError && (
+          <RecordingErrorDialog reason={recordingError} onClose={dismissRecordingError} />
+        )}
+      </Suspense>
       {isReplayMode && (
         <PortraitLockOverlay />
       )}
 
       {/* Announcement dialog — shown once per version */}
-      <AnimatePresence>
-        {announcementOpen && !!user && (
-          <AnnouncementDialog
-            open={announcementOpen}
-            onClose={handleDismissAnnouncement}
-          />
-        )}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {announcementOpen && !!user && (
+            <AnnouncementDialog
+              open
+              onClose={handleDismissAnnouncement}
+            />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
       {/* Save / Discard dialog — shown 2 s after replay completes */}
-      <AnimatePresence>
-        {videoDialogOpen && (
-          <SaveVideoDialog
-            pendingVideo={pendingVideo}
-            isProcessing={isProcessing}
-            conversionProgress={conversionProgress}
-            onSave={saveVideo}
-            onDiscard={discardVideo}
-          />
-        )}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {videoDialogOpen && (
+            <SaveVideoDialog
+              pendingVideo={pendingVideo}
+              isProcessing={isProcessing}
+              conversionProgress={conversionProgress}
+              onSave={saveVideo}
+              onDiscard={discardVideo}
+            />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
       {/* Feedback dialog — shown every 7 days, lowest priority */}
-      <AnimatePresence>
-        {feedbackOpen && !!user && !announcementOpen && !videoDialogOpen && (
-          <FeedbackDialog
-            open
-            onClose={handleDismissFeedback}
-          />
-        )}
-      </AnimatePresence>
+      <Suspense fallback={null}>
+        <AnimatePresence>
+          {feedbackOpen && !!user && !announcementOpen && !videoDialogOpen && (
+            <FeedbackDialog
+              open
+              onClose={handleDismissFeedback}
+            />
+          )}
+        </AnimatePresence>
+      </Suspense>
 
       {!isInAnyReplay && !!user && (
         <MapContextMenu
@@ -456,25 +502,27 @@ function MapSectionContent() {
           />
         </div>
 
-        <AnimatePresence>
-          {!announcementOpen && !isInAnyReplay && !!user && (
-            <EmptyJourneyPrompt
-              open={helpOpen && !uploadDrawerOpen}
-              onSelectPhotos={handleHelpSelectPhotos}
-              onUseDemo={handleHelpUseDemo}
-              onStartReplay={handleHelpStartReplay}
-              onClose={handleCloseHelp}
-              canStartReplay={hasEnoughPhotos || isFragmentMode}
-            />
-          )}
-          {routeReadyPromptOpen && hasEnoughPhotos && !uploadDrawerOpen && !isInAnyReplay && !!user && (
-            <RouteReadyPrompt
-              photoCount={markers.length}
-              onStartReplay={handleRoutesClick}
-              onDismiss={() => setRouteReadyPromptOpen(false)}
-            />
-          )}
-        </AnimatePresence>
+        <Suspense fallback={null}>
+          <AnimatePresence>
+            {!announcementOpen && !isInAnyReplay && !!user && helpOpen && !uploadDrawerOpen && (
+              <EmptyJourneyPrompt
+                open
+                onSelectPhotos={handleHelpSelectPhotos}
+                onUseDemo={handleHelpUseDemo}
+                onStartReplay={handleHelpStartReplay}
+                onClose={handleCloseHelp}
+                canStartReplay={hasEnoughPhotos || isFragmentMode}
+              />
+            )}
+            {routeReadyPromptOpen && hasEnoughPhotos && !uploadDrawerOpen && !isInAnyReplay && !!user && (
+              <RouteReadyPrompt
+                photoCount={markers.length}
+                onStartReplay={handleRoutesClick}
+                onDismiss={() => setRouteReadyPromptOpen(false)}
+              />
+            )}
+          </AnimatePresence>
+        </Suspense>
 
         <m.div
           initial={{ opacity: 0, scale: 1.02 }}
