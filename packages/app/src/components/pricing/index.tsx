@@ -139,7 +139,7 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, moda
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.06, duration: 0.25 }}
                   className={cn(
-                    'flex min-h-[420px] flex-col p-6',
+                    'flex min-h-105 flex-col p-6',
                     plan === 'pro' && 'bg-fill-secondary/20',
                   )}
                 >
@@ -162,7 +162,7 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, moda
                     {isPaid && <span className="text-text-tertiary text-sm font-normal">{t('pricing.plan.priceSuffix')}</span>}
                   </div>
 
-                  <p className="text-text-secondary mt-4 min-h-16 max-w-[22rem] text-sm leading-relaxed">
+                  <p className="text-text-secondary mt-4 min-h-16 max-w-88 text-sm leading-relaxed">
                     {t(`pricing.plan.${plan}.description`)}
                   </p>
 
