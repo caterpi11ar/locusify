@@ -10,5 +10,10 @@ updates:
       time: "09:00"
       timezone: Asia/Shanghai
     open-pull-requests-limit: 10
+    groups:
+      react-runtime:
+        patterns:
+          - react
+          - react-dom
     commit-message:
       prefix: deps
