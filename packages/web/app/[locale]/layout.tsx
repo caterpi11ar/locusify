@@ -5,10 +5,12 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { Inter } from 'next/font/google'
 import { notFound } from 'next/navigation'
+import Script from 'next/script'
 import React from 'react'
 import { JsonLd } from '@/components/json-ld'
 import { routing } from '@/i18n/routing'
 import { APP_URL } from '@/lib/app-url'
+import { env } from '@/lib/env'
 import {
   ORGANIZATION_ID,
   PERSON_ID,
@@ -174,6 +176,18 @@ export default async function LocaleLayout({
           title={locale === 'zh' ? 'Locusify 旅行地图博客 RSS' : 'Locusify Travel Map Blog RSS'}
           href={rssUrl(toSiteLocale(locale))}
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <script
           dangerouslySetInnerHTML={{
             __html: `try{document.documentElement.dataset.announcementDismissed=sessionStorage.getItem('locusify-announcement-dismissed')==='true'?'true':'false'}catch{document.documentElement.dataset.announcementDismissed='false'}`,

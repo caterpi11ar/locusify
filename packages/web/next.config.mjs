@@ -5,9 +5,10 @@ import { z } from 'zod'
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 const DEFAULT_APP_URL = 'https://app.locusify.cn'
 const DEFAULT_SITE_URL = 'https://locusify.cn'
-const { NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SITE_URL } = z.object({
+const { NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_GA_MEASUREMENT_ID } = z.object({
   NEXT_PUBLIC_APP_URL: z.url().default(DEFAULT_APP_URL),
   NEXT_PUBLIC_SITE_URL: z.url().default(DEFAULT_SITE_URL),
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().regex(/^G-[A-Z0-9]+$/).default('G-MHD9DY05C4'),
 }).parse(process.env)
 const appOrigin = new URL(NEXT_PUBLIC_APP_URL).origin
 const siteOrigin = new URL(NEXT_PUBLIC_SITE_URL).origin
@@ -18,6 +19,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_GA_MEASUREMENT_ID,
   },
   images: {
     // Keep optimized variants at the edge instead of regenerating them on
@@ -56,7 +58,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy-Report-Only',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ${appOrigin} https://vitals.vercel-insights.com; frame-src 'self' ${appOrigin}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' ${appOrigin} https://vitals.vercel-insights.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com; frame-src 'self' ${appOrigin}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';`,
           },
           {
             key: 'X-Content-Type-Options',
