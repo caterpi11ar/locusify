@@ -3,7 +3,7 @@ import { z } from 'zod'
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_SITE_URL: z.url().default('https://locusify.cn'),
-  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().regex(/^G-[A-Z0-9]+$/).default('G-MHD9DY05C4'),
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().regex(/^G-[A-Z0-9]+$/).default('G-ZMTQE5Z6W9'),
 })
 
 export type Env = z.infer<typeof envSchema>

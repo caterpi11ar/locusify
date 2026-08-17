@@ -8,7 +8,7 @@ const DEFAULT_SITE_URL = 'https://locusify.cn'
 const { NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_GA_MEASUREMENT_ID } = z.object({
   NEXT_PUBLIC_APP_URL: z.url().default(DEFAULT_APP_URL),
   NEXT_PUBLIC_SITE_URL: z.url().default(DEFAULT_SITE_URL),
-  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().regex(/^G-[A-Z0-9]+$/).default('G-MHD9DY05C4'),
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().regex(/^G-[A-Z0-9]+$/).default('G-ZMTQE5Z6W9'),
 }).parse(process.env)
 const appOrigin = new URL(NEXT_PUBLIC_APP_URL).origin
 const siteOrigin = new URL(NEXT_PUBLIC_SITE_URL).origin
