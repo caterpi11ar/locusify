@@ -48,6 +48,14 @@ export const richBlogContent: Record<string, RichBlogContent> = {
           ],
         },
         {
+          heading: '导出路线视频：画幅、竖屏与隐私检查',
+          paragraphs: [
+            '导出前先按发布平台确定画幅：短视频平台通常使用 9:16 竖屏，个人归档可使用 16:9 或保留更多地点。优先制作 30—60 秒版本，先确认路线和节奏，再决定是否渲染完整旅程。',
+            '公开分享前删除住宅、酒店等敏感停留点，并检查首尾画面是否暴露精确地址。Locusify 在浏览器本地读取照片并渲染地图，但发布前的人工复核仍然必要。',
+            '如果主要目标是视频导出，可继续阅读《如何把旅行照片导出成路线视频》；如果部分照片没有 GPS，可参考《照片没有 GPS，也能生成旅行路线地图》；第一次使用可从《Locusify 新手教程：10 分钟做出第一条旅行地图》开始。',
+          ],
+        },
+        {
           heading: '不用关键帧完成路线动画',
           paragraphs: [
             '传统视频软件需要手动绘制路线、设置摄像机关键帧并逐张安排照片。照片驱动的工具可以直接读取时间和 GPS 信息，自动完成基础路线，让编辑重点回到选图和叙事。',
@@ -59,6 +67,8 @@ export const richBlogContent: Record<string, RichBlogContent> = {
         { question: '制作旅行路线动画必须有 GPX 文件吗？', answer: '不需要。只要照片包含 GPS 经纬度和拍摄时间，就可以按照片顺序重建基础旅行路线。GPX 更适合需要连续、精细轨迹的徒步或骑行记录。' },
         { question: '为什么有些照片无法显示在地图上？', answer: '最常见原因是图片没有 GPS EXIF 信息。社交平台转存、截图和部分编辑软件导出都会删除定位数据，可以改用原始照片或手动放置地点。' },
         { question: '旅行地图动画做多长比较合适？', answer: '社交分享通常以 30—60 秒为宜；个人归档可以更长。先确保路线清楚，再根据关键地点数量增加时长。' },
+        { question: '导出竖屏路线视频需要注意什么？', answer: '先确认目标平台画幅为 9:16，再检查路线标记、标题和字幕是否位于安全区。可以先导出 10 秒预览，再渲染完整版本。' },
+        { question: '公开分享路线视频前要做哪些隐私检查？', answer: '删除住宅、酒店等敏感停留点，并确认首尾画面没有暴露精确地址。照片可在本地处理，但发布前仍应人工复核。' },
       ],
     },
     en: {
@@ -92,6 +102,14 @@ export const richBlogContent: Record<string, RichBlogContent> = {
           ],
         },
         {
+          heading: 'Export the route video: aspect ratio, vertical format, and privacy',
+          paragraphs: [
+            'Choose the aspect ratio before exporting: 9:16 for short-form video and 16:9 for archive or landscape use. Start with a 30–60 second version so you can evaluate pacing before rendering the full route.',
+            'Before sharing, remove sensitive stops such as home addresses or hotels and check that the first and last frames do not expose an exact location. Locusify reads photos and renders the map locally in the browser, but a final human review is still required before publishing.',
+            'For a deeper video-export workflow, continue with How to Export a Travel Route Video from Your Photos. If some photos lack GPS, read Recover Missing Photo Locations for a Travel Map, or start with Locusify Tutorial for Beginners: First Travel Map in 10 Minutes.',
+          ],
+        },
+        {
           heading: 'Create the route without manual keyframes',
           paragraphs: [
             'Traditional video editors require a manually drawn path, camera keyframes, and individual photo placement. A photo-first workflow uses capture time and GPS metadata to build the base route automatically, leaving you to focus on selection and story.',
@@ -103,6 +121,8 @@ export const richBlogContent: Record<string, RichBlogContent> = {
         { question: 'Do I need a GPX file to create a travel route animation?', answer: 'No. Photos with GPS coordinates and capture times are enough to reconstruct a basic route. GPX is more useful when you need a continuous, high-detail hiking or cycling track.' },
         { question: 'Why are some photos missing from the map?', answer: 'They probably do not contain GPS EXIF metadata. Screenshots, social downloads, and some edited exports remove location data; use the original file or place the photo manually.' },
         { question: 'How long should a travel map animation be?', answer: 'A 30–60 second cut works well for social sharing. Personal archives can be longer, but route clarity should determine duration rather than the total number of photos.' },
+        { question: 'What should I check before exporting a vertical route video?', answer: 'Confirm a 9:16 output and make sure route markers, titles, and captions stay inside the safe area. Export a short preview before rendering the full video.' },
+        { question: 'What privacy checks should I make before sharing a route video?', answer: 'Remove sensitive stops such as homes and hotels, and confirm the opening and closing frames do not reveal an exact address. Local processing is helpful, but public sharing still requires review.' },
       ],
     },
   },
@@ -187,6 +207,274 @@ export const richBlogContent: Record<string, RichBlogContent> = {
         { question: 'Do travel map generators require a subscription?', answer: 'Not always. Many offer basic free use, while HD export, watermark removal, extra templates, or cloud storage may require payment. Compare against the output you actually need.' },
         { question: 'Is a photo route more accurate than a manually drawn route?', answer: 'A photo route reflects real capture locations but may omit travel between them. A manual route is fully controllable but depends on human judgment. Accuracy depends on the data and purpose.' },
         { question: 'How should I compare two travel map tools?', answer: 'Use the same original photos and record import time, outlier count, correction effort, export quality, and how each service handles private files.' },
+      ],
+    },
+  },
+  'how-to-export-travel-route-video-from-photos': {
+    zh: {
+      sections: [
+        {
+          heading: '导出前先确定成片用途与画幅',
+          paragraphs: [
+            '路线视频不是把全部照片依次播放。先确定发布平台：短视频通常需要 9:16 竖屏和 30—60 秒版本；个人归档可以使用 16:9，并保留更多地点和上下文。',
+            '先做短版本，再渲染完整版本。短版本能更快发现路线是否清楚、节奏是否合适，也更容易在导出后做针对性修正。',
+          ],
+        },
+        {
+          heading: '从照片生成并导出路线视频的步骤',
+          paragraphs: [
+            '尽量使用相机或手机相册中的原始照片。经过聊天工具、社交平台压缩或二次编辑的图片可能已经丢失 GPS，影响路线连续性。',
+          ],
+          steps: [
+            '选择同一次旅行的原始照片，并确认照片包含 GPS 经纬度和拍摄时间。',
+            '按时间排序后检查异常跳点，删除同地点重复连拍。',
+            '设置路线总览、关键停留点和结束画面，优先保证路线可读。',
+            '选择目标画幅，先导出 30—60 秒测试片段。',
+            '检查文字、地图标记和字幕是否进入安全区。',
+            '确认无误后再渲染完整路线视频。',
+          ],
+        },
+        {
+          heading: '避免导出失败的四个检查',
+          paragraphs: [
+            '第一，画幅和发布平台不一致会导致后期裁切，重要标记可能被切掉；第二，路线存在异常跨城跳点会削弱可信度；第三，同一地点过多连拍会让视频显得停滞；第四，分享前未删除敏感地点可能暴露隐私。',
+            '按“先数据、后节奏、最后视觉”的顺序排查。先修坐标与时间线，再调整时长和节点，最后处理字幕、音乐和滤镜。',
+          ],
+        },
+        {
+          heading: '本地处理与分享前隐私',
+          paragraphs: [
+            'Locusify 在浏览器本地读取照片元数据并渲染路线，不需要先把照片上传到服务器。但公开分享仍可能泄露住宅、酒店或其他敏感位置。',
+            '导出前删除或模糊起点、终点及长期停留点，并预览首尾画面是否包含精确地址。',
+          ],
+        },
+      ],
+      faq: [
+        { question: '没有 GPX 文件也能导出旅行路线视频吗？', answer: '可以。只要照片包含 GPS 经纬度和拍摄时间，就能按时间顺序重建路线并导出视频。GPX 更适合需要精细连续轨迹的徒步或骑行。' },
+        { question: '为什么导出的视频路线中间断开？', answer: '通常是部分照片缺少 GPS，或者相邻拍摄点之间的移动没有拍照记录。可以补充缺失地点，但不要在没有证据的路段强行画出精确路径。' },
+        { question: '旅行路线视频导出多久比较合适？', answer: '社交分享建议先做 30—60 秒；个人归档可以更长。时长的核心依据是路线是否清晰，而不是照片数量。' },
+      ],
+    },
+    en: {
+      sections: [
+        {
+          heading: 'Define the output before exporting',
+          paragraphs: [
+            'A route video is not a slideshow of every photo. Start with the publishing goal: short-form platforms usually need a 9:16 vertical cut of 30–60 seconds, while a personal archive can use 16:9 with more context.',
+            'Build the short version before the full render. A shorter draft exposes pacing and route problems faster and is easier to correct.',
+          ],
+        },
+        {
+          heading: 'Workflow from photos to exported route video',
+          paragraphs: [
+            'Use original files from the camera or phone album whenever possible. Images compressed by chat or social apps often lose GPS metadata and can create gaps in the route.',
+          ],
+          steps: [
+            'Choose original photos from one trip and confirm that they contain GPS coordinates and capture times.',
+            'Order them by capture time, inspect outliers, and remove dense duplicate bursts.',
+            'Set an overview, key stops, and a closing frame so the route remains readable.',
+            'Select the target aspect ratio and export a 30–60 second test clip.',
+            'Check that text, markers, and captions stay inside the safe area.',
+            'Render the full route only after the test clip looks correct.',
+          ],
+        },
+        {
+          heading: 'Four checks before exporting the full route',
+          paragraphs: [
+            'Aspect-ratio mismatch can crop labels after publishing; long jumps between nearby timestamps reduce credibility; repeated bursts make the video feel frozen; sensitive stops can expose private locations.',
+            'Debug in the order of data, pacing, and style: fix coordinates and time first, then duration and waypoints, then captions, music, and filters.',
+          ],
+        },
+        {
+          heading: 'Local processing and privacy before sharing',
+          paragraphs: [
+            'Locusify reads photo metadata and renders the route in the browser without uploading photos to a server. Public sharing still requires a privacy review because the map can reveal homes, hotels, and other sensitive places.',
+            'Remove or blur the first and last stops plus any long-term accommodation locations, and preview the opening and closing frames before publishing.',
+          ],
+        },
+      ],
+      faq: [
+        { question: 'Can I export a travel route video without a GPX file?', answer: 'Yes. Photos with GPS coordinates and capture times are enough to reconstruct a route in time order and export a video. GPX is better for high-detail hiking or cycling tracks.' },
+        { question: 'Why does my exported route have gaps?', answer: 'Some photos may lack GPS, or there may be no photo evidence for part of the journey. Add missing stops where you are confident, but do not draw a precise path across unrecorded segments.' },
+        { question: 'How long should a travel route video be?', answer: 'A 30–60 second social cut is a good default. Personal archives can be longer, but duration should follow route clarity rather than the number of photos.' },
+      ],
+    },
+  },
+  'recover-missing-photo-locations-for-travel-map': {
+    zh: {
+      sections: [
+        {
+          heading: '先判断照片为什么没有 GPS',
+          paragraphs: [
+            '相机没有定位权限、拍摄时定位信号不足、图片被聊天工具或社交平台压缩、截图与二次编辑，都可能导致 GPS 丢失。先判断原因，才能选对恢复方式。',
+            '同一批照片中如果只有部分缺失，通常是传输或编辑问题；如果全部缺失，更可能是拍摄设置没有开启定位。',
+          ],
+        },
+        {
+          heading: '优先找回原始文件与元数据',
+          paragraphs: [
+            '原始 HEIC/JPEG 文件最有可能保留拍摄时间和位置。先从手机相册、相机存储卡、iCloud/Google Photos 原图备份中找回，再检查 EXIF。',
+            '如果已经转换过格式，请选择保留元数据的转换方式，并在导入前抽查转换后的文件是否仍带 GPS。',
+          ],
+        },
+        {
+          heading: '没有 GPS 时手动补点的步骤',
+          paragraphs: [
+            '手动补点只应处理无法恢复的少数照片，避免用大量猜测点破坏路线可信度。',
+          ],
+          steps: [
+            '按你记得的到访顺序，给缺失照片建立地点清单。',
+            '只标记出发、转折、停留和到达等关键节点。',
+            '在地图上拖动到城市、景点或街道级别，避免伪造精确门牌位置。',
+            '检查补点后的路线是否与相邻照片的拍摄时间一致。',
+            '在路线总览中确认没有明显跨城跳点。',
+          ],
+        },
+        {
+          heading: '精度与隐私边界',
+          paragraphs: [
+            '照片驱动路线代表的是“拍照地点”，不是完整连续轨迹。缺失 GPS 时更应如实标注不确定性，不要把估算路线包装成实测路线。',
+            '公开分享前检查首尾和住宿位置。即使路线精度有限，也不应暴露家庭地址或其他敏感地点。',
+          ],
+        },
+      ],
+      faq: [
+        { question: '微信保存的照片还能用于旅行地图吗？', answer: '很多经过聊天压缩的图片没有 GPS。优先找回相册原图；只有确实缺失且能确认地点时才手动补点。' },
+        { question: '没有 GPS 的照片必须删除吗？', answer: '不一定。它们可以作为故事画面保留，但不应参与路线坐标计算。可以用手动地点补充关键停留点。' },
+        { question: '手动补点能保证路线准确吗？', answer: '不能保证精确。手动补点适用于城市或景点级定位，不应在无证据的路段绘制精确轨迹。' },
+      ],
+    },
+    en: {
+      sections: [
+        {
+          heading: 'Diagnose why the GPS is missing',
+          paragraphs: [
+            'Missing location data usually comes from disabled camera permissions, weak positioning at capture time, compression by chat or social apps, screenshots, or edited exports. Diagnose the cause before choosing a recovery path.',
+            'If only some photos are affected, transfer or editing is the likely cause. If every photo lacks GPS, camera location permission was probably disabled.',
+          ],
+        },
+        {
+          heading: 'Recover original files and metadata first',
+          paragraphs: [
+            'Original HEIC/JPEG files are the most likely to retain capture time and location. Check the phone library, camera card, and cloud originals before trying to rebuild coordinates by hand.',
+            'If conversion is necessary, use a metadata-preserving method and inspect a converted sample before importing the full album.',
+          ],
+        },
+        {
+          heading: 'Add manual stops when originals cannot be recovered',
+          paragraphs: [
+            'Manual placement should be limited to the few photos that cannot be recovered. Avoid using guesses for many points because that weakens the credibility of the route.',
+          ],
+          steps: [
+            'List the missing photo locations in the order you remember visiting them.',
+            'Mark only key nodes: departures, turns, stops, and arrivals.',
+            'Place the point at city, landmark, or street level rather than inventing an exact door number.',
+            'Check that manually added points fit the capture times of adjacent photos.',
+            'Review the full route for impossible cross-city jumps.',
+          ],
+        },
+        {
+          heading: 'Keep accuracy and privacy boundaries clear',
+          paragraphs: [
+            'A photo-driven route represents where photos were taken, not a complete continuous track. When GPS is missing, state the uncertainty instead of presenting estimated segments as measured data.',
+            'Review the first, last, and accommodation locations before sharing. Limited accuracy should never be a reason to expose a home address or another sensitive place.',
+          ],
+        },
+      ],
+      faq: [
+        { question: 'Can photos saved from a messaging app still create a route?', answer: 'Often not reliably, because compressed chat images may have no GPS. Prefer originals from the photo library, and manually place only the stops you can confirm.' },
+        { question: 'Should photos without GPS be deleted?', answer: 'No. They can remain as story frames, but they should not contribute coordinates to the route. Use manual stops for key locations only.' },
+        { question: 'Does manual placement guarantee an accurate route?', answer: 'No. Manual placement is best at city or landmark level. Do not draw a precise path across segments with no evidence.' },
+      ],
+    },
+  },
+  'locusify-tutorial-for-beginners': {
+    zh: {
+      sections: [
+        {
+          heading: '第一次使用只做“最小可用路线”',
+          paragraphs: [
+            '新手最常见的错误是一次导入多年、多段旅行的照片，导致路线噪声过多、排查困难。第一轮只选同一次旅行的定位照片，目标是在 10 分钟内导出第一条能看懂的回放。',
+            '先不要追求滤镜、音乐和复杂转场。路线清楚、节奏稳定、能导出可分享版本，才是第一轮完成的定义。',
+          ],
+        },
+        {
+          heading: '10 分钟完成第一条路线',
+          paragraphs: [
+            '使用手机相册或相机原始文件，优先保留带有 GPS 的 HEIC/JPEG。先抽查几张照片的定位信息，再导入整个相册。',
+          ],
+          steps: [
+            '创建只包含一次旅行的相册或文件夹。',
+            '导入照片并按拍摄时间排序。',
+            '删除同一地点的明显重复连拍，只保留代表场景变化的照片。',
+            '在地图上巡检异常跳点，并手动修正明显错误。',
+            '选择目标画幅，导出 30—60 秒短版本。',
+            '预览首版后，再逐步叠加文案、模板和背景音乐。',
+          ],
+        },
+        {
+          heading: '首版常见问题与排查',
+          paragraphs: [
+            '照片没有出现在地图上，通常是因为文件缺少 GPS EXIF；路线出现跨城跳点，通常是时间顺序错误或坐标异常；视频看起来停滞，通常是因为同地点连拍过多。',
+            '先修数据和路线，再调视觉。不要为了“看起来完整”保留明显错误节点。',
+          ],
+        },
+        {
+          heading: '导出与后续优化',
+          paragraphs: [
+            '导出前确认目标平台画幅，并检查文字与地图标记是否进入安全区。公开分享前删除住宅、酒店等敏感地点。',
+            '跑通第一条路线后，可以继续学习视频导出与缺失 GPS 修复，把同一批素材分别做成教程、对比和案例版本。',
+          ],
+        },
+      ],
+      faq: [
+        { question: '使用 Locusify 需要上传照片吗？', answer: 'Locusify 在浏览器本地读取照片元数据并渲染地图，照片不需要上传到服务器。公开分享前仍应删除敏感地点。' },
+        { question: '第一轮必须用 GPS 照片吗？', answer: '不完全是。没有 GPS 的照片可以手动补关键地点，但首轮建议优先使用带 GPS 的原图，流程更稳定。' },
+        { question: '新手第一条路线做多长合适？', answer: '建议先做 30—60 秒短版本。先确保路线清楚，再根据关键地点数量增加时长。' },
+      ],
+    },
+    en: {
+      sections: [
+        {
+          heading: 'Start with one minimal route',
+          paragraphs: [
+            'A common beginner mistake is importing years of photos across several trips at once, which creates noise and makes troubleshooting harder. Use one trip for the first run and aim to export a readable replay within ten minutes.',
+            'Skip filters, music, and complex transitions initially. A readable route with stable pacing and a shareable export is the right definition of done.',
+          ],
+        },
+        {
+          heading: 'Finish your first map in ten minutes',
+          paragraphs: [
+            'Prefer original HEIC/JPEG files that contain GPS metadata. Inspect location data in a few samples before importing the full album.',
+          ],
+          steps: [
+            'Create an album or folder containing one trip only.',
+            'Import the photos and order them by capture time.',
+            'Remove dense duplicate bursts and keep photos that represent a change of place.',
+            'Inspect the map for outlier jumps and correct obvious errors.',
+            'Choose the target aspect ratio and export a 30–60 second version.',
+            'Preview the draft, then add captions, templates, and audio iteratively.',
+          ],
+        },
+        {
+          heading: 'Troubleshoot a first draft',
+          paragraphs: [
+            'Missing map points usually mean a photo has no GPS EXIF data. Cross-city jumps usually point to timeline or coordinate errors. A frozen-looking replay usually comes from too many burst shots at one place.',
+            'Fix the data and route before visual styling, and do not keep obviously wrong nodes just to make the map look complete.',
+          ],
+        },
+        {
+          heading: 'Export and improve the next version',
+          paragraphs: [
+            'Confirm the target aspect ratio before export and check that labels and markers stay inside the safe area. Remove homes, hotels, and other sensitive stops before sharing.',
+            'After the first route works, continue with video export and missing-GPS recovery. Reuse the same assets to create tutorial, comparison, and case-study versions.',
+          ],
+        },
+      ],
+      faq: [
+        { question: 'Do I need to upload photos to use Locusify?', answer: 'No. Locusify reads photo metadata and renders the map locally in your browser. Photos do not need to be uploaded to a server, but public sharing still requires a privacy review.' },
+        { question: 'Do I need GPS photos for my first route?', answer: 'Not strictly. Photos without GPS can be placed manually for key stops, but originals with GPS make the first run more stable.' },
+        { question: 'How long should a beginner route be?', answer: 'Start with 30–60 seconds. Ensure the route is clear first, then increase duration based on the number of meaningful stops.' },
       ],
     },
   },

@@ -305,6 +305,11 @@
       "title": "Travel Map Tutorials, Comparisons, and Updates",
       "description": "From beginner walkthroughs to real-world examples, learn how to turn travel photos into clear map stories."
     },
+    "featured": {
+      "title": "Start with these 4 guides",
+      "description": "A connected path from your first map and animated route to video export and missing-GPS recovery.",
+      "cta": "View all guides"
+    },
     "intents": {
       "top": {
         "title": "Beginner Tutorials",

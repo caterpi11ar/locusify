@@ -10,11 +10,12 @@ const root = createRoot(document.getElementById('root')!)
 root.render(<SplashScreen />)
 
 function scheduleAnalytics() {
+  window.dataLayer = window.dataLayer || []
+  window.gtag = function gtag(...args: unknown[]) {
+    window.dataLayer!.push(args)
+  }
+
   const load = () => {
-    window.dataLayer = window.dataLayer || []
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer!.push(args)
-    }
     window.gtag('js', new Date())
     window.gtag('config', 'G-MHD9DY05C4')
     const script = document.createElement('script')

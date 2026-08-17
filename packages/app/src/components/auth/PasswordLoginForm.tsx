@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { useCooldown } from '@/hooks/useCooldown'
 import { forgotPassword, signin, signup } from '@/lib/api/auth'
+import { trackSignUp } from '@/lib/analytics/gtag'
 import { ApiError } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
 import { handleOAuthCallback } from '@/stores/authStore'
@@ -66,6 +67,7 @@ export const PasswordLoginForm: FC<PasswordLoginFormProps> = ({ onSuccess, disab
       }
       else {
         const res = await signup(email, password)
+        trackSignUp('password')
         if (res.access_token && res.refresh_token) {
           await handleOAuthCallback(res.access_token, res.refresh_token)
           onSuccess()

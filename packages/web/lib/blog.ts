@@ -14,6 +14,7 @@ export interface BlogPost {
   id: string
   slug: string
   date: string
+  relatedSlugs?: string[]
   category: BlogCategory
   intent: SearchIntent
   targetKeywords: {
@@ -127,6 +128,11 @@ const seoPosts: BlogPost[] = [
     id: 'seo-animated-travel-map',
     slug: 'how-to-create-an-animated-travel-map',
     date: '2026-03-17',
+    relatedSlugs: [
+      'how-to-export-travel-route-video-from-photos',
+      'recover-missing-photo-locations-for-travel-map',
+      'locusify-tutorial-for-beginners',
+    ],
     category: 'guides',
     intent: 'top',
     targetKeywords: {
@@ -152,6 +158,7 @@ const seoPosts: BlogPost[] = [
         'Step 2: validate timeline continuity so there are no timezone or clock jumps.',
         'Step 3: render route points on an interactive map and verify obvious outliers.',
         'Step 4: export a short animation that starts with an overview and then zooms into key waypoints.',
+        'For social sharing, export a vertical 30–60 second cut and check the text-safe area before publishing.',
         'Tools like Locusify can automate this pipeline and keep all processing on-device for privacy.',
       ],
       zh: [
@@ -160,7 +167,96 @@ const seoPosts: BlogPost[] = [
         '步骤 2：检查时间线连续性，避免时区或设备时间导致跳点。',
         '步骤 3：将坐标渲染到交互地图，先修复异常点再导出。',
         '步骤 4：导出短动画，先总览再展示关键节点。',
+        '发布到短视频平台前，先导出 30—60 秒竖屏版本并检查文字安全区。',
         '像 Locusify 这样的工具可以自动化这条流程，并保持本地处理。',
+      ],
+    },
+  },
+  {
+    id: 'seo-export-travel-route-video',
+    slug: 'how-to-export-travel-route-video-from-photos',
+    date: '2026-08-17',
+    category: 'guides',
+    intent: 'bottom',
+    relatedSlugs: [
+      'how-to-create-an-animated-travel-map',
+      'recover-missing-photo-locations-for-travel-map',
+      'locusify-tutorial-for-beginners',
+    ],
+    targetKeywords: {
+      en: ['export travel route video', 'create travel route video from photos', 'travel map video export'],
+      zh: ['旅行路线视频导出', '照片生成旅行路线视频', '旅行视频地图导出'],
+    },
+    cta: {
+      en: 'Start with one short trip, confirm the aspect ratio first, and export a 30-second test before rendering the full route.',
+      zh: '先用一段短途素材确认画幅，导出 30 秒测试版，再渲染完整路线视频。',
+    },
+    title: {
+      en: 'How to Export a Travel Route Video from Your Photos',
+      zh: '如何把旅行照片导出成路线视频',
+    },
+    summary: {
+      en: 'Turn geotagged travel photos into a clean route video with the right aspect ratio, pacing, and privacy checks.',
+      zh: '把带定位的旅行照片整理成清晰路线视频，从画幅、节奏到隐私检查一次跑通。',
+    },
+    content: {
+      en: [
+        'Exporting a useful route video starts with a short, focused cut rather than a full timeline.',
+        'Choose the target aspect ratio first, then keep the first export to 30–60 seconds so pacing is easy to judge.',
+        'Use original photos with GPS metadata so the route can be reconstructed from capture time and coordinates.',
+        'Remove outliers and duplicate bursts, then export a test clip before rendering the full journey.',
+        'Keep photo processing on-device and remove home or accommodation stops before sharing publicly.',
+      ],
+      zh: [
+        '好的路线视频先从一个短小、聚焦的版本开始，而不是一次渲染全部时间线。',
+        '先确定目标画幅，首版控制在 30—60 秒，更容易判断节奏。',
+        '尽量使用带 GPS 信息的原图，让路线按拍摄时间和坐标自动重建。',
+        '清理异常点和重复连拍后，先导出测试片段，再渲染完整旅程。',
+        '保持照片本地处理，并在公开分享前删除住宅或住宿等敏感停留点。',
+      ],
+    },
+  },
+  {
+    id: 'seo-recover-missing-photo-locations',
+    slug: 'recover-missing-photo-locations-for-travel-map',
+    date: '2026-08-16',
+    category: 'guides',
+    intent: 'bottom',
+    relatedSlugs: [
+      'how-to-create-an-animated-travel-map',
+      'how-to-export-travel-route-video-from-photos',
+      'locusify-tutorial-for-beginners',
+    ],
+    targetKeywords: {
+      en: ['recover missing photo locations', 'photo without gps travel map', 'manually add photo location map'],
+      zh: ['照片没有位置怎么生成路线', '手动添加旅行照片地点', '无 GPS 旅行地图'],
+    },
+    cta: {
+      en: 'Use original files first, then manually place only the missing stops and keep the route proportionate to the evidence.',
+      zh: '先找原图，只对确实缺失的停留点手动补位，并让路线精度与实际证据一致。',
+    },
+    title: {
+      en: 'Recover Missing Photo Locations for a Travel Map',
+      zh: '照片没有 GPS，也能生成旅行路线地图',
+    },
+    summary: {
+      en: 'A practical recovery workflow when photos lose GPS data: find originals, add manual stops, and keep route accuracy honest.',
+      zh: '当照片丢失 GPS 信息时，用原图恢复、手动补点和真实精度控制，完成可用的旅行路线地图。',
+    },
+    content: {
+      en: [
+        'Missing GPS data usually comes from chat compression, screenshots, or edited exports rather than the camera.',
+        'First find original HEIC/JPEG files; their metadata is more likely to contain capture time and location.',
+        'For photos that remain without coordinates, add manual stops in the order you remember visiting them.',
+        'Do not force a precise route between uncertain points; keep the map honest about what is known.',
+        'Review the first and last locations before sharing so private addresses are not exposed.',
+      ],
+      zh: [
+        '照片丢失 GPS，通常是因为聊天压缩、截图或编辑导出，而不是相机没有记录。',
+        '先找回原始 HEIC/JPEG 文件，它们更可能保留拍摄时间和位置信息。',
+        '仍无坐标的照片，按你记得的到访顺序手动放置地点。',
+        '不要在不确定的点之间强行画出精确路线，地图应如实反映已知信息。',
+        '分享前检查起点和终点，避免暴露住宅或住宿地址。',
       ],
     },
   },
@@ -597,6 +693,11 @@ const seoPosts: BlogPost[] = [
     id: 'seo-locusify-tutorial-beginners',
     slug: 'locusify-tutorial-for-beginners',
     date: '2026-03-05',
+    relatedSlugs: [
+      'how-to-create-an-animated-travel-map',
+      'how-to-export-travel-route-video-from-photos',
+      'recover-missing-photo-locations-for-travel-map',
+    ],
     category: 'guides',
     intent: 'bottom',
     targetKeywords: {
@@ -729,6 +830,9 @@ export function getSearchReadyBlogPosts() {
 export function getBlogPostImage(post: BlogPost) {
   const images: Record<string, string> = {
     'how-to-create-an-animated-travel-map': '/images/travel-hero-main.jpg',
+    'how-to-export-travel-route-video-from-photos': '/images/travel-gallery-4.jpg',
+    'recover-missing-photo-locations-for-travel-map': '/images/travel-gallery-5.jpg',
+    'locusify-tutorial-for-beginners': '/images/travel-tech-main.jpg',
     'map-your-trip-using-gps-photos': '/images/travel-tech-main.jpg',
     'visualize-travel-route-from-iphone-photos': '/images/travel-gallery-2.jpg',
     'travel-map-generator-tools-comparison': '/images/travel-collection-3.jpg',
@@ -738,6 +842,15 @@ export function getBlogPostImage(post: BlogPost) {
 }
 
 export function getBlogPostModifiedDate(post: BlogPost) {
+  const modifiedDates: Record<string, string> = {
+    'how-to-create-an-animated-travel-map': '2026-08-17',
+    'how-to-export-travel-route-video-from-photos': '2026-08-17',
+    'recover-missing-photo-locations-for-travel-map': '2026-08-17',
+    'locusify-tutorial-for-beginners': '2026-08-17',
+  }
+  if (modifiedDates[post.slug])
+    return modifiedDates[post.slug]
+
   return richBlogContent[post.slug] ? '2026-07-31' : post.date
 }
 
@@ -750,7 +863,13 @@ export function getBlogPostBySlug(slug: string) {
 }
 
 export function getRelatedBlogPosts(post: BlogPost, limit = 3) {
-  return getSearchReadyBlogPosts()
+  const explicitRelated = (post.relatedSlugs ?? [])
+    .map(slug => getBlogPostBySlug(slug))
+    .filter((candidate): candidate is BlogPost => Boolean(candidate))
+    .filter(candidate => isSearchReadyBlogPost(candidate))
+    .filter(candidate => candidate.slug !== post.slug)
+
+  const fallbackRelated = getSearchReadyBlogPosts()
     .filter(candidate => candidate.slug !== post.slug)
     .sort((a, b) => {
       if (a.intent === post.intent && b.intent !== post.intent)
@@ -763,6 +882,9 @@ export function getRelatedBlogPosts(post: BlogPost, limit = 3) {
         return 1
       return b.date.localeCompare(a.date)
     })
+
+  return [...explicitRelated, ...fallbackRelated]
+    .filter((candidate, index, items) => items.findIndex(item => item.slug === candidate.slug) === index)
     .slice(0, limit)
 }
 

@@ -3,6 +3,7 @@ import { JsonLd } from '@/components/json-ld'
 import { CollectionSection } from '@/components/sections/collection-section'
 import { EditorialSection } from '@/components/sections/editorial-section'
 import { FAQSection } from '@/components/sections/faq-section'
+import { FeaturedGuidesSection } from '@/components/sections/featured-guides-section'
 import { FeaturedProductsSection } from '@/components/sections/featured-products-section'
 import { FooterSection } from '@/components/sections/footer-section'
 import { GallerySection } from '@/components/sections/gallery-section'
@@ -49,6 +50,7 @@ export default async function Home({
       <PricingSection />
       <EditorialSection />
       <TestimonialsSection />
+      <FeaturedGuidesSection locale={locale} />
       <FAQSection />
       <FooterSection />
     </main>
