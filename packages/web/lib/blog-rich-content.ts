@@ -16,6 +16,83 @@ export interface RichBlogContent {
 }
 
 export const richBlogContent: Record<string, RichBlogContent> = {
+  'how-to-organize-travel-photos-by-location': {
+    zh: {
+      sections: [
+        {
+          heading: '为什么按地点整理比按文件名整理更有用',
+          paragraphs: [
+            '旅行照片的文件名通常只能告诉你拍摄顺序，不能快速回答“这些照片在哪里拍的”。GPS EXIF 提供了地点线索，把照片按位置聚类后，可以更快找到城市、景点和住宿停留。',
+            '最好的整理方式不是只按地点切断时间线，而是同时保留“地点 + 时间”两层结构。这样既能浏览某个景点的全部照片，也能重建完整旅行路线。',
+          ],
+        },
+        {
+          heading: '按地点整理旅行照片的 6 步流程',
+          paragraphs: ['从一次旅行的原始照片开始，不要把日常相册和多次旅行混在一起。原始 HEIC 或 JPEG 更可能保留定位和拍摄时间。'],
+          steps: [
+            '建立一个只包含单次旅行的相册或文件夹。',
+            '抽查几张原图，确认信息面板中有地图位置和拍摄时间。',
+            '按地点聚类，识别城市、景点、交通中转和住宿停留。',
+            '删除截图、下载图片和同地点过密的重复连拍。',
+            '按时间顺序检查聚类之间是否存在异常跨城跳点。',
+            '将清理后的照片生成路线地图，再决定是否导出回放视频。',
+          ],
+        },
+        {
+          heading: '没有 GPS 信息的照片怎么处理',
+          paragraphs: [
+            '聊天软件压缩、社交平台下载和截图都会移除 EXIF 定位。遇到这类照片，先回到手机相册或相机备份中寻找原图，不要立即为每一张照片手动补坐标。',
+            '如果原图确实无法找回，只对确定记得的关键停留点手动放置照片。对于不确定的位置，宁可保留较粗的地点范围，也不要制造看似精确但不可靠的路线。',
+          ],
+        },
+        {
+          heading: '整理完成后的隐私检查',
+          paragraphs: [
+            '地点整理会让私人活动范围更容易被看懂。公开分享前，删除住宅、酒店、朋友家和儿童活动地点；如果路线必须保留，可以降低起点和终点的精度。',
+            'Locusify 在浏览器本地读取照片元数据并生成地图，照片无需上传到服务器。无论使用哪种工具，发布前都应该人工检查地图和首尾画面。',
+          ],
+        },
+      ],
+      faq: [
+        { question: '按地点整理照片必须有 GPS 吗？', answer: '自动按地点整理通常需要 GPS EXIF。没有 GPS 的照片可以按时间、文件夹或记忆中的关键地点整理，也可以在地图上手动补点。' },
+        { question: '为什么原图比微信或社交平台图片更适合整理？', answer: '原图通常保留拍摄时间和 GPS 元数据，而聊天压缩、截图和社交平台导出可能删除这些信息。' },
+        { question: '如何避免同一个景点出现太多照片？', answer: '按地点聚类后，每个停留点保留 1—3 张代表照片，其余素材继续留在原始相册中，不必全部加入路线回放。' },
+      ],
+    },
+    en: {
+      sections: [
+        {
+          heading: 'Why location-based organization beats file names',
+          paragraphs: ['File names reveal capture order but do not answer where a photo was taken. GPS EXIF lets you group photos by city, attraction, and overnight stop while preserving the trip timeline.'],
+        },
+        {
+          heading: 'A six-step workflow for organizing travel photos',
+          paragraphs: ['Start with original photos from one trip. Original HEIC and JPEG files are more likely to preserve location and capture time.'],
+          steps: [
+            'Create an album or folder for one trip only.',
+            'Inspect a few originals and confirm a map location and capture time.',
+            'Group photos into location clusters for cities, attractions, transfers, and overnight stops.',
+            'Remove screenshots, downloaded copies, and dense duplicate bursts.',
+            'Check the order between clusters for impossible long-distance jumps.',
+            'Generate a route map from the cleaned set, then decide whether to export a replay video.',
+          ],
+        },
+        {
+          heading: 'What to do with photos that have no GPS',
+          paragraphs: ['Chat compression and social downloads often strip EXIF location data. Find the original first; if it is gone, manually place only the key stops you can identify confidently and keep uncertain locations broad.'],
+        },
+        {
+          heading: 'Privacy checks after organizing by location',
+          paragraphs: ['Before publishing, remove homes, hotels, friends’ addresses, and children’s locations. Locusify builds the map locally in your browser, but review the map and opening and closing frames before sharing.'],
+        },
+      ],
+      faq: [
+        { question: 'Do I need GPS data to organize photos by location?', answer: 'Automatic location grouping usually requires GPS EXIF. Photos without GPS can be organized by time, folders, or known stops, and key images can be placed manually.' },
+        { question: 'Why are original files better than messaging-app copies?', answer: 'Original files usually preserve capture time and GPS metadata, while compressed chats, screenshots, and social exports may remove it.' },
+        { question: 'How do I avoid too many photos from one attraction?', answer: 'Keep one to three representative photos per stop and leave the rest in the original album instead of adding everything to the replay.' },
+      ],
+    },
+  },
   'how-to-create-an-animated-travel-map': {
     zh: {
       sections: [
