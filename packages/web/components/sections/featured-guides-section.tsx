@@ -7,7 +7,7 @@ const FEATURED_SLUGS = [
   'how-to-create-an-animated-travel-map',
   'how-to-export-travel-route-video-from-photos',
   'recover-missing-photo-locations-for-travel-map',
-  'locusify-tutorial-for-beginners',
+  'how-to-organize-travel-photos-by-location',
 ]
 
 export async function FeaturedGuidesSection({ locale }: { locale: string }) {

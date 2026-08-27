@@ -733,6 +733,50 @@ const seoPosts: BlogPost[] = [
       ],
     },
   },
+  {
+    id: 'seo-organize-travel-photos-by-location',
+    slug: 'how-to-organize-travel-photos-by-location',
+    date: '2026-08-18',
+    relatedSlugs: [
+      'map-your-trip-using-gps-photos',
+      'recover-missing-photo-locations-for-travel-map',
+      'locusify-tutorial-for-beginners',
+    ],
+    category: 'guides',
+    intent: 'top',
+    targetKeywords: {
+      en: ['organize travel photos by location', 'sort photos by location', 'geotagged photo organizer'],
+      zh: ['按地点整理旅行照片', '旅行照片按位置分类', '地理标记照片整理'],
+    },
+    cta: {
+      en: 'Start with one trip album and let Locusify turn its location metadata into a visual route you can review and share.',
+      zh: '先从一次旅行相册开始，让 Locusify 把照片定位信息转成可查看、可分享的可视化路线。',
+    },
+    title: {
+      en: 'How to Organize Travel Photos by Location',
+      zh: '如何按地点整理旅行照片：从相册到路线地图',
+    },
+    summary: {
+      en: 'A simple workflow for grouping geotagged photos by place, cleaning duplicates, and turning an album into a travel route map.',
+      zh: '用简单流程按地点分组带定位照片、清理重复素材，并把相册变成旅行路线地图。',
+    },
+    content: {
+      en: [
+        'Location-based organization is faster than manually naming hundreds of travel photos one by one.',
+        'Start with original files that still contain GPS EXIF and capture time, then keep each trip in a separate album.',
+        'Use location clusters to identify cities, attractions, and overnight stops without losing chronological context.',
+        'Remove screenshots and dense burst sequences before creating a route so the map stays readable.',
+        'Review sensitive home and hotel locations before sharing an organized album or route replay.',
+      ],
+      zh: [
+        '按地点整理比逐张给几百张旅行照片命名更高效。',
+        '先使用保留 GPS EXIF 和拍摄时间的原图，并把每次旅行分开存放。',
+        '通过地点聚类识别城市、景点和住宿停留，同时保留时间顺序。',
+        '生成路线前删除截图和过密连拍，让地图保持清晰。',
+        '分享整理后的相册或路线回放前，检查住宅和酒店等敏感地点。',
+      ],
+    },
+  },
 ]
 
 const legacyCuratedPosts: BlogPost[] = [
@@ -836,6 +880,7 @@ export function getBlogPostImage(post: BlogPost) {
     'map-your-trip-using-gps-photos': '/images/travel-tech-main.jpg',
     'visualize-travel-route-from-iphone-photos': '/images/travel-gallery-2.jpg',
     'travel-map-generator-tools-comparison': '/images/travel-collection-3.jpg',
+    'how-to-organize-travel-photos-by-location': '/images/travel-collection-2.jpg',
   }
 
   return images[post.slug] ?? '/images/travel-hero-main.jpg'
@@ -847,6 +892,7 @@ export function getBlogPostModifiedDate(post: BlogPost) {
     'how-to-export-travel-route-video-from-photos': '2026-08-17',
     'recover-missing-photo-locations-for-travel-map': '2026-08-17',
     'locusify-tutorial-for-beginners': '2026-08-17',
+    'how-to-organize-travel-photos-by-location': '2026-08-18',
   }
   if (modifiedDates[post.slug])
     return modifiedDates[post.slug]
