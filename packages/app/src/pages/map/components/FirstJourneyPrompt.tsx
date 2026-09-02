@@ -124,8 +124,8 @@ function ManualPlacementAnimation({ isMobile }: { isMobile: boolean }) {
         {/* Photo appears at the selected map point */}
         <m.div
           className="absolute top-4 right-5 flex h-16 w-14 rotate-3 items-center justify-center rounded-md border-2 border-white bg-gradient-to-br from-amber-300 to-rose-400 shadow-xl"
-          animate={{ opacity: [0, 0, 1, 1, 0], y: [-12, -12, 22, 22, 28], scale: [.8, .8, 1, 1, .9] }}
-          transition={{ duration: 4, repeat: Infinity, times: [0, .25, .45, .82, 1] }}
+          animate={{ opacity: [0, 0, 1, 1, 0], y: [-12, -12, 22, 22, 28], scale: [0.8, 0.8, 1, 1, 0.9] }}
+          transition={{ duration: 4, repeat: Infinity, times: [0, 0.25, 0.45, 0.82, 1] }}
         >
           <i className="i-mingcute-pic-line text-xl text-white" />
         </m.div>
@@ -133,14 +133,14 @@ function ManualPlacementAnimation({ isMobile }: { isMobile: boolean }) {
         {/* Right-click / long-press gesture */}
         <m.div
           className="absolute top-[48%] left-[48%] flex size-9 items-center justify-center rounded-full bg-white text-neutral-900 shadow-xl"
-          animate={{ x: [48, 48, 0, 0, 48], y: [45, 45, 0, 0, 45], scale: [1, .82, .82, 1, 1] }}
-          transition={{ duration: 4, repeat: Infinity, times: [0, .2, .42, .65, 1] }}
+          animate={{ x: [48, 48, 0, 0, 48], y: [45, 45, 0, 0, 45], scale: [1, 0.82, 0.82, 1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, times: [0, 0.2, 0.42, 0.65, 1] }}
         >
           <i className={isMobile ? 'i-mingcute-finger-tap-line text-lg' : 'i-mingcute-mouse-line text-lg'} />
           <m.span
             className="absolute inset-0 rounded-full border-2 border-sky-400"
-            animate={{ scale: [1, 1, 2], opacity: [0, .8, 0] }}
-            transition={{ duration: 4, repeat: Infinity, times: [0, .4, .62] }}
+            animate={{ scale: [1, 1, 2], opacity: [0, 0.8, 0] }}
+            transition={{ duration: 4, repeat: Infinity, times: [0, 0.4, 0.62] }}
           />
         </m.div>
       </div>

@@ -74,10 +74,14 @@ export function EarthZoomController() {
         let maxLat = -Infinity
         for (const wp of waypoints) {
           const [lng, lat] = wp.position
-          if (lng < minLng) minLng = lng
-          if (lng > maxLng) maxLng = lng
-          if (lat < minLat) minLat = lat
-          if (lat > maxLat) maxLat = lat
+          if (lng < minLng)
+            minLng = lng
+          if (lng > maxLng)
+            maxLng = lng
+          if (lat < minLat)
+            minLat = lat
+          if (lat > maxLat)
+            maxLat = lat
         }
 
         const cam = mapInstance.cameraForBounds(

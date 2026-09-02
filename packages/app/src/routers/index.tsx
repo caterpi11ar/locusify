@@ -1,10 +1,10 @@
 import type { RouteObject } from 'react-router'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router'
+import { i18n } from '@/i18n'
 import Layout from '@/layout'
 import { ErrorElement } from '@/pages/error/ErrorElement'
 import { Map } from '@/pages/map'
-import { i18n } from '@/i18n'
 
 const AuthCallback = lazy(() => import('@/pages/auth/AuthCallback'))
 const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'))

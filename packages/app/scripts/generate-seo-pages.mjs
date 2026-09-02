@@ -5,7 +5,7 @@ const dist = resolve('dist')
 const source = await readFile(resolve(dist, 'index.html'), 'utf8')
 
 const locales = {
-  en: {
+  'en': {
     path: 'en',
     lang: 'en',
     locale: 'en_US',
@@ -68,44 +68,44 @@ for (const data of Object.values(locales)) {
       {
         '@type': 'Organization',
         '@id': 'https://app.locusify.cn/#organization',
-        name: 'Locusify',
-        url: 'https://app.locusify.cn/',
-        logo: { '@type': 'ImageObject', url: 'https://app.locusify.cn/logo.png', width: 1024, height: 1024 },
-        sameAs: ['https://github.com/caterpi11ar/locusify', 'https://www.producthunt.com/products/locusify'],
+        'name': 'Locusify',
+        'url': 'https://app.locusify.cn/',
+        'logo': { '@type': 'ImageObject', 'url': 'https://app.locusify.cn/logo.png', 'width': 1024, 'height': 1024 },
+        'sameAs': ['https://github.com/caterpi11ar/locusify', 'https://www.producthunt.com/products/locusify'],
       },
       {
         '@type': 'WebSite',
         '@id': 'https://app.locusify.cn/#website',
-        url: 'https://app.locusify.cn/',
-        name: 'Locusify',
-        inLanguage: ['en', 'zh-CN'],
-        publisher: { '@id': 'https://app.locusify.cn/#organization' },
+        'url': 'https://app.locusify.cn/',
+        'name': 'Locusify',
+        'inLanguage': ['en', 'zh-CN'],
+        'publisher': { '@id': 'https://app.locusify.cn/#organization' },
       },
       {
         '@type': 'WebApplication',
         '@id': `${canonical}#app`,
-        name: 'Locusify',
-        url: canonical,
-        description: data.appDescription,
-        applicationCategory: 'TravelApplication',
-        operatingSystem: 'Any',
-        inLanguage: data.lang,
-        image: 'https://app.locusify.cn/og-image.png',
-        featureList: data.features,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: data.lang === 'zh-CN' ? 'CNY' : 'USD', availability: 'https://schema.org/InStock' },
-        publisher: { '@id': 'https://app.locusify.cn/#organization' },
+        'name': 'Locusify',
+        'url': canonical,
+        'description': data.appDescription,
+        'applicationCategory': 'TravelApplication',
+        'operatingSystem': 'Any',
+        'inLanguage': data.lang,
+        'image': 'https://app.locusify.cn/og-image.png',
+        'featureList': data.features,
+        'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': data.lang === 'zh-CN' ? 'CNY' : 'USD', 'availability': 'https://schema.org/InStock' },
+        'publisher': { '@id': 'https://app.locusify.cn/#organization' },
       },
       {
         '@type': 'FAQPage',
         '@id': `${canonical}#faq`,
-        inLanguage: data.lang,
-        mainEntity: data.faq.map(([name, text]) => ({ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } })),
+        'inLanguage': data.lang,
+        'mainEntity': data.faq.map(([name, text]) => ({ '@type': 'Question', name, 'acceptedAnswer': { '@type': 'Answer', text } })),
       },
     ],
   }
   const schemaScript = `<script id="locusify-structured-data" type="application/ld+json">${JSON.stringify(schema)}</script>`
 
-  let html = source
+  const html = source
     .replace('<html lang="en"', `<html lang="${data.lang}"`)
     .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(data.title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(" \/>)/, `$1${escapeHtml(data.description)}$2`)

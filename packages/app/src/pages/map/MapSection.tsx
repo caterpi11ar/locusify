@@ -151,7 +151,7 @@ function MapSectionContent() {
       return
     }
     setShowHelpHint(true)
-    const timer = window.setTimeout(() => setShowHelpHint(false), 5000)
+    const timer = window.setTimeout(setShowHelpHint, 5000, false)
     return () => window.clearTimeout(timer)
   }, [helpOpen])
 
