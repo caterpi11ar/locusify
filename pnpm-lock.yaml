@@ -246,8 +246,8 @@ importers:
         specifier: 16.1.6
         version: 16.1.6(@typescript-eslint/parser@8.63.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.8.3)
       supabase:
-        specifier: ^2.116.0
-        version: 2.116.0
+        specifier: ^2.109.1
+        version: 2.109.1
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -346,7 +346,7 @@ importers:
         version: 2.0.0(next@16.2.11(@opentelemetry/api@1.9.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       autoprefixer:
         specifier: ^10.4.20
-        version: 10.5.2(postcss@8.5.25)
+        version: 10.5.2(postcss@8.5.26)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -428,7 +428,7 @@ importers:
         version: 0.185.1
       postcss:
         specifier: ^8.5
-        version: 8.5.25
+        version: 8.5.26
       tailwindcss:
         specifier: ^4.1.9
         version: 4.3.2
@@ -6527,8 +6527,8 @@ packages:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
 
-  jose@6.2.10:
-    resolution: {integrity: sha512-iiW7J9qRFlGxvCOIBDBDxFePQSn7ZMAnrYGhrrOo6siO/MIqwfyilLR27pkfDgUk+raLuzADS8A3S/KLBisc0g==}
+  jose@6.2.3:
+    resolution: {integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -7968,8 +7968,8 @@ packages:
   stylis@4.4.0:
     resolution: {integrity: sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA==}
 
-  supabase@2.116.0:
-    resolution: {integrity: sha512-cMUHkpjBacq4oLGWnMM2HC2drmUlAlfN/PQb31RARoIdYJ8sqA0xONvqBR6yd5v7w8dXuCPwvfd4N1NTHjBKEw==}
+  supabase@2.109.1:
+    resolution: {integrity: sha512-N2yP2MHTxOxXBWhfn3poudpJn4pkPosAUo7J/46FTou/l7wOwFi9tox8NSN6HljWkfM0zhwPRimNNGC9XBMoxQ==}
     hasBin: true
 
   supports-color@7.2.0:
@@ -9374,7 +9374,7 @@ snapshots:
       express: 5.2.1
       express-rate-limit: 8.5.2(express@5.2.1)
       hono: 4.12.28
-      jose: 6.2.10
+      jose: 6.2.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
@@ -12268,7 +12268,7 @@ snapshots:
       '@alloc/quick-lru': 5.2.0
       '@tailwindcss/node': 4.3.2
       '@tailwindcss/oxide': 4.3.2
-      postcss: 8.5.25
+      postcss: 8.5.26
       tailwindcss: 4.3.2
 
   '@tailwindcss/vite@4.3.2(vite@8.2.0(@types/node@26.4.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.0)(yaml@2.9.0))':
@@ -12442,7 +12442,7 @@ snapshots:
   '@typescript-eslint/project-service@8.63.0(typescript@5.8.3)':
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.63.0(typescript@5.8.3)
-      '@typescript-eslint/types': 8.68.0
+      '@typescript-eslint/types': 8.63.0
       debug: 4.4.3
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -12922,13 +12922,13 @@ snapshots:
       stubborn-fs: 2.0.0
       when-exit: 2.1.5
 
-  autoprefixer@10.5.2(postcss@8.5.25):
+  autoprefixer@10.5.2(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.5
       caniuse-lite: 1.0.30001803
       fraction.js: 5.3.4
       picocolors: 1.1.1
-      postcss: 8.5.25
+      postcss: 8.5.26
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.7:
@@ -14617,7 +14617,7 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  jose@6.2.10: {}
+  jose@6.2.3: {}
 
   js-tokens@4.0.0: {}
 
@@ -14863,7 +14863,7 @@ snapshots:
   magicast@0.5.4:
     dependencies:
       '@babel/parser': 7.29.8
-      '@babel/types': 7.29.8
+      '@babel/types': 7.29.7
       source-map-js: 1.2.1
 
   maplibre-gl@5.24.0:
@@ -15667,7 +15667,7 @@ snapshots:
 
   postcss@8.4.31:
     dependencies:
-      nanoid: 3.3.17
+      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -16524,10 +16524,10 @@ snapshots:
 
   stylis@4.4.0: {}
 
-  supabase@2.116.0:
+  supabase@2.109.1:
     dependencies:
       eciesjs: 0.5.0
-      jose: 6.2.10
+      jose: 6.2.3
 
   supports-color@7.2.0:
     dependencies:
