@@ -26,6 +26,7 @@
     "@vercel/sdk": "^1.19.40",
     "eslint": "^9",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0"
+    "lint-staged": "^16.4.0",
+    "typescript": "catalog:"
   }
 }
