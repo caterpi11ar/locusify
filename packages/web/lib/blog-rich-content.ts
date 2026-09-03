@@ -408,6 +408,20 @@ export const richBlogContent: Record<string, RichBlogContent> = {
           ],
         },
         {
+          heading: '给从未记录位置的照片添加 GPS 坐标',
+          paragraphs: [
+            '如果相机或手机根本没有记录定位——关闭了定位权限、飞行模式或设备较旧——就谈不上恢复，正确做法是手动写入坐标。目标不是伪造证据，而是让每张照片在地图上有一个站得住的位置。',
+            '桌面 EXIF 编辑器与地图补位工具可以把经纬度写进照片元数据。整理旅行相册时，把照片放到你记得的城市、景点或街道，并保持补点与拍摄时间一致。',
+          ],
+          steps: [
+            '在原始文件的副本上操作，避免重新导出时丢失已添加的元数据。',
+            '按城市、景点或街道级别写入坐标，而不是编造精确门牌。',
+            '按到访顺序补点，并留意时区设置，保持路线时间轴一致。',
+            '用元数据查看器抽查两三张照片，确认坐标确实写入。',
+            '重新导入相册，检查补点是否让路线连贯、没有跨城跳点。',
+          ],
+        },
+        {
           heading: '精度与隐私边界',
           paragraphs: [
             '照片驱动路线代表的是“拍照地点”，不是完整连续轨迹。缺失 GPS 时更应如实标注不确定性，不要把估算路线包装成实测路线。',
@@ -419,6 +433,8 @@ export const richBlogContent: Record<string, RichBlogContent> = {
         { question: '微信保存的照片还能用于旅行地图吗？', answer: '很多经过聊天压缩的图片没有 GPS。优先找回相册原图；只有确实缺失且能确认地点时才手动补点。' },
         { question: '没有 GPS 的照片必须删除吗？', answer: '不一定。它们可以作为故事画面保留，但不应参与路线坐标计算。可以用手动地点补充关键停留点。' },
         { question: '手动补点能保证路线准确吗？', answer: '不能保证精确。手动补点适用于城市或景点级定位，不应在无证据的路段绘制精确轨迹。' },
+        { question: '能给完全没有 GPS 的照片添加坐标吗？', answer: '可以。桌面 EXIF 编辑器和地图补位工具都能把经纬度写入照片元数据。建议按城市或景点级别添加、在原件副本上操作，并用元数据查看器确认写入成功。' },
+        { question: '添加地点会修改原始照片吗？', answer: '只有当编辑器直接覆盖原文件时才会。在副本上编辑，或使用把补位单独存在相册里的工具，原片可以保持不变。' },
       ],
     },
     en: {
@@ -451,6 +467,20 @@ export const richBlogContent: Record<string, RichBlogContent> = {
           ],
         },
         {
+          heading: 'Add GPS coordinates to photos that never recorded a location',
+          paragraphs: [
+            'If a camera or phone never recorded GPS — location permission off, airplane mode, or an older device — there is nothing to recover, so the fix is writing the coordinates yourself. The goal is not to invent evidence but to give each photo a defensible place on the map.',
+            'Desktop EXIF editors and map-based placement tools can write latitude and longitude into photo metadata. For a travel album, place each photo at the city, landmark, or street you remember and keep the edit consistent with its capture time.',
+          ],
+          steps: [
+            'Work on a copy of the original file so re-export cannot drop the metadata you add.',
+            'Write coordinates at city, landmark, or street level rather than an invented precise address.',
+            'Add points in the order you visited and mind the timezone so the route timeline stays consistent.',
+            'Spot-check two or three edited photos with a metadata viewer to confirm the write succeeded.',
+            'Re-import the album and verify that the added points connect the route without cross-city jumps.',
+          ],
+        },
+        {
           heading: 'Keep accuracy and privacy boundaries clear',
           paragraphs: [
             'A photo-driven route represents where photos were taken, not a complete continuous track. When GPS is missing, state the uncertainty instead of presenting estimated segments as measured data.',
@@ -462,6 +492,8 @@ export const richBlogContent: Record<string, RichBlogContent> = {
         { question: 'Can photos saved from a messaging app still create a route?', answer: 'Often not reliably, because compressed chat images may have no GPS. Prefer originals from the photo library, and manually place only the stops you can confirm.' },
         { question: 'Should photos without GPS be deleted?', answer: 'No. They can remain as story frames, but they should not contribute coordinates to the route. Use manual stops for key locations only.' },
         { question: 'Does manual placement guarantee an accurate route?', answer: 'No. Manual placement is best at city or landmark level. Do not draw a precise path across segments with no evidence.' },
+        { question: 'Can I add GPS coordinates to a photo that has none?', answer: 'Yes. Desktop EXIF editors and map-based placement tools can write latitude and longitude into the metadata. Add them at city or landmark level, work on a copy of the original, and verify the write with a metadata viewer.' },
+        { question: 'Does adding a location modify the original photo file?', answer: 'Only if the editor overwrites the file in place. Editing a copy, or using an album that stores the placement separately, keeps the original untouched.' },
       ],
     },
   },

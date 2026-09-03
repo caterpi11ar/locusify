@@ -228,8 +228,8 @@ const seoPosts: BlogPost[] = [
       'locusify-tutorial-for-beginners',
     ],
     targetKeywords: {
-      en: ['recover missing photo locations', 'photo without gps travel map', 'manually add photo location map'],
-      zh: ['照片没有位置怎么生成路线', '手动添加旅行照片地点', '无 GPS 旅行地图'],
+      en: ['recover missing photo locations', 'photo without gps travel map', 'manually add photo location map', 'add gps coordinates to photos'],
+      zh: ['照片没有位置怎么生成路线', '手动添加旅行照片地点', '无 GPS 旅行地图', '给照片添加 GPS 坐标'],
     },
     cta: {
       en: 'Use original files first, then manually place only the missing stops and keep the route proportionate to the evidence.',
@@ -250,6 +250,7 @@ const seoPosts: BlogPost[] = [
         'For photos that remain without coordinates, add manual stops in the order you remember visiting them.',
         'Do not force a precise route between uncertain points; keep the map honest about what is known.',
         'Review the first and last locations before sharing so private addresses are not exposed.',
+        'When a device never recorded GPS, add coordinates with an EXIF editor or map placement tool, keep the original file, and verify the metadata before importing.',
       ],
       zh: [
         '照片丢失 GPS，通常是因为聊天压缩、截图或编辑导出，而不是相机没有记录。',
@@ -257,6 +258,7 @@ const seoPosts: BlogPost[] = [
         '仍无坐标的照片，按你记得的到访顺序手动放置地点。',
         '不要在不确定的点之间强行画出精确路线，地图应如实反映已知信息。',
         '分享前检查起点和终点，避免暴露住宅或住宿地址。',
+        '设备从未记录 GPS 时，用 EXIF 编辑器或地图补位工具补上坐标，保留原文件并在导入前确认元数据写入成功。',
       ],
     },
   },
@@ -890,7 +892,7 @@ export function getBlogPostModifiedDate(post: BlogPost) {
   const modifiedDates: Record<string, string> = {
     'how-to-create-an-animated-travel-map': '2026-08-17',
     'how-to-export-travel-route-video-from-photos': '2026-08-17',
-    'recover-missing-photo-locations-for-travel-map': '2026-08-17',
+    'recover-missing-photo-locations-for-travel-map': '2026-09-02',
     'locusify-tutorial-for-beginners': '2026-08-17',
     'how-to-organize-travel-photos-by-location': '2026-08-18',
   }
