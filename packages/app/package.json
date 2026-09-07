@@ -38,7 +38,7 @@
     "@turf/boolean-point-in-polygon": "^7.3.5",
     "@turf/helpers": "^7.3.5",
     "@vercel/speed-insights": "^2.0.0",
-    "antd": "^6.5.1",
+    "antd": "^6.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "es-toolkit": "^1.46.1",
