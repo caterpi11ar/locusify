@@ -16,8 +16,8 @@
     "vercel:list": "node scripts/vercel.mjs list"
   },
   "dependencies": {
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "~9.0.0",
