@@ -106,9 +106,11 @@ export function convertExifGPSToDecimal(exif: PickedExif | null): {
 
     if (rawAltitude !== undefined) {
       altitude = rawAltitude
+      // exiftool-vendored >= 35 types GPSAltitudeRef as number only,
+      // but keep the legacy string form for runtime robustness.
+      const altitudeRefValue = exif.GPSAltitudeRef as number | string | undefined
       altitudeRef
-        = (typeof exif.GPSAltitudeRef === 'number' && exif.GPSAltitudeRef === 1)
-          || exif.GPSAltitudeRef === 'Below Sea Level'
+        = altitudeRefValue === 1 || altitudeRefValue === 'Below Sea Level'
           ? 'Below Sea Level'
           : 'Above Sea Level'
 

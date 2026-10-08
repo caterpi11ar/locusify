@@ -21,9 +21,9 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "~9.5.1",
-    "@commitlint/cli": "^20.5.3",
-    "@commitlint/config-conventional": "^20.5.3",
-    "@vercel/sdk": "^1.19.40",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@vercel/sdk": "^1.28.41",
     "eslint": "^9",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",

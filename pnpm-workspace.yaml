@@ -8,3 +8,7 @@ catalog:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# 安全修复：强制传递依赖到已修复版本（见 Dependabot alerts）
+overrides:
+  katex: ^0.18.2
