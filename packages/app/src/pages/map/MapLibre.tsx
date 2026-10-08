@@ -26,6 +26,8 @@ import { WaypointDot } from './components/WaypointDot'
 import MapStyleDark from './MapLibreStyleDark.json'
 import MapStyleLight from './MapLibreStyleLight.json'
 import { calculateMapBounds, calculateZoomFromBounds, getFragmentModeForZoom } from './utils'
+// Side-effect: must run before any Map instance is created.
+import '@/lib/maplibre-worker'
 // Styles
 import 'maplibre-gl/dist/maplibre-gl.css'
 
