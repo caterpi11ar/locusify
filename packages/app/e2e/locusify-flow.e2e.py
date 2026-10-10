@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Locusify 主流程 E2E（由 webapp-testing skill 的 with_server.py 托管 dev server）。
 
-覆盖：打开地图 → 打开上传抽屉 → 选 4 张带 GPS 的图 → EXIF 解析 → 创建路线 → 地图出 4 个 marker
+覆盖：预置登录态 → 打开地图 → 打开上传抽屉 → 选 4 张带 GPS 的图 → EXIF 解析 → 创建路线 → 地图出 4 个 marker
 
-关于这个项目的三个坑，脚本里都做了规避（详见 ./README.md）：
+本项目的坑，脚本里都做了规避（详见 ./README.md）：
   1. 不能用 wait_for_load_state('networkidle') —— MapLibre 持续拉瓦片，必然超时
   2. dev 模式下 #react-scan-root 会拦截所有点击，必须禁掉其 pointer-events
   3. 匿名用户有登录门禁，且 initializeAuth() 会清掉没有 token 的本地登录态
      → 必须同时 page.route 拦截 /api/v1/*，否则 /auth/me 401 后 clearUser()
+
+**状态预置不走手写 localStorage**：所有持久化都交给 zustand persist 中间件，
+测试只调 `window.__locusify`（见 src/lib/dev/testBridge.ts）。
+自己拼 localStorage 的 key 和 JSON 结构，等于把中间件的序列化格式复制到测试里，
+store 一旦改 name / version / partialize / migrate，测试会静默失效。
 """
 import argparse
 import glob
@@ -20,12 +25,7 @@ from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# 公告弹窗的开关是 `localStorage['locusify:version'] === pkg.version`（见 pages/map/constants.ts），
-# 版本号从 package.json 读，避免硬编码后随发版失效。
-with open(os.path.join(os.path.dirname(HERE), 'package.json'), encoding='utf-8') as f:
-    APP_VERSION = json.load(f)['version']
-
-# 登录态：/api/v1 会被 mock，localStorage 里预置一份以跳过首屏登录抽屉
+# E2E 身份：与 src/lib/dev/testBridge.ts 里的 E2E_USER 保持一致
 E2E_USER = {
     'id': 'e2e-user-0001',
     'name': 'E2E Tester',
@@ -70,16 +70,54 @@ NO_REACT_SCAN_JS = """
 """
 
 
-def seed_storage(user: dict) -> str:
-    return """
-localStorage.setItem('locusify-tokens', JSON.stringify({accessToken:'e2e-token', refreshToken:'e2e-refresh'}));
-localStorage.setItem('locusify-auth', JSON.stringify({state:{user:%s},version:0}));
-localStorage.setItem('i18nextLng', 'zh-CN');
-// 关掉三个会挡住点击的首屏弹层
-localStorage.setItem('locusify:version', %s);   // 版本公告
+def on_api_request(route):
+    """拦截 /api/v1/*。注意这是精确前缀 —— 用 '**/api/**' 会连 src/lib/api/*.ts 一起拦掉。"""
+    url = route.request.url
+    if not API_RE.search(url):
+        return route.continue_()
+    for path, data in API_MOCKS.items():
+        if url.split('?')[0].endswith(path):
+            return route.fulfill(status=200, content_type='application/json',
+                                 body=json.dumps({'success': True, 'data': data}))
+    return route.fulfill(status=200, content_type='application/json',
+                         body=json.dumps({'success': True, 'data': {}}))
+
+
+# 升级前的存储形态：token 是扁平对象，三个 UI 开关是裸 key
+LEGACY_SEED_JS = """
+localStorage.setItem('locusify-tokens', JSON.stringify({accessToken:'legacy-access', refreshToken:'legacy-refresh'}));
+localStorage.setItem('locusify:version', 'legacy-version-sentinel');
 localStorage.setItem('locusify:help-seen', 'true');
-localStorage.setItem('locusify:feedback-last-shown', String(Date.now()));
-""" % (json.dumps(user), json.dumps(APP_VERSION))
+localStorage.setItem('locusify:feedback-last-shown', '1750000000000');
+"""
+
+
+def seed_via_stores(page, base: str, rep: 'Report') -> None:
+    """把登录态与弹层开关写进去。
+
+    分两步：先加载应用（需要它的 store 在运行），再调测试桥写入，
+    然后 reload —— 此时 localStorage 里已有 persist 写下的信封，
+    initializeAuth() 会走真实的 /auth/me + /profile（被 mock）。
+    """
+    page.goto(f'{base}/zh-CN/', wait_until='domcontentloaded', timeout=60000)
+    page.wait_for_function('() => !!window.__locusify', timeout=40000)
+    page.evaluate('''() => {
+      window.__locusify.dismissOverlays();
+      window.__locusify.signIn();
+    }''')
+
+    written = page.evaluate('''() => {
+      const k = window.__locusify.storageKeys;
+      return {
+        tokens: !!localStorage.getItem(k.tokens),
+        ui: !!localStorage.getItem(k.ui),
+        auth: !!localStorage.getItem(k.auth),
+      };
+    }''')
+    rep.check(written['tokens'], 'persist 中间件已写出 token')
+    rep.check(written['ui'], 'persist 中间件已写出弹层开关')
+    rep.check(written['auth'], 'persist 中间件已写出登录态')
+    page.reload(wait_until='domcontentloaded', timeout=60000)
 
 
 class Report:
@@ -107,7 +145,6 @@ def run(base: str, shots: str, fixtures: list[str], headed: bool) -> int:
             device_scale_factor=3,
             locale='zh-CN',
         )
-        ctx.add_init_script(seed_storage(E2E_USER))
         ctx.add_init_script(NO_REACT_SCAN_JS)
         page = ctx.new_page()
 
@@ -116,27 +153,22 @@ def run(base: str, shots: str, fixtures: list[str], headed: bool) -> int:
         page.on('pageerror', lambda e: page_errors.append(str(e)))
 
         def on_request(route):
-            url = route.request.url
-            if not API_RE.search(url):
-                return route.continue_()
-            for path, data in API_MOCKS.items():
-                if url.split('?')[0].endswith(path):
-                    return route.fulfill(status=200, content_type='application/json',
-                                         body=json.dumps({'success': True, 'data': data}))
-            return route.fulfill(status=200, content_type='application/json',
-                                 body=json.dumps({'success': True, 'data': {}}))
+            return on_api_request(route)
 
         page.route(API_RE, on_request)
 
+        # --- 0. 预置状态（全程走 zustand persist 中间件） ---
+        print('\n[0] 预置登录态与弹层开关（经 store 写入，不手写 localStorage）')
+        seed_via_stores(page, base, rep)
+
         # --- 1. 打开地图 ---
-        print('\n[1] 打开地图')
-        print(f'    (目标版本 {APP_VERSION}，已预置公告/帮助/反馈开关)')
+        print('[1] 打开地图')
         page.goto(f'{base}/zh-CN/', wait_until='domcontentloaded', timeout=60000)
         # 不用 networkidle；且 canvas 要等 attached（默认 visible 会因 Splash 超时）
         page.wait_for_selector('canvas', state='attached', timeout=40000)
         page.wait_for_selector('[data-testid="map-menu-upload"]', timeout=30000)
         rep.check(True, '地图与菜单已渲染')
-        rep.check(page.locator('.ant-drawer').count() == 0, '未出现登录抽屉（鉴权绕过生效）')
+        rep.check(page.locator('.ant-drawer').count() == 0, '未出现登录抽屉（登录态已注入）')
 
         # 回归：地图控件曾引用 locale 里不存在的 explory.controls.*，导致 title 漏出原始 key
         t = page.get_attribute('[data-testid="map-control-locate"]', 'title')
@@ -228,6 +260,51 @@ def run_locale_routes(base: str, shots: str, headed: bool) -> int:
     return len(rep.failures)
 
 
+def run_legacy_migration(base: str, shots: str, headed: bool) -> int:
+    """升级兼容回归：旧版直接写在 localStorage 的形态必须被搬进 persist 信封。
+
+    搬不动的后果：所有已登录用户升级后被登出，已关过的公告/引导重新弹出。
+    等这个 shim 下线后可一并删除本套件。
+    """
+    rep = Report()
+    print('\n[7] 旧存储格式迁移（升级兼容）')
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=not headed)
+        ctx = browser.new_context(viewport={'width': 390, 'height': 844}, locale='zh-CN')
+        ctx.add_init_script(LEGACY_SEED_JS)
+        ctx.add_init_script(NO_REACT_SCAN_JS)
+        page = ctx.new_page()
+        page.route(API_RE, on_api_request)
+        page.goto(f'{base}/zh-CN/', wait_until='domcontentloaded', timeout=60000)
+        page.wait_for_selector('[data-testid="map-menu-upload"]', timeout=40000)
+        page.wait_for_timeout(int(os.environ.get('E2E_SETTLE_MS', '4000')))
+
+        got = page.evaluate('''() => {
+          const legacy = ['locusify:version', 'locusify:help-seen', 'locusify:feedback-last-shown'];
+          return {
+            tokens: localStorage.getItem('locusify-tokens'),
+            ui: localStorage.getItem('locusify-ui'),
+            legacyLeft: legacy.filter(k => localStorage.getItem(k) !== null),
+            drawers: document.querySelectorAll('.ant-drawer').length,
+          };
+        }''')
+
+        tokens = json.loads(got['tokens'] or '{}')
+        ui = json.loads(got['ui'] or '{}')
+        rep.check(tokens.get('state', {}).get('accessToken') == 'legacy-access',
+                  '旧的扁平 token 已搬进 persist 信封', got['tokens'] or '(空)')
+        rep.check(ui.get('state', {}).get('helpSeen') is True, 'help-seen 已搬移')
+        rep.check(ui.get('state', {}).get('announcementSeenVersion') == 'legacy-version-sentinel',
+                  '公告已读版本已搬移', str(ui.get('state', {}).get('announcementSeenVersion')))
+        rep.check(ui.get('state', {}).get('feedbackLastShown') == 1750000000000,
+                  '反馈时间戳已搬移', str(ui.get('state', {}).get('feedbackLastShown')))
+        rep.check(got['legacyLeft'] == [], '旧裸 key 已清理', str(got['legacyLeft']))
+        rep.check(got['drawers'] == 0, '旧 token 生效，未弹登录抽屉', f"实际 {got['drawers']}")
+        page.screenshot(path=f'{shots}/06-legacy-migration.png')
+        browser.close()
+    return len(rep.failures)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description='Locusify 主流程 E2E')
     ap.add_argument('--base', default=os.environ.get('BASE', 'http://localhost:1050'))
@@ -244,6 +321,7 @@ def main() -> int:
     os.makedirs(args.shots, exist_ok=True)
     failed = run(args.base, args.shots, fixtures, args.headed)
     failed += run_locale_routes(args.base, args.shots, args.headed)
+    failed += run_legacy_migration(args.base, args.shots, args.headed)
     if failed:
         print(f'\n✗ 共 {failed} 项断言失败')
         return 1
