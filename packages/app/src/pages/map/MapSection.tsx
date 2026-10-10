@@ -15,6 +15,7 @@ import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
+import { useUiStore } from '@/stores/uiStore'
 import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
 import { MapMenuButton } from './components/MapMenuButton'
@@ -23,11 +24,8 @@ import { PortraitLockOverlay } from './components/replay/PortraitLockOverlay'
 import { ReplayIntroOverlay } from './components/replay/ReplayIntroOverlay'
 import { TrajectoryOverlay } from './components/TrajectoryOverlay'
 import {
-  ANNOUNCEMENT_STORAGE_KEY,
   ANNOUNCEMENT_VERSION,
   FEEDBACK_INTERVAL_MS,
-  FEEDBACK_STORAGE_KEY,
-  HELP_SEEN_STORAGE_KEY,
 } from './constants'
 import { buildPhotosForManualPlacement } from './manualPlacement'
 import { getInitialViewStateForMarkers } from './utils'
@@ -123,21 +121,25 @@ function MapSectionContent() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [pricingOpen, setPricingOpen] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(() => localStorage.getItem(HELP_SEEN_STORAGE_KEY) !== 'true')
+  const markAnnouncementSeen = useUiStore(s => s.markAnnouncementSeen)
+  const markHelpSeen = useUiStore(s => s.markHelpSeen)
+  const markFeedbackShown = useUiStore(s => s.markFeedbackShown)
+
+  const [helpOpen, setHelpOpen] = useState(() => !useUiStore.getState().helpSeen)
   const [showHelpHint, setShowHelpHint] = useState(false)
   const [routeReadyPromptOpen, setRouteReadyPromptOpen] = useState(false)
   const [demoLoading, setDemoLoading] = useState(false)
   const [loginDrawerOpen, setLoginDrawerOpen] = useState(() => !user)
   const [announcementOpen, setAnnouncementOpen] = useState(
-    () => localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) !== ANNOUNCEMENT_VERSION,
+    () => useUiStore.getState().announcementSeenVersion !== ANNOUNCEMENT_VERSION,
   )
   const [feedbackOpen, setFeedbackOpen] = useState(() => {
-    const last = localStorage.getItem(FEEDBACK_STORAGE_KEY)
-    if (!last) {
-      localStorage.setItem(FEEDBACK_STORAGE_KEY, String(Date.now()))
+    const last = useUiStore.getState().feedbackLastShown
+    if (last === null) {
+      markFeedbackShown()
       return false
     }
-    return Date.now() - Number(last) >= FEEDBACK_INTERVAL_MS
+    return Date.now() - last >= FEEDBACK_INTERVAL_MS
   })
 
   // Context menu state
@@ -200,9 +202,9 @@ function MapSectionContent() {
   }, [exitReplay, exitOrbit, exitRecording])
 
   const handleDismissAnnouncement = useCallback(() => {
-    localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, ANNOUNCEMENT_VERSION)
+    markAnnouncementSeen(ANNOUNCEMENT_VERSION)
     setAnnouncementOpen(false)
-  }, [])
+  }, [markAnnouncementSeen])
 
   const closeMenuDrawers = useCallback(() => {
     setUploadDrawerOpen(false)
@@ -266,9 +268,9 @@ function MapSectionContent() {
   }, [closeMenuDrawers])
 
   const handleCloseHelp = useCallback(() => {
-    localStorage.setItem(HELP_SEEN_STORAGE_KEY, 'true')
+    markHelpSeen()
     setHelpOpen(false)
-  }, [])
+  }, [markHelpSeen])
 
   const handleHelpSelectPhotos = useCallback(() => {
     setHelpOpen(false)
@@ -291,9 +293,9 @@ function MapSectionContent() {
   }, [closeMenuDrawers])
 
   const handleDismissFeedback = useCallback(() => {
-    localStorage.setItem(FEEDBACK_STORAGE_KEY, String(Date.now()))
+    markFeedbackShown()
     setFeedbackOpen(false)
-  }, [])
+  }, [markFeedbackShown])
 
   const handleMapContextMenu = useCallback((e: MapLayerMouseEvent) => {
     if (contextMenuPos)
