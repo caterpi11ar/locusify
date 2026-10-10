@@ -76,20 +76,23 @@ pnpm e2e                # Run E2E (see e2e/README.md)
 E2E lives in `e2e/` and is driven by the `webapp-testing` skill
 (`.agents/skills/webapp-testing`, Playwright + Python). See `e2e/README.md` for the full guide.
 
-Before writing or debugging any E2E script, know these five traps:
+Before writing or debugging any E2E script, know these six traps:
 
 1. **Never call `wait_for_load_state('networkidle')`** — MapLibre streams tiles from
    `tiles.basemaps.cartocdn.com` and `/_vercel/speed-insights/script.js` 404-retries forever,
    so it always times out. Wait for explicit elements instead.
-2. **`#react-scan-root` swallows all clicks in dev** — every `Locator.click()` fails with
+2. **A mounted `canvas` does not mean the map painted.** Vector tiles are fetched *and drawn*
+   asynchronously; screenshotting too early yields a flat, empty map while every assertion
+   still passes. Wait until `.mvt` responses stop growing.
+3. **`#react-scan-root` swallows all clicks in dev** — every `Locator.click()` fails with
    `intercepts pointer events`. Neutralize it: `#react-scan-root{pointer-events:none!important}`.
-3. **Auth gate needs seeding plus an API mock** — `initializeAuth()` calls `clearUser()`
+4. **Auth gate needs seeding plus an API mock** — `initializeAuth()` calls `clearUser()`
    when there is no token, so `/auth/me` must be mocked or the user is dropped.
-4. **Never hand-write `localStorage` in a test.** Seed state through `window.__locusify`
+5. **Never hand-write `localStorage` in a test.** Seed state through `window.__locusify`
    (dev-only, `src/lib/dev/testBridge.ts`). Writing the `{state, version}` envelope by hand
    duplicates the persist serialization format; the test then fails silently whenever a store
    changes its `name` / `version` / `partialize` / `migrate`.
-5. **Scope `page.route` to `/api/v1/`** — a `**/api/**` glob also captures `src/lib/api/*.ts`
+6. **Scope `page.route` to `/api/v1/`** — a `**/api/**` glob also captures `src/lib/api/*.ts`
    and breaks module loading.
 
 Use the `data-testid` hooks (`map-menu-upload`, `photo-file-input`, `route-create`, …) rather than

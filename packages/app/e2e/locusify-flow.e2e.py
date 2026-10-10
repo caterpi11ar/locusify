@@ -152,6 +152,10 @@ def run(base: str, shots: str, fixtures: list[str], headed: bool) -> int:
         page.on('console', lambda m: console_errors.append(m.text) if m.type == 'error' else None)
         page.on('pageerror', lambda e: page_errors.append(str(e)))
 
+        # 记录矢量瓦片响应，用来判断地图加载已经在收敛
+        tile_hits = []
+        page.on('response', lambda r: tile_hits.append(r.url) if '.mvt' in r.url and r.ok else None)
+
         def on_request(route):
             return on_api_request(route)
 
@@ -161,13 +165,22 @@ def run(base: str, shots: str, fixtures: list[str], headed: bool) -> int:
         print('\n[0] 预置登录态与弹层开关（经 store 写入，不手写 localStorage）')
         seed_via_stores(page, base, rep)
 
-        # --- 1. 打开地图 ---
+        # --- 1. 打开地图 ---（seed_via_stores 已 reload 到 /zh-CN/，不再重复导航）
         print('[1] 打开地图')
-        page.goto(f'{base}/zh-CN/', wait_until='domcontentloaded', timeout=60000)
         # 不用 networkidle；且 canvas 要等 attached（默认 visible 会因 Splash 超时）
         page.wait_for_selector('canvas', state='attached', timeout=40000)
         page.wait_for_selector('[data-testid="map-menu-upload"]', timeout=30000)
-        rep.check(True, '地图与菜单已渲染')
+        # 只等 canvas 挂上是不够的：MapLibre 异歩拉矢量瓦片 *并且异歩绘制*，
+        # 刚拿到瓦片时截图会得到一张纯色空地图，而断言照样通过。
+        # 等到 .mvt 响应数不再增长，说明这一轮加载已经稳定。
+        waited, last_count, stable_ms = 0, 0, 0
+        while waited < 45000 and stable_ms < 1500:
+            page.wait_for_timeout(300)
+            waited += 300
+            count = len(tile_hits)
+            stable_ms = stable_ms + 300 if count and count == last_count else 0
+            last_count = count
+        rep.check(bool(tile_hits), '地图已拉取矢量瓦片', f'{len(tile_hits)} 个 .mvt 响应，用时 {waited}ms')
         rep.check(page.locator('.ant-drawer').count() == 0, '未出现登录抽屉（登录态已注入）')
 
         # 回归：地图控件曾引用 locale 里不存在的 explory.controls.*，导致 title 漏出原始 key
