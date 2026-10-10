@@ -36,9 +36,15 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'locusify-settings',
       storage: createJSONStorage(() => platformStorage),
       onRehydrateStorage: () => (state) => {
-        if (state?.language) {
-          i18n.changeLanguage(state.language)
-        }
+        if (!state?.language)
+          return
+        // 语言以 URL 为准：/en/ 和 /zh-CN/ 由路由 loader 设置（见 routers/index.tsx），
+        // 持久化的用户偏好不能覆盖它。否则全新访客访问 /zh-CN/ 会被默认的 'en' 顶掉，
+        // 而老用户带着 zh-CN 偏好访问 /en/ 又会看到中文，两条语言路由都形同虚设。
+        const { pathname } = window.location
+        if (pathname === '/en/' || pathname === '/zh-CN/')
+          return
+        i18n.changeLanguage(state.language)
       },
     },
   ),

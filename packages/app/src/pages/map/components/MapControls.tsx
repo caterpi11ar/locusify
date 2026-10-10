@@ -71,6 +71,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleZoomIn}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.in')}
+          aria-label={t('explory.controls.zoom.in')}
+          data-testid="map-control-zoom-in"
         >
           <i className="i-mingcute-add-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -84,6 +86,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleZoomOut}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.out')}
+          aria-label={t('explory.controls.zoom.out')}
+          data-testid="map-control-zoom-out"
         >
           <i className="i-mingcute-minimize-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -96,6 +100,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleCompass}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.compass')}
+          aria-label={t('explory.controls.compass')}
+          data-testid="map-control-compass"
         >
           <i className="i-mingcute-navigation-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -108,6 +114,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleGeolocate}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.locate')}
+          aria-label={t('explory.controls.locate')}
+          data-testid="map-control-locate"
         >
           <i className="i-mingcute-location-fill text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
