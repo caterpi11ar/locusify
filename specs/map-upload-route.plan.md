@@ -37,6 +37,11 @@ Locusify(`packages/app`)是一个浏览器端 GPS 照片地图工具:读取照�
 - 步骤:经 `window.__locusify.signIn()` 写入 token 后 reload
 - expect: `map-menu-upload` 可见;`.ant-drawer` 数量为 0
 
+### a4-real-signin — 真实账号登录
+- 步骤:`POST /auth/signin`(真凭据,经 vite proxy → 真实后端),token 经 bridge 写入后 reload
+- expect: `/auth/me`、`/profile`、`/subscriptions` 均 200;无登录抽屉
+- 工具:`pnpm verify:auth`(凭据从仓库外 `~/.locusify-test-account` 读)
+
 ## B. 状态矩阵(每个页面/组件四态)
 
 ### b1-map-loading — 地图 loading
@@ -117,7 +122,9 @@ Locusify(`packages/app`)是一个浏览器端 GPS 照片地图工具:读取照�
 
 | 项 | 原因 |
 |---|---|
-| 需要真实账号的登录链路(OTP/signin) | 无私钥/邮箱验证码通道,等待提供 `~/.locusify-test-account` |
-| 轨迹回放 / MP4 导出 | 依赖真实浏览器编码器,headless 下不确定 |
+| 写操作(signup/feedback/redeem) | `api.locusify.cn` 疑为生产环境,未获授权不做写入 |
 | 越权 / 角色差异 | 后端只有单一 free 计划,无多角色模型 |
-| 写操作(signup/feedback/redeem) | `api.locusify.cn` 疑为生产环境,未获授权前不做写入 |
+| 轨迹回放 / MP4 导出 | 依赖 headless 下能力不确定的编码器 |
+| 超量上传 / 非图片 / 重复提交 | 计划中已列出(d1/d2/c3/c4),尚未实现 |
+
+> 真实账号登录已于本轮补齐:`pnpm verify:auth` 13/13 通过。
