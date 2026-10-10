@@ -8,7 +8,12 @@ export function renderApp(root: Root) {
   root.render(
     <QueryClientProvider client={reactQueryClient}>
       <App />
-      <SpeedInsights />
+      {/*
+       * Speed Insights 的脚本由 Vercel 注入（/_vercel/speed-insights/script.js）。
+       * 本地、自托管或任何非 Vercel 环境都拿不到它，会稳定产生一条 404 +
+       * 一条 ERR_ABORTED，污染控制台。只在真的跑在 Vercel 上时才挂载。
+       */}
+      {import.meta.env.VERCEL && <SpeedInsights />}
     </QueryClientProvider>,
   )
 }
