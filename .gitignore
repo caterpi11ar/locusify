@@ -30,3 +30,6 @@ artifacts/
 
 # Midscene 视觉验证产物
 midscene_run/
+
+# 验收 harness 的鉴权产物
+tools/verify/.token
