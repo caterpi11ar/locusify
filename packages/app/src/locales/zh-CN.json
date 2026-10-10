@@ -107,6 +107,8 @@
   "explory.controls.zoom.out": "缩小",
   "explory.controls.compass": "重置朝向为正北",
   "explory.controls.locate": "定位到我的位置",
+  "explory.location.denied": "定位权限被拒绝。请在浏览器设置中开启后重试。",
+  "explory.location.unavailable": "无法获取你的位置，请稍后重试。",
   "photos.select.title": "选择照片",
   "photos.select.description": "选择照片添加到地图",
   "photos.select.photos": "选择您的照片",

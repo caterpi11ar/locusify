@@ -5,7 +5,7 @@ import type { PhotoMarker } from '@/types/map'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Map from 'react-map-gl/maplibre'
-import { getCurrentPosition } from '@/lib/geolocation'
+import { getCurrentPosition, isGeolocationGranted } from '@/lib/geolocation'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { useMapStore } from '@/stores/mapStore'
 import { useRegionStore } from '@/stores/regionStore'
@@ -101,24 +101,38 @@ export function Maplibre({
     )
   }, [updateFragmentMode])
 
-  // Get user's geolocation on mount to set initial view
+  // Get user's geolocation on mount to set initial view.
+  // 仅在用户此前已授权时自动定位：否则首屏就会弹浏览器权限框打断用户，
+  // 而且一旦被拒必然抛错（只是噪音，因为用户根本没请求过定位）。
   useEffect(() => {
-    getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000,
-    }).then((position) => {
-      const { longitude, latitude } = position.coords
-      setCurrentLocation({ longitude, latitude })
-      setViewState({
-        longitude,
-        latitude,
-        zoom: 14,
-      })
-      setCurrentZoom(14)
-    }).catch((error) => {
-      console.warn('Geolocation error:', error)
-    })
+    let cancelled = false
+    void (async () => {
+      if (!(await isGeolocationGranted()))
+        return
+      try {
+        const position = await getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        })
+        if (cancelled)
+          return
+        const { longitude, latitude } = position.coords
+        setCurrentLocation({ longitude, latitude })
+        setViewState({
+          longitude,
+          latitude,
+          zoom: 14,
+        })
+        setCurrentZoom(14)
+      }
+      catch {
+        // 已授权仍失败（超时 / 取不到信号）不可恢复，静默退回默认视野
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const handleGeolocate = useCallback((longitude: number, latitude: number) => {

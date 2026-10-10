@@ -2,7 +2,8 @@ import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 
 import { useMap } from 'react-map-gl/maplibre'
-import { getCurrentPosition } from '@/lib/geolocation'
+import { toast } from 'sonner'
+import { getCurrentPosition, isPermissionDenied } from '@/lib/geolocation'
 import { cn, glassPanel } from '@/lib/utils'
 import { useRegionStore } from '@/stores/regionStore'
 
@@ -51,7 +52,16 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
       }
       onGeolocate?.(longitude, latitude)
     }).catch((error) => {
-      console.warn('Geolocation error:', error)
+      // 用户自己拒绝时给明确反馈，而不是只往控制台写一行 warn 让用户一脸茫然
+      if (isPermissionDenied(error)) {
+        toast.error(t('explory.location.denied', {
+          defaultValue: 'Location permission denied. Enable it in your browser settings to use this.',
+        }))
+        return
+      }
+      toast.error(t('explory.location.unavailable', {
+        defaultValue: 'Could not determine your location. Please try again.',
+      }))
     })
   }
 

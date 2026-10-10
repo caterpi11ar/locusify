@@ -107,6 +107,8 @@
   "explory.controls.zoom.out": "Zoom out",
   "explory.controls.compass": "Reset bearing to north",
   "explory.controls.locate": "Show my location",
+  "explory.location.denied": "Location permission denied. Enable it in your browser settings to use this.",
+  "explory.location.unavailable": "Could not determine your location. Please try again.",
   "photos.select.title": "Select Photos",
   "photos.select.description": "Select photos to add to the map",
   "photos.select.photos": "Select Your Photos",
