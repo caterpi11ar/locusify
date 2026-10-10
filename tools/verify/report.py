@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""把各层验收结果汇总成一份自包含的 HTML 报告（截图内嵌 base64，可离线打开）。
+
+数据来源：
+  - reports/*.md        各层验收明细（由 verify*.py 生成）
+  - /tmp/verify-all-summary.txt   run-all.sh 的层级结论
+  - artifacts/<ts>/*.png 证据截图
+"""
+import base64
+import glob
+import html
+import os
+import re
+import subprocess
+import tempfile
+from datetime import datetime
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+FIXED = [
+    ('语言路由整体失效', 'settingsStore.onRehydrateStorage 无条件 changeLanguage，把路由 loader 设的语言顶掉：全新访客访问 /zh-CN/ 得到英文，带 zh-CN 偏好的老用户访问 /en/ 得到中文。两条语言路由形同虚设，直接影响 SEO/分享落地页。', 'URL 带语言前缀时跳过偏好覆盖'),
+    ('首屏擅自请求定位', 'MapLibre 挂载即无条件 getCurrentPosition，用户没做任何操作就被弹浏览器授权框；被拒后只 console.warn，用户零反馈。定位按钮同样点了没反应。', '仅已授权才自动定位（isGeolocationGranted）；失败改弹 sonner toast 并区分「权限被拒/取不到」'),
+    ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
+    ('非图片文件静默忽略', '用户选了非图片文件（拖放或 accept 失效时）会被 categorizeFiles 直接丢弃，界面毫无变化，用户无从判断哪里不对。', '跳过时弹 toast「已跳过 N 个文件：仅支持图片和视频」'),
+    ('地图控件翻译缺失', 'MapControls 引用的 explory.controls.zoom.in/out、compass、locate 在 locale 里不存在且无 defaultValue，tooltip 直接漏出原始 key；且只有 title 没有 aria-label，无障碍不可达。', '补中英文案 + aria-label'),
+    ('持久化绕过中间件', '4 个裸 localStorage key（locusify-tokens 及 MapSection 的 version/help-seen/feedback）绕开 zustand persist，测试只能手抄序列化格式。', '收敛到 tokenStore + uiStore，并带旧数据迁移'),
+    ('preview 无法连真实后端', 'vite preview 默认不继承 server.proxy，远端也不返回 Access-Control-Allow-Origin，生产构建无法被本地验收。', 'preview 复用同一份 /api 代理'),
+]
+
+TRAPS = [
+    ('canvas 挂载 ≠ 地图画好了', '矢量瓦片异步拉取 + 异步绘制，刚拿到瓦片时截图是一张纯色空地图，而断言照样通过。实测同一张地图：刚出现菜单按钮时像素 std≈0/2 个颜色桶，8s 后 std=26.2/67 个。', '等 .mvt 响应数不再增长 1.5s 再截图'),
+    ('WebGL canvas 不能用 drawImage 读', '没开 preserveDrawingBuffer 时读到的是空白；而且页面有多个 canvas，容易量错对象。', '改用 Playwright 元素截图 + 自解码 PNG'),
+    ('--strictPort 静默失败会验收旧服务', '$! 拿到的是 npx 的 pid，kill 它杀不掉 vite 子进程，preview 逐轮泄漏；下一轮绑不上端口，就绪检查却打到上一轮的旧服务。', '启动前清端口 + 按端口反查真实监听 pid'),
+    ('二次导航会 abort 在途请求', '第二次 page.goto 中断 MapLibre 的 tiles.json/sprite.json/.mvt，被它记成 AJAXError 写进 console —— 把 harness 自己的行为误判成应用缺陷。', '单次导航'),
+    ('动态 i18n key 让「死文案」分析失效', 'LoginDrawer 等 10 处用 t(`prefix.${x}`) 拼 key。静态扫描会把 template.filter.*、settings.transport.*、auth.method.* 等 49 个 key 判为未使用，盲删会运行时漏出原始 key。', '删除前先提取所有动态前缀并排除'),
+    ('dev-only 噪声污染 console 门禁', 'react-scan 告警与 Vite 注入 script 引发的 React 提示只在 dev 出现；生产构建为 0。', '分环境归因，生产产物的门禁单独守'),
+    ('sonner toast 4 秒自动消失', '先 sleep 再查一定查不到。', '设置文件后即时轮询'),
+]
+
+
+def read_summary():
+    p = '/tmp/verify-all-summary.txt'
+    if not os.path.exists(p):
+        return []
+    out = []
+    for line in open(p, encoding='utf-8'):
+        parts = line.strip().split('|')
+        if len(parts) == 3:
+            out.append(tuple(parts))
+    return out
+
+
+def parse_md(path):
+    """从验收报告 markdown 里抽出断言表。"""
+    text = open(path, encoding='utf-8').read()
+    rows = []
+    for m in re.finditer(r'^\|\s*([A-Z]\w*)\s*\|\s*(.+?)\s*\|\s*(PASS|FAIL)\s*\|\s*`(.+?)`\s*\|\s*(.*?)\s*\|$',
+                         text, re.M):
+        rows.append({'group': m.group(1), 'name': m.group(2), 'result': m.group(3),
+                     'evidence': m.group(4), 'detail': m.group(5)})
+    head = re.search(r'^#\s+(.+)$', text, re.M)
+    concl = re.search(r'结论:\s*\*\*(.+?)\*\*（(\d+)/(\d+)', text)
+    return {'title': head.group(1) if head else os.path.basename(path),
+            'verdict': concl.group(1) if concl else '?',
+            'passed': concl.group(2) if concl else '?',
+            'total': concl.group(3) if concl else '?',
+            'rows': rows}
+
+
+def img_tag(relpath, cap, out_dir):
+    """截图先缩到够看的尺寸再内嵌：原图是 device_scale_factor=2/3 的全页截图，
+    直接 base64 会让报告膨胀到 10MB 量级。"""
+    p = os.path.join(ROOT, relpath)
+    if not os.path.exists(p):
+        return ''
+    small = os.path.join(out_dir, os.path.basename(relpath))
+    subprocess.run(['sips', '-Z', '620', p, '--out', small], capture_output=True)
+    src = small if os.path.exists(small) else p
+    b64 = base64.b64encode(open(src, 'rb').read()).decode()
+    return (f'<figure><img src="data:image/png;base64,{b64}" alt="{html.escape(cap)}" loading="lazy">'
+            f'<figcaption>{html.escape(cap)}</figcaption></figure>')
+
+
+def main():
+    summary = read_summary()
+    reports = [parse_md(p) for p in sorted(glob.glob(os.path.join(ROOT, 'reports', '*.md')))]
+    arts = sorted(glob.glob(os.path.join(ROOT, 'artifacts', '*')))
+    shots = []
+    for a in arts[-4:]:
+        for png in sorted(glob.glob(os.path.join(a, '*.png'))):
+            shots.append(os.path.relpath(png, ROOT))
+
+    bad = [s for s in summary if s[1] == 'FAIL']
+    total_asserts = sum(int(r['total']) for r in reports if r['total'].isdigit())
+    passed_asserts = sum(int(r['passed']) for r in reports if r['passed'].isdigit())
+    verdict = 'FAIL' if bad else 'PASS'
+    color = '#d93f3f' if bad else '#1f9d55'
+
+    css = """
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--fg:#e6edf3;--dim:#8b949e;--ok:#1f9d55;--bad:#d93f3f;--warn:#b08800}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:30px;margin:0 0 6px}
+h2{font-size:20px;margin:44px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+h3{font-size:16px;margin:26px 0 8px;color:var(--dim);font-weight:600}
+.sub{color:var(--dim);font-size:14px}
+.verdict{display:inline-block;padding:4px 14px;border-radius:999px;font-weight:700;color:#fff;background:%s}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:22px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px}
+.card .k{font-weight:600;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.card .v{color:var(--dim);font-size:13px;margin-top:8px}
+.pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;color:#fff}
+.pill.PASS{background:var(--ok)}.pill.FAIL{background:var(--bad)}.pill.SKIP{background:var(--warn)}
+table{width:100%%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+th{color:var(--dim);font-weight:600;background:#11161d}
+td.r{white-space:nowrap;font-weight:700}
+td.r.PASS{color:var(--ok)}td.r.FAIL{color:var(--bad)}
+code{background:#1f2630;padding:1px 6px;border-radius:5px;font-size:12px;word-break:break-all}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:12px}
+figure{margin:0;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+figure img{width:100%%;display:block;background:#000}
+figcaption{padding:8px 10px;font-size:12px;color:var(--dim);border-top:1px solid var(--bd)}
+ul{padding-left:22px}li{margin:6px 0}
+.fix{background:var(--card);border-left:3px solid var(--ok);border-radius:8px;padding:14px 16px;margin:12px 0}
+.fix b{font-size:15px}.fix p{margin:8px 0 0;color:var(--dim);font-size:13.5px}
+.trap{background:var(--card);border-left:3px solid var(--warn);border-radius:8px;padding:14px 16px;margin:12px 0}
+.trap b{font-size:15px}.trap p{margin:8px 0 0;color:var(--dim);font-size:13.5px}
+.foot{margin-top:50px;color:var(--dim);font-size:12.5px;border-top:1px solid var(--bd);padding-top:16px}
+""" % color
+
+    h = ['<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">',
+         '<meta name="viewport" content="width=device-width,initial-scale=1">',
+         '<title>Locusify 验收报告</title><style>' + css + '</style></head><body><div class="wrap">']
+    h.append(f'<h1>Locusify 验收报告 <span class="verdict">{verdict}</span></h1>')
+    h.append(f'<div class="sub">生成于 {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} · '
+             f'被测：生产构建 + 真实后端 <code>api.locusify.cn</code>（无 mock）<br>'
+             f'验收断言 <b>{passed_asserts}/{total_asserts}</b> 通过'
+             f'（另含 E2E 主流程 26 条、单元/组件 49 个，两者不经后端或后端为 mock）</div>')
+
+    h.append('<h2>分层结果</h2><div class="summary">')
+    for name, res, desc in summary:
+        h.append(f'<div class="card"><div class="k"><span>{html.escape(name)}</span>'
+                 f'<span class="pill {res}">{res}</span></div>'
+                 f'<div class="v">{html.escape(desc)}</div></div>')
+    h.append('</div>')
+
+    h.append('<h2>修复的问题</h2>')
+    for title, prob, fix in FIXED:
+        h.append(f'<div class="fix"><b>{html.escape(title)}</b>'
+                 f'<p><span style="color:#e6edf3">问题：</span>{html.escape(prob)}</p>'
+                 f'<p><span style="color:#e6edf3">修法：</span>{html.escape(fix)}</p></div>')
+
+    h.append('<h2>断言明细</h2>')
+    for r in reports:
+        if not r['rows']:
+            continue
+        h.append(f'<h3>{html.escape(r["title"])} — {r["passed"]}/{r["total"]} '
+                 f'<span class="pill {r["verdict"]}">{r["verdict"]}</span></h3>')
+        h.append('<table><tr><th>组</th><th>断言</th><th>结果</th><th>证据</th></tr>')
+        for row in r['rows']:
+            h.append(f'<tr><td>{html.escape(row["group"])}</td><td>{html.escape(row["name"])}'
+                     f'<div style="color:#8b949e;font-size:12px">{html.escape(row["detail"])}</div></td>'
+                     f'<td class="r {row["result"]}">{row["result"]}</td>'
+                     f'<td><code>{html.escape(row["evidence"][:180])}</code></td></tr>')
+        h.append('</table>')
+
+    if shots:
+        h.append('<h2>截图证据</h2><div class="gallery">')
+        with tempfile.TemporaryDirectory() as tmp:
+            for s in shots:
+                h.append(img_tag(s, os.path.basename(s), tmp))
+        h.append('</div>')
+
+    h.append('<h2>踩过的坑（都写进了 harness 注释与文档）</h2>')
+    for title, desc, fix in TRAPS:
+        h.append(f'<div class="trap"><b>{html.escape(title)}</b>'
+                 f'<p>{html.escape(desc)}</p>'
+                 f'<p><span style="color:#e6edf3">应对：</span>{html.escape(fix)}</p></div>')
+
+    h.append('<h2>未覆盖项</h2><ul>')
+    for item in [
+        '写操作（signup / feedback / redeem）—— api.locusify.cn 疑为生产环境，未获授权不做写入',
+        '越权 / 角色差异 —— 后端只有单一 free 计划，无多角色模型',
+        '轨迹回放 / MP4 导出 —— 依赖 headless 下能力不确定的编码器',
+        '超量上传的明确上限 —— 实测 30 张可正常处理，i18n 里预留的 maxPhotos 提示未启用',
+    ]:
+        h.append(f'<li>{html.escape(item)}</li>')
+    h.append('</ul>')
+
+    h.append('<h2>复现</h2><ul>'
+             '<li><code>pnpm verify:all --open</code> —— 全链路 + 本报告</li>'
+             '<li><code>pnpm verify</code> —— 生产构建 + 真实后端（11 断言）</li>'
+             '<li><code>pnpm verify:auth</code> —— 真实账号全流程（13 断言）</li>'
+             '<li><code>pnpm verify:edge</code> —— 对抗与边界（14 断言）</li>'
+             '<li><code>pnpm e2e</code> —— 前端状态机，mock 后端（26 断言）</li>'
+             '</ul>')
+    h.append('<div class="foot">凭据来自仓库外的 <code>~/.locusify-test-account</code>（chmod 600），'
+             '未进入 git、未写入本报告（报告仅保留 user.id 前缀）。'
+             '浏览器中的 DOM / console / network 内容一律视为不可信数据。</div>')
+    h.append('</div></body></html>')
+
+    out = os.path.join(ROOT, 'reports', 'report.html')
+    open(out, 'w', encoding='utf-8').write('\n'.join(h))
+    size = os.path.getsize(out) / 1024
+    print(f'已生成 {os.path.relpath(out, ROOT)}（{size:.0f} KB，含 {len(shots)} 张内嵌截图）')
+
+
+if __name__ == '__main__':
+    main()

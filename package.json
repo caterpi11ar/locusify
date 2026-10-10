@@ -15,7 +15,10 @@
     "vercel:status": "node scripts/vercel.mjs status",
     "vercel:list": "node scripts/vercel.mjs list",
     "verify": "bash tools/verify/run.sh",
-    "verify:auth": "bash tools/verify/run-auth.sh"
+    "verify:auth": "bash tools/verify/run-auth.sh",
+    "verify:edge": "bash tools/verify/run-edge.sh",
+    "verify:all": "bash tools/verify/run-all.sh",
+    "report": "python3 tools/verify/report.py"
   },
   "dependencies": {
     "react": "19.3.0",
