@@ -209,6 +209,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 items-center justify-center transition-colors"
             title={t('menu.toggle', { defaultValue: 'Menu' })}
+            data-testid="map-menu-toggle"
           >
             <i
               className={cn('text-text size-5 transition-all duration-300 group-hover:scale-110 group-active:scale-95', isExpanded ? 'i-mingcute-close-line rotate-180' : 'i-mingcute-menu-line')}
@@ -319,6 +320,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
               }}
               className="group hover:bg-red/10 active:bg-red/20 relative flex size-10 items-center justify-center transition-colors"
               title={t('menu.upload', { defaultValue: 'Upload Photos' })}
+              data-testid="map-menu-upload"
             >
               <i className="i-mingcute-add-line text-red size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
             </button>
