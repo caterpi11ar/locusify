@@ -79,7 +79,9 @@ describe('getCurrentPosition', () => {
 
   it('forwards options and resolves with the position', async () => {
     const position = { coords: { longitude: 1, latitude: 2 } }
-    const getCurrentPositionSpy = vi.fn((resolve: (p: unknown) => void) => resolve(position))
+    const getCurrentPositionSpy = vi.fn(
+      (resolve: (p: unknown) => void, _reject?: unknown, _options?: unknown) => resolve(position),
+    )
     stubNavigator({ geolocation: { getCurrentPosition: getCurrentPositionSpy } })
 
     const options = { enableHighAccuracy: true, timeout: 10000 }
