@@ -23,6 +23,7 @@
     "budget": "node scripts/check-bundle-budget.mjs",
     "preview": "vite preview",
     "test": "vitest",
+    "e2e": "bash e2e/run.sh",
     "lint": "eslint --fix",
     "typecheck": "tsc -b --noEmit"
   },

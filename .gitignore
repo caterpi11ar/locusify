@@ -23,3 +23,6 @@ coverage/
 
 # Local reference checkout
 packages/app/lobehub/
+
+# E2E artifacts
+packages/app/e2e/shots/
