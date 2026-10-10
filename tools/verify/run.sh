@@ -86,8 +86,13 @@ if [[ "$VISION" == 1 ]]; then
   else
     ( cd "$ROOT" && set -a && . ./.env && set +a
       npx -y @midscene/web@1 connect --url "$BASE/zh-CN/" >/dev/null 2>&1
+      # connect 返回只代表导航完成。矢量瓦片是异歩绘制的，
+      # 立刻截图会得到一张空白地图，视觉断言必失败——同一个坑在 verify.py 里也踩过。
+      sleep 15
       npx -y @midscene/web@1 assert --prompt \
-        "页面是中文界面；地图区域能看到真实的街道和地名；因为未登录，所以屏幕上有一个登录面板" )
+        "页面是中文界面；地图区域能看到真实的街道和地名；因为未登录，所以屏幕上有一个登录面板"
+      # Midscene 的 Chrome 不会自己退出，不关就会一直攥着端口和内存
+      npx -y @midscene/web@1 close >/dev/null 2>&1 || true )
   fi
 fi
 

@@ -1,7 +1,7 @@
 # Locusify 验收报告 — 2026-10-10
 
 - 被测地址: `http://localhost:4173`（生产构建 `vite preview` + 真实后端 `api.locusify.cn`，无 mock）
-- 证据目录: `artifacts/20261010T091127Z`
+- 证据目录: `artifacts/20261010T091438Z`
 - 服务自检: `GET /api/v1/auth/me` → HTTP 401
 - 结论: **PASS**（11/11 断言通过）
 
@@ -10,26 +10,26 @@
 | 分组 | 断言 | 结果 | 证据 | 说明 |
 |---|---|---|---|---|
 | A | a1-boot-health: /api/v1/auth/me 返回 401 | PASS | `HTTP 401 (GET http://localhost:4173/api/v1/auth/me)` | 实际 401（000=没起来, 404=未注册） |
-| E | e1-locale-routes: /zh-CN/ 中文且 html lang 正确 | PASS | `artifacts/20261010T091127Z/e1-zh-CN.png | <html lang>=zh-CN | locate.title='定位到我的位置'` | lang=zh-CN title='定位到我的位置' |
+| E | e1-locale-routes: /zh-CN/ 中文且 html lang 正确 | PASS | `artifacts/20261010T091438Z/e1-zh-CN.png | <html lang>=zh-CN | locate.title='定位到我的位置'` | lang=zh-CN title='定位到我的位置' |
 | E | e2-seo-meta: canonical / hreflang / JSON-LD 齐全 | PASS | `canonical=https://app.locusify.cn/zh-CN/ hreflang=['en=https://app.locusify.cn/en/', 'zh-CN=https://app.locusify.cn/zh-CN/', 'x-default=https://app.locusify.cn/en/'] jsonld=2239B` | hreflang=3 jsonld=2239B |
-| B | b1-anonymous-gate: 匿名访问弹出登录抽屉 | PASS | `artifacts/20261010T091127Z/b1-anonymous-gate.png | .ant-drawer=1` | .ant-drawer=1 |
+| B | b1-anonymous-gate: 匿名访问弹出登录抽屉 | PASS | `artifacts/20261010T091438Z/b1-anonymous-gate.png | .ant-drawer=1` | .ant-drawer=1 |
 | B | b2-no-auth: 匿名不可见上传入口（门禁生效） | PASS | `map-menu-upload 节点数=0` | 0 |
 | G | g0-tiles-fetched: MapLibre 成功拉取矢量瓦片 | PASS | `12 个 .mvt 200（例: 396.mvt）` | 12 个 |
-| G | g1-visual-map: 地图中段有真实内容（非空白 canvas） | PASS | `artifacts/20261010T091127Z/g1-map-area.png | 2560x1800 mean=36.1 std=27.6 色桶=85` | std=27.6 色桶=85 |
+| G | g1-visual-map: 地图中段有真实内容（非空白 canvas） | PASS | `artifacts/20261010T091438Z/g1-map-area.png | 2560x1800 mean=36.1 std=27.6 色桶=85` | std=27.6 色桶=85 |
 | H | h1-console-clean: 无应用侧 error/warning | PASS | `console 总数=5 环境噪声=4 应用侧=0` | 无 |
 | H | h2-no-pageerror: 无未捕获异常 | PASS | `pageerror=0` | 无 |
-| B | b4-geo-denied: 拒绝定位时给出可读反馈 | PASS | `artifacts/20261010T091127Z/b4-geo-denied.png | [data-sonner-toast]="定位权限被拒绝。请在浏览器设置中开启后重试。"` | toast='定位权限被拒绝。请在浏览器设置中开启后重试。' |
+| B | b4-geo-denied: 拒绝定位时给出可读反馈 | PASS | `artifacts/20261010T091438Z/b4-geo-denied.png | [data-sonner-toast]="定位权限被拒绝。请在浏览器设置中开启后重试。"` | toast='定位权限被拒绝。请在浏览器设置中开启后重试。' |
 | B | b4b-geo-silent: 不再向 console 输出 geolocation warning | PASS | `含 Geolocation 的 console 消息=0` | [] |
 
 ## 证据文件
 
 ```
-artifacts/20261010T091127Z/b1-anonymous-gate.png
-artifacts/20261010T091127Z/b4-geo-denied.png
-artifacts/20261010T091127Z/console.json
-artifacts/20261010T091127Z/e1-zh-CN.png
-artifacts/20261010T091127Z/g1-map-area.png
-artifacts/20261010T091127Z/network.json
+artifacts/20261010T091438Z/b1-anonymous-gate.png
+artifacts/20261010T091438Z/b4-geo-denied.png
+artifacts/20261010T091438Z/console.json
+artifacts/20261010T091438Z/e1-zh-CN.png
+artifacts/20261010T091438Z/g1-map-area.png
+artifacts/20261010T091438Z/network.json
 ```
 
 ## 覆盖范围与缺口
