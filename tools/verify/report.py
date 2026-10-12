@@ -18,13 +18,19 @@ from datetime import datetime
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 FIXED = [
+    ('路线提示卡被底部工具栏遮住', '生成路线后弹出的「旅行路线已生成」卡片定位在 bottom-4 居中，而移动端左下角有一竖排快捷按钮（z-40，高 92px）；两者在 390px 屏上重叠 —— 实测工具栏 x 8..50、卡片主按钮 x 33..289，且 z-40 盖住 z-30 的卡片，把蓝色「开始轨迹回放」按钮的左边缘遮掉一截。', '移动端把卡片抬到工具栏之上（bottom-32，桌面保持 sm:bottom-6）。修复后交集面积为 0 px²，视觉复核「未被遮挡」'),
+    ('生成路线后相机不跟随照片', 'MapSection 传 autoFitBounds={false}，且没有任何其它机制移动相机。上传照片生成路线后，地图停在默认的旧金山视野，marker 落在屏幕外 —— 实测 bounding_box.x = -142475，即视口左侧 14 万像素。用户会以为「路线没生成」或「GPS 定位不对」。', '用 bounds 签名代替一次性 hasInitialFitCompleted 标记：坐标集合真变了才重新适配（不会因无关重渲染反复抢镜头、与用户平移打架）；回放/录制时不适配。修复后 marker 落在视口中心，地图显示东京都杉並区'),
     ('语言路由整体失效', 'settingsStore.onRehydrateStorage 无条件 changeLanguage，把路由 loader 设的语言顶掉：全新访客访问 /zh-CN/ 得到英文，带 zh-CN 偏好的老用户访问 /en/ 得到中文。两条语言路由形同虚设，直接影响 SEO/分享落地页。', 'URL 带语言前缀时跳过偏好覆盖'),
     ('首屏擅自请求定位', 'MapLibre 挂载即无条件 getCurrentPosition，用户没做任何操作就被弹浏览器授权框；被拒后只 console.warn，用户零反馈。定位按钮同样点了没反应。', '仅已授权才自动定位（isGeolocationGranted）；失败改弹 sonner toast 并区分「权限被拒/取不到」'),
+    ('移动端按钮文案被拆行', '上传预览态两个按钮用 px-8（两侧共 64px 内边距）+ 无 whitespace-nowrap，在 390px 屏上被挤成两行，而且拆在词中间：zh 是「重新选」/「择」、「生成旅行路线（4」/「张）」；en 是「Choose」/「Again」、「Create Route」/「(4)」。按钮高度也从 47px 被撜到 68px。', 'px-5 sm:px-8 + whitespace-nowrap + flex-wrap；两个语言下均恢复为单行、高度回到 47px'),
+    ('react-scan 常驻干扰交互与门禁', 'dev 下 react-scan 默认启动：注入 #react-scan-root 覆盖层拦截页面所有点击（任何 Locator.click() 都报 intercepts pointer events，测试必须额外注入 CSS），并自身产生 console 告警。', '改为显式开启（VITE_REACT_SCAN=1），并去掉它自己的 console.log'),
+    ('GA 脚本在 React 渲染期插入', 'main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 <script>，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。', '只在生产环境加载 GA；dev console 应用侧 error/warning 归零'),
     ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
     ('非图片文件静默忽略', '用户选了非图片文件（拖放或 accept 失效时）会被 categorizeFiles 直接丢弃，界面毫无变化，用户无从判断哪里不对。', '跳过时弹 toast「已跳过 N 个文件：仅支持图片和视频」'),
     ('地图控件翻译缺失', 'MapControls 引用的 explory.controls.zoom.in/out、compass、locate 在 locale 里不存在且无 defaultValue，tooltip 直接漏出原始 key；且只有 title 没有 aria-label，无障碍不可达。', '补中英文案 + aria-label'),
     ('持久化绕过中间件', '4 个裸 localStorage key（locusify-tokens 及 MapSection 的 version/help-seen/feedback）绕开 zustand persist，测试只能手抄序列化格式。', '收敛到 tokenStore + uiStore，并带旧数据迁移'),
     ('preview 无法连真实后端', 'vite preview 默认不继承 server.proxy，远端也不返回 Access-Control-Allow-Origin，生产构建无法被本地验收。', 'preview 复用同一份 /api 代理'),
+    ('73 个死 i18n key', 'locale 里 36% 的 key 从未被引用，其中 workspace.upload 整组 27 个还让我误判「校验已存在」。', '删除可证明不可达的 73 个（48.6KB → 39.6KB）'),
 ]
 
 TRAPS = [
@@ -35,6 +41,9 @@ TRAPS = [
     ('动态 i18n key 让「死文案」分析失效', 'LoginDrawer 等 10 处用 t(`prefix.${x}`) 拼 key。静态扫描会把 template.filter.*、settings.transport.*、auth.method.* 等 49 个 key 判为未使用，盲删会运行时漏出原始 key。', '删除前先提取所有动态前缀并排除'),
     ('dev-only 噪声污染 console 门禁', 'react-scan 告警与 Vite 注入 script 引发的 React 提示只在 dev 出现；生产构建为 0。', '分环境归因，生产产物的门禁单独守'),
     ('sonner toast 4 秒自动消失', '先 sleep 再查一定查不到。', '设置文件后即时轮询'),
+    ('getClientRects 数行数会误报', '直接对元素内容取 getClientRects().length，会把「图标 + 文字」算成多行，得出「分享」占 2 行这种荒谬结果；按 top 去重也仍会被图标与文字的几个像素垂直差干扰。', '只对文本节点按垂直中心分簇，容差取字号量级'),
+    ('fixture 说没有 GPS，可能只是工具没跑', '我用错 exiftool 路径，命令静默失败，却打印出「残留 GPS 标签: 0 个」—— 实际那张图仍然带着 GPS。', '断言前先确认工具可用，并用能反向验证的方式校验 fixture'),
+    ('CSS 选择器里的 : 在多层转义下会被吃棹', "模板里写 .sm\\\\:hidden，经 Python 字符串 → JS 字符串 → CSS 选择器三层转义后变成 .sm:hidden，报 invalid selector。", "改用元素关系定位（closest），不靠选择器转义"),
 ]
 
 
@@ -185,6 +194,7 @@ ul{padding-left:22px}li{margin:6px 0}
         '越权 / 角色差异 —— 后端只有单一 free 计划，无多角色模型',
         '轨迹回放 / MP4 导出 —— 依赖 headless 下能力不确定的编码器',
         '超量上传的明确上限 —— 实测 30 张可正常处理，i18n 里预留的 maxPhotos 提示未启用',
+        '相机跟随仅覆盖「坐标集合变化」；用户手动平移后再次新增照片会重新适配，是否符合预期需产品确认',
     ]:
         h.append(f'<li>{html.escape(item)}</li>')
     h.append('</ul>')

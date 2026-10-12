@@ -264,7 +264,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         {/* Select button */}
         <m.button
           type="button"
-          className="cursor-pointer rounded-full bg-blue-600 px-8 py-3 font-medium text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="cursor-pointer rounded-full bg-blue-600 px-5 py-3 font-medium whitespace-nowrap text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:px-8 dark:bg-blue-500 dark:hover:bg-blue-600"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -296,6 +296,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           <input
             type="checkbox"
             id="mock-metadata"
+            data-testid="mock-metadata-toggle"
             checked={useMockMetadata}
             onChange={e => setUseMockMetadata(e.target.checked)}
             className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"

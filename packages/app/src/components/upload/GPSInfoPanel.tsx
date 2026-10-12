@@ -166,7 +166,7 @@ export function GPSInfoPanel({
 
       {/* Action buttons */}
       <m.div
-        className="flex justify-center gap-4"
+        className="flex flex-wrap justify-center gap-3 sm:gap-4"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -174,7 +174,7 @@ export function GPSInfoPanel({
         <button
           type="button"
           className={cn(
-            'flex items-center gap-2 rounded-full border px-8 py-3 font-medium transition-all',
+            'flex items-center gap-2 rounded-full border px-5 py-3 font-medium whitespace-nowrap transition-all sm:px-8',
             'border-gray-300 bg-white text-gray-700',
             'hover:border-gray-400 hover:bg-gray-50',
             'dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
@@ -190,7 +190,7 @@ export function GPSInfoPanel({
           type="button"
           disabled={filesWithGPS.length === 0}
           className={cn(
-            'flex items-center gap-2 rounded-full px-8 py-3 font-medium text-white shadow-lg transition-all',
+            'flex items-center gap-2 rounded-full px-5 py-3 font-medium text-white whitespace-nowrap shadow-lg transition-all sm:px-8',
             filesWithGPS.length === 0
               ? 'cursor-not-allowed bg-gray-400 dark:bg-gray-600'
               : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600',

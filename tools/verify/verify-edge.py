@@ -30,6 +30,40 @@ NO_REACT_SCAN = (
     "document.head.appendChild(s);};i();document.addEventListener('DOMContentLoaded',i);})();"
 )
 
+# 只对文本节点按垂直中心分簇统计行数：
+# 直接对元素内容取 getClientRects() 会把「图标 + 文字」算成两行，产生误报。
+WRAP_DETECT = """
+() => {
+  const linesOf = (el) => {
+    let max = 0;
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) {
+      if (!n.textContent.trim()) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      const rects = [...rg.getClientRects()].filter(r => r.width > 0);
+      if (rects.length < 2) continue;
+      const fs = parseFloat(getComputedStyle(n.parentElement).fontSize) || 14;
+      const cs = rects.map(r => r.top + r.height / 2).sort((a, b) => a - b);
+      let k = 1;
+      for (let i = 1; i < cs.length; i++) if (cs[i] - cs[i-1] > fs * 0.7) k++;
+      max = Math.max(max, k);
+    }
+    return max;
+  };
+  const out = [];
+  for (const el of document.querySelectorAll('button, a, [role="button"], .ant-btn, h1, h2, h3, p')) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8 || el.children.length > 2) continue;
+    const t = (el.innerText || '').replace(/\\s+/g, ' ').trim();
+    if (!t || t.length > 70) continue;
+    const L = linesOf(el);
+    if (L > 1) out.push({ lines: L, w: Math.round(r.width), testid: el.getAttribute('data-testid') || '', text: t.slice(0, 60) });
+  }
+  return out;
+}
+"""
+
 
 class Evidence:
     def __init__(self, art):
@@ -236,6 +270,94 @@ def main():
                  f'{ev.shot(pg, "d3-api-down")} | body 文本长度={text_len} canvas={canvases}',
                  f'文本={text_len} canvas={canvases}')
         ev.check('D3', 'd3b-api-down-no-crash: 无未捕获异常', not errs, f'pageerror={len(errs)}',
+                 '; '.join(errs[:2]) or '无')
+        ctx.close()
+
+        # ---------- D4. 相机是否跟随照片（曾整批落在视野外） ----------
+        print('\n[D4] 生成路线后相机是否跟随照片')
+        ctx, pg, errs = fresh()
+        # 用 dev 的 mock GPS 开关，保证不依赖 EXIF 也能拿到确定坐标
+        open_drawer(pg)
+        pg.wait_for_selector('[data-testid="mock-metadata-toggle"]', timeout=20000)
+        pg.locator('[data-testid="mock-metadata-toggle"]').check()
+        pg.set_input_files('[data-testid="photo-file-input"]',
+                           os.path.join(args.edge_dir, 'no-gps.jpg'))
+        pg.wait_for_selector('[data-testid="route-create"]', timeout=30000)
+        pg.wait_for_timeout(1500)
+        mock_gps = pg.locator('.ant-drawer').get_by_text('GPS', exact=True).count()
+        ev.check('D4', 'd4-mock-gps: dev mock 开关能让无 GPS 图拿到坐标',
+                 mock_gps >= 1,
+                 f'mock 开启后 GPS 标记={mock_gps}（基线：关闭时为 0，见 c2）', f'{mock_gps}')
+        pg.click('[data-testid="route-create"]')
+        pg.wait_for_selector('.maplibregl-marker', timeout=30000)
+        pg.wait_for_timeout(6000)  # fitBounds 动画 800ms，留足余量
+        box = pg.locator('.maplibregl-marker').first.bounding_box()
+        vp = pg.viewport_size
+        inside = bool(box) and 0 <= box['x'] + box['width'] / 2 <= vp['width'] \
+            and 0 <= box['y'] + box['height'] / 2 <= vp['height']
+        ev.check('D4', 'd4-camera-follows: marker 落在视口内（相机已跟随）', inside,
+                 f'{ev.shot(pg, "d4-camera-follows")} | viewport={vp} marker={box}',
+                 f'box={box}')
+        ev.check('D4', 'd4b-no-crash: 无未捕获异常', not errs, f'pageerror={len(errs)}',
+                 '; '.join(errs[:2]) or '无')
+        ctx.close()
+
+        # ---------- D5. 移动端文案换行（曾把词拆成两行） ----------
+        print('\n[D5] 移动端按钮文案换行')
+        for loc in ('zh-CN', 'en'):
+            ctx2 = browser.new_context(viewport={'width': 390, 'height': 844}, locale=loc)
+            pg2 = ctx2.new_page()
+            pg2.add_init_script(NO_REACT_SCAN)
+            pg2.goto(f'{base}/{loc}/', wait_until='domcontentloaded', timeout=60000)
+            pg2.wait_for_function('() => !!window.__locusify', timeout=45000)
+            pg2.evaluate('([a, r]) => { window.__locusify.dismissOverlays(); window.__locusify.signIn(a, r) }',
+                         [tokens['access_token'], tokens['refresh_token']])
+            pg2.reload(wait_until='domcontentloaded', timeout=60000)
+            pg2.wait_for_selector('[data-testid="map-menu-upload"]', timeout=45000)
+            pg2.wait_for_timeout(3000)
+            open_drawer(pg2)
+            pg2.set_input_files('[data-testid="photo-file-input"]', good)
+            pg2.wait_for_selector('[data-testid="route-create"]', timeout=45000)
+            pg2.wait_for_timeout(2500)
+            wrapped = pg2.evaluate(WRAP_DETECT)
+            ev.check('D5', f'd5-no-text-wrap[{loc}]: 上传预览态无文案换行', not wrapped,
+                     f'{ev.shot(pg2, f"d5-no-wrap-{loc}")} | 换行元素={len(wrapped)}',
+                     '; '.join(f'{w["lines"]}行「{w["text"]}」' for w in wrapped[:3]) or '无')
+            ctx2.close()
+
+        # ---------- D6. 提示卡与底部工具栏是否重叠 ----------
+        print('\n[D6] 路线提示卡与移动端底部工具栏是否重叠')
+        ctx, pg, errs = fresh()
+        open_drawer(pg)
+        pg.set_input_files('[data-testid="photo-file-input"]', good)
+        pg.wait_for_selector('[data-testid="route-create"]', timeout=45000)
+        pg.wait_for_timeout(1200)
+        pg.click('[data-testid="route-create"]')
+        pg.wait_for_selector('.maplibregl-marker', timeout=45000)
+        pg.wait_for_timeout(4000)  # 等入场动画结束
+        geom = pg.evaluate("""() => {
+          const btn = [...document.querySelectorAll('button')]
+            .find(b => (b.innerText || '').includes('开始轨迹回放') || (b.innerText || '').includes('Start'));
+          const sec = btn && btn.closest('section');
+          // 用上传按钮向上找定位祖先，避开 CSS 选择器里转义冒号的坑
+          const up = document.querySelector('[data-testid="map-menu-upload"]');
+          const stack = up && up.closest('div.absolute');
+          const box = el => { if (!el) return null; const r = el.getBoundingClientRect();
+            return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; };
+          const a = box(sec), b = box(stack);
+          let overlap = 0;
+          if (a && b) {
+            const x = Math.max(0, Math.min(a[0]+a[2], b[0]+b[2]) - Math.max(a[0], b[0]));
+            const y = Math.max(0, Math.min(a[1]+a[3], b[1]+b[3]) - Math.max(a[1], b[1]));
+            overlap = x * y;
+          }
+          return { section: a, stack: b, overlap };
+        }""")
+        ev.check('D6', 'd6-prompt-not-covered: 提示卡与左下工具栏交集为 0',
+                 geom['section'] is not None and geom['overlap'] == 0,
+                 f'{ev.shot(pg, "d6-prompt-overlap")} | 提示卡={geom["section"]} 工具栏={geom["stack"]} 交集={geom["overlap"]}px²',
+                 f'交集={geom["overlap"]}px²')
+        ev.check('D6', 'd6b-no-crash: 无未捕获异常', not errs, f'pageerror={len(errs)}',
                  '; '.join(errs[:2]) or '无')
         ctx.close()
 

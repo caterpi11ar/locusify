@@ -3,7 +3,7 @@ import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-g
 
 import type { PhotoMarker } from '@/types/map'
 import { useTheme } from 'next-themes'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map from 'react-map-gl/maplibre'
 import { getCurrentPosition, isGeolocationGranted } from '@/lib/geolocation'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
@@ -91,7 +91,8 @@ export function Maplibre({
   const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom)
   const [viewState, setViewState] = useState(initialViewState)
   const [isMapLoaded, setIsMapLoaded] = useState(false)
-  const [hasInitialFitCompleted, setHasInitialFitCompleted] = useState(false)
+  /** 上一次已适配过的 bounds 签名（用于判断坐标集合是否真的变了） */
+  const lastFitKeyRef = useRef('')
   const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(null)
   const earthZoomActive = earthZoomPhase !== 'idle' && earthZoomPhase !== 'done'
 
@@ -167,13 +168,25 @@ export function Maplibre({
     [markers, currentZoom],
   )
 
-  // 自动适配到包含所有照片的区域 - 只在初次加载时执行
+  // 用「bounds 签名」代替一次性布尔标记：只有真实坐标集合变化时才重新适配。
+  // 一次性标记会导致首次之后的照片全都落在视野外（实测 marker 在 x=-142475，
+  // 屏幕外 14 万像素），而按签名判断既能把相机带过去，又不会因为无关的
+  // 重渲染反复抢镜头、与用户平移打架。
+  const markersBoundsKey = useMemo(() => {
+    const b = calculateMapBounds(markers)
+    return b
+      ? `${b.minLng.toFixed(5)},${b.minLat.toFixed(5)},${b.maxLng.toFixed(5)},${b.maxLat.toFixed(5)}`
+      : ''
+  }, [markers])
+
+  // 自动适配到包含所有照片的区域 - 坐标集合变化时执行
   const fitMapToBounds = useCallback(() => {
     if (
       !autoFitBounds
       || markers.length === 0
       || !isMapLoaded
-      || hasInitialFitCompleted
+      || !markersBoundsKey
+      || lastFitKeyRef.current === markersBoundsKey
     ) {
       return
     }
@@ -182,8 +195,8 @@ export function Maplibre({
     if (!bounds)
       return
 
-    // 标记初次适配已完成
-    setHasInitialFitCompleted(true)
+    // 记录本次已适配的坐标集合
+    lastFitKeyRef.current = markersBoundsKey
 
     // 如果只有一个点，设置默认缩放级别
     if (markers.length === 1) {
@@ -266,7 +279,7 @@ export function Maplibre({
     autoFitBounds,
     isMapLoaded,
     mapRef,
-    hasInitialFitCompleted,
+    markersBoundsKey,
   ])
 
   // 当地图加载完成时触发适配

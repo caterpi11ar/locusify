@@ -83,7 +83,7 @@ else
   if [[ -d "$EDGE_DIR" ]]; then
     if python3 "$ROOT/tools/verify/verify-edge.py" --base "http://localhost:$DEV_PORT" \
          --account "$ACCOUNT" --edge-dir "$EDGE_DIR" >/tmp/verify-all-edge.log 2>&1; then
-      RESULTS+=("对抗与边界|PASS|14 断言：无 GPS / 非图片 / 30 张 / 连点提交 / 连点菜单 / 后端全挂")
+      RESULTS+=("对抗与边界|PASS|21 断言：无 GPS / 非图片 / 30 张 / 连点提交 / 连点菜单 / 后端全挂 / 相机跟随 / 移动端不换行 / 提示卡不被遮挡")
     else
       RESULTS+=("对抗与边界|FAIL|见 /tmp/verify-all-edge.log")
     fi
