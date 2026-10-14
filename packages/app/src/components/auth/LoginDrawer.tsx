@@ -91,7 +91,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
             <button
               type="button"
               onClick={() => setLanguage(language === 'en' ? 'zh-CN' : 'en')}
-              className="bg-fill-secondary hover:bg-fill-tertiary text-text flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+              className="bg-fill-secondary hover:bg-fill-tertiary text-text inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition-colors"
             >
               <i className="i-mingcute-translate-2-line size-4" />
               {language === 'en' ? '中文' : 'EN'}
@@ -126,7 +126,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
                     type="button"
                     onClick={() => setLoginMethod(method)}
                     className={cn(
-                      'flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                      'inline-flex h-9 flex-1 items-center justify-center rounded-xl px-3 text-xs font-medium transition-colors',
                       loginMethod === method
                         ? 'bg-white/90 dark:bg-white/15 text-text shadow-sm'
                         : 'text-text/50 hover:text-text',
@@ -168,7 +168,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
                       disabled={isLoggingIn}
                       onClick={() => handleLogin(provider)}
                       className={cn(
-                        'bg-fill-secondary hover:bg-fill-tertiary flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+                        'bg-fill-secondary hover:bg-fill-tertiary flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors',
                         'text-text disabled:opacity-50',
                         isActive && 'cursor-wait',
                         isLoggingIn && !isActive && 'cursor-not-allowed',

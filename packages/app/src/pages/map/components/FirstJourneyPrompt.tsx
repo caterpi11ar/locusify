@@ -67,7 +67,7 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
                   <button
                     type="button"
                     onClick={onStartReplay}
-                    className="col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                    className="col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-cyan-700 px-4 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                   >
                     <i className="i-mingcute-play-fill text-base" />
                     {t('onboarding.routeReady.startReplay')}
@@ -78,7 +78,7 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
                     <button
                       type="button"
                       onClick={onSelectPhotos}
-                      className="inline-flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-sky-400 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                      className="inline-flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-cyan-700 px-3 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                     >
                       <i className="i-mingcute-upload-2-line text-base" />
                       {t('onboarding.empty.selectPhotos')}
@@ -209,7 +209,7 @@ export function RouteReadyPrompt({ photoCount, onStartReplay, onDismiss }: Route
         <button
           type="button"
           onClick={onStartReplay}
-          className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none"
+          className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-700 px-4 text-sm font-medium text-white transition-colors hover:bg-cyan-700 focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none"
         >
           <i className="i-mingcute-play-fill" aria-hidden="true" />
           {t('onboarding.routeReady.startReplay')}

@@ -245,7 +245,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         aria-label={t('photos.choose.action')}
         aria-describedby="photo-dropzone-formats"
         className={cn(
-          'group flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl',
+          'group flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl',
           'border border-dashed border-fill-tertiary bg-fill-tertiary/50 p-8 text-center',
           // 只过渡真正变化的属性。原来用的 transition-all 是明确的规范反例
           'transition-colors duration-200',

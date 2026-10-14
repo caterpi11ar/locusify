@@ -151,7 +151,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
               <button
                 type="button"
                 onClick={onExitReplay}
-                className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 items-center justify-center transition-colors sm:size-12"
+                className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
                 title={t('workspace.controls.exit', { defaultValue: 'Exit Replay' })}
               >
                 <i className="i-mingcute-close-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
@@ -214,7 +214,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 items-center justify-center transition-colors"
+            className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex rounded-full size-10 items-center justify-center transition-colors"
             title={t('menu.toggle', { defaultValue: 'Menu' })}
             aria-label={t('menu.toggle', { defaultValue: 'Menu' })}
             data-testid="map-menu-toggle"
@@ -330,7 +330,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
               onClick={() => {
                 onUploadClick?.()
               }}
-              className="group hover:bg-red/10 active:bg-red/20 relative flex size-10 items-center justify-center transition-colors"
+              className="group hover:bg-red/10 active:bg-red/20 relative flex rounded-full size-10 items-center justify-center transition-colors"
               title={t('menu.upload', { defaultValue: 'Upload Photos' })}
               aria-label={t('menu.upload', { defaultValue: 'Upload Photos' })}
               data-testid="map-menu-upload"
@@ -372,7 +372,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
                         setShowRoutesHint(false)
                         onRoutesClick?.()
                       }}
-                      className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors"
+                      className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors"
                     >
                       <i className="i-mingcute-route-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
                     </button>

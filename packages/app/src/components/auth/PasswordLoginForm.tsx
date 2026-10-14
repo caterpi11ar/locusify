@@ -172,7 +172,7 @@ export const PasswordLoginForm: FC<PasswordLoginFormProps> = ({ onSuccess, disab
           disabled={loading || cooldown > 0}
           onClick={handleForgotPassword}
           className={cn(
-            'bg-fill-secondary hover:bg-fill-tertiary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+            'bg-cyan-700 text-white hover:bg-cyan-800 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
             'text-text disabled:opacity-50',
           )}
         >
@@ -300,7 +300,7 @@ export const PasswordLoginForm: FC<PasswordLoginFormProps> = ({ onSuccess, disab
         disabled={loading}
         onClick={handleSubmit}
         className={cn(
-          'bg-fill-secondary hover:bg-fill-tertiary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+          'bg-cyan-700 text-white hover:bg-cyan-800 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
           'text-text disabled:opacity-50',
         )}
       >

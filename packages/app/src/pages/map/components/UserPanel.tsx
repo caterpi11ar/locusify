@@ -60,7 +60,7 @@ const UserPanelTriggerButton = React.forwardRef<HTMLButtonElement, {
         type="button"
         aria-expanded={open}
         onClick={onClick}
-        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-3 text-left transition-colors hover:bg-fill-secondary active:bg-fill-tertiary data-[state=open]:bg-fill-secondary"
+        className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-3 text-left transition-colors hover:bg-fill-secondary active:bg-fill-tertiary data-[state=open]:bg-fill-secondary"
         data-state={open ? 'open' : 'closed'}
       >
         <UserAvatar avatarUrl={avatarUrl} name={name} className="size-9 rounded-lg" fallbackClassName="size-5" />
@@ -287,7 +287,7 @@ function UserPanelThemeSwitch() {
             type="button"
             aria-label={t('settings.theme.label', { defaultValue: 'Theme' })}
             aria-expanded={open}
-            className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-text/55 transition-colors hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary"
+            className="flex size-8 cursor-pointer items-center justify-center rounded-full text-text/55 transition-colors hover:bg-fill-secondary hover:text-text active:bg-fill-tertiary"
           >
             <CurrentIcon className="size-4" />
           </button>
@@ -305,7 +305,7 @@ function UserPanelThemeSwitch() {
             type="button"
             onClick={() => handleSelect(value)}
             className={cn(
-              'mx-1 my-1 flex min-h-8 w-[calc(100%-0.5rem)] cursor-pointer items-center gap-3 rounded-lg px-3 py-1.5 text-left text-sm leading-8 transition-colors hover:bg-fill-tertiary active:bg-fill-tertiary',
+              'mx-1 my-1 flex min-h-8 w-[calc(100%-0.5rem)] cursor-pointer items-center gap-3 rounded-xl px-3 py-1.5 text-left text-sm leading-8 transition-colors hover:bg-fill-tertiary active:bg-fill-tertiary',
               currentTheme === value ? 'text-text' : 'text-text/75',
             )}
           >
@@ -340,7 +340,7 @@ function UserPanelMenuItem({
       type="button"
       onClick={onClick}
       className={cn(
-        'mx-1 my-1 flex min-h-8 w-[calc(100%-0.5rem)] cursor-pointer items-center gap-3 rounded-lg px-3 py-1.5 text-left text-sm leading-8 transition-colors hover:bg-fill-tertiary active:bg-fill-tertiary',
+        'mx-1 my-1 flex min-h-8 w-[calc(100%-0.5rem)] cursor-pointer items-center gap-3 rounded-xl px-3 py-1.5 text-left text-sm leading-8 transition-colors hover:bg-fill-tertiary active:bg-fill-tertiary',
         danger ? 'text-red-500 dark:text-red-400' : 'text-text/75 hover:text-text',
       )}
     >
@@ -378,7 +378,7 @@ function UserPanelLanguage() {
             type="button"
             onClick={() => setLanguage(option.value)}
             className={cn(
-              'h-7 cursor-pointer rounded-md px-2 text-xs font-semibold transition-colors',
+              'h-7 cursor-pointer rounded-xl px-2 text-xs font-semibold transition-colors',
               language === option.value
                 ? 'bg-material-thick text-text shadow-sm'
                 : 'text-text/45 hover:text-text',

@@ -69,9 +69,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors',
+              'flex shrink-0 items-center gap-1 rounded-xl px-2.5 py-1.5 text-[11px] font-medium transition-colors',
               activeTab === tab.id
-                ? 'bg-sky-400/15 text-sky-400'
+                ? 'bg-cyan-700/15 text-sky-400'
                 : 'text-text/50 hover:bg-text/5 hover:text-text/70',
             )}
           >
@@ -94,11 +94,11 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                     type="button"
                     onClick={() => !isUnavailable && update('music', { ...config.music, trackId: track.id })}
                     className={cn(
-                      'relative rounded-lg border px-2.5 py-2 text-[11px] transition-colors',
+                      'relative rounded-xl border px-2.5 py-2 text-[11px] transition-colors',
                       isUnavailable
                         ? 'cursor-default border-fill-tertiary opacity-40'
                         : config.music.trackId === track.id
-                          ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                          ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                           : 'border-fill-tertiary text-text/60 hover:border-text/20',
                     )}
                   >
@@ -141,9 +141,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   type="button"
                   onClick={() => update('filter', { ...config.filter, type })}
                   className={cn(
-                    'rounded-lg border px-2 py-2 text-[11px] capitalize transition-colors',
+                    'rounded-xl border px-2 py-2 text-[11px] capitalize transition-colors',
                     config.filter.type === type
-                      ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                      ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                       : 'border-fill-tertiary text-text/60 hover:border-text/20',
                   )}
                 >
@@ -180,7 +180,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                 onClick={() => update('textOverlay', { ...config.textOverlay, enabled: !config.textOverlay.enabled })}
                 className={cn(
                   'relative h-5 w-9 rounded-full transition-colors',
-                  config.textOverlay.enabled ? 'bg-sky-400' : 'bg-text/20',
+                  config.textOverlay.enabled ? 'bg-cyan-700' : 'bg-text/20',
                 )}
               >
                 <span
@@ -202,9 +202,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                         type="button"
                         onClick={() => update('textOverlay', { ...config.textOverlay, style })}
                         className={cn(
-                          'rounded-lg border px-2 py-1 text-[10px] capitalize transition-colors',
+                          'rounded-xl border px-2 py-1 text-[10px] capitalize transition-colors',
                           config.textOverlay.style === style
-                            ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                            ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                             : 'border-fill-tertiary text-text/60 hover:border-text/20',
                         )}
                       >
@@ -222,9 +222,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                         type="button"
                         onClick={() => update('textOverlay', { ...config.textOverlay, position: pos })}
                         className={cn(
-                          'rounded-lg border px-2 py-1 text-[10px] transition-colors',
+                          'rounded-xl border px-2 py-1 text-[10px] transition-colors',
                           config.textOverlay.position === pos
-                            ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                            ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                             : 'border-fill-tertiary text-text/60 hover:border-text/20',
                         )}
                       >
@@ -277,9 +277,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   type="button"
                   onClick={() => update('transitions', { ...config.transitions, type })}
                   className={cn(
-                    'rounded-lg border px-2 py-2 text-[11px] transition-colors',
+                    'rounded-xl border px-2 py-2 text-[11px] transition-colors',
                     config.transitions.type === type
-                      ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                      ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                       : 'border-fill-tertiary text-text/60 hover:border-text/20',
                   )}
                 >
@@ -422,9 +422,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                     type="button"
                     onClick={() => update('camera', { ...cameraConfig, followMode: mode })}
                     className={cn(
-                      'rounded-lg border px-2 py-1 text-[10px] capitalize transition-colors',
+                      'rounded-xl border px-2 py-1 text-[10px] capitalize transition-colors',
                       cameraConfig.followMode === mode
-                        ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                        ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                         : 'border-fill-tertiary text-text/60 hover:border-text/20',
                     )}
                   >

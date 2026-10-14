@@ -106,7 +106,7 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress
             <button
               type="button"
               onClick={onSave}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-sky-400 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 active:opacity-80"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-cyan-700 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 active:opacity-80"
             >
               <i className="i-mingcute-download-2-line text-base" />
               {t('workspace.recording.save')}

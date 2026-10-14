@@ -80,6 +80,14 @@ else
     RESULTS+=("鉴权验收（真实账号）|FAIL|见 /tmp/verify-all-auth.log")
   fi
 
+  log "4d/4 按钮一致性审计（圆角/高度/居中，运行时实测）"
+  if python3 "$ROOT/tools/verify/audit-buttons.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/button-audit.json" >/tmp/verify-all-buttons.log 2>&1; then
+    RESULTS+=("按钮一致性审计|PASS|圆角收敛为 图标=full / 文字=12px 两种；垂直居中 0 个不达标")
+  else
+    RESULTS+=("按钮一致性审计|FAIL|见 /tmp/verify-all-buttons.log")
+  fi
+
   log "4c/4 UI 设计审计（对比度/触控目标/语义/反模式）"
   if python3 "$ROOT/tools/verify/audit-ui.py" --base "http://localhost:$DEV_PORT" --json "$ROOT/artifacts/ui-audit.json" \
        >/tmp/verify-all-ui.log 2>&1; then

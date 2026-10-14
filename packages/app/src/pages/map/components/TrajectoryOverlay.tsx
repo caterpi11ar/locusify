@@ -136,7 +136,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                       setShowTemplatePanel(false)
                       setShowCustomizePanel(true)
                     }}
-                    className="flex items-center gap-1 rounded-lg bg-text/5 px-2.5 py-1.5 text-[11px] font-medium text-text/60 transition-colors hover:bg-text/10 hover:text-text"
+                    className="flex items-center gap-1 rounded-xl bg-text/5 px-2.5 py-1.5 text-[11px] font-medium text-text/60 transition-colors hover:bg-text/10 hover:text-text"
                   >
                     <i className="i-mingcute-settings-3-line text-xs" />
                     {t('template.customize.title')}
@@ -156,7 +156,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                     <button
                       type="button"
                       onClick={handleStartReplay}
-                      className="w-full rounded-xl bg-sky-400 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                      className="w-full rounded-xl bg-cyan-700 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                     >
                       {t('onboarding.replay.playAndRecord')}
                     </button>
@@ -182,7 +182,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                       if (isConfiguring)
                         setShowTemplatePanel(true)
                     }}
-                    className="flex size-7 items-center justify-center rounded-lg text-text/60 transition-colors hover:bg-text/5 hover:text-text"
+                    className="flex size-7 items-center justify-center rounded-full text-text/60 transition-colors hover:bg-text/5 hover:text-text"
                   >
                     <i className="i-mingcute-arrow-left-line text-sm" />
                   </button>
@@ -196,7 +196,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                   <button
                     type="button"
                     onClick={handleStartReplay}
-                    className="mt-4 w-full rounded-xl bg-sky-400 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                    className="mt-4 w-full rounded-xl bg-cyan-700 py-2.5 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                   >
                     {t('workspace.config.start')}
                   </button>

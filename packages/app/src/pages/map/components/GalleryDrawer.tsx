@@ -96,7 +96,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, moda
                       key={photo.id}
                       type="button"
                       onClick={() => handlePhotoClick(photo.id)}
-                      className="group relative aspect-square overflow-hidden rounded-lg focus:outline-none"
+                      className="group relative aspect-square overflow-hidden rounded-xl focus:outline-none"
                     >
                       <LazyMedia
                         src={photo.preview}

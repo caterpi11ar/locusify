@@ -38,7 +38,7 @@ export function RecordingErrorDialog({ reason, onClose }: RecordingErrorDialogPr
         <button
           type="button"
           onClick={onClose}
-          className="mt-5 h-10 w-full rounded-xl bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+          className="mt-5 h-10 w-full rounded-xl bg-cyan-700 px-4 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
         >
           {t('recording.error.gotIt')}
         </button>

@@ -35,7 +35,7 @@ export function SettingOptionGroup<T extends string>({
             type="button"
             onClick={() => onChange(opt.value)}
             className={cn(
-              'flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors',
+              'flex items-center gap-1 rounded-xl px-2 py-1 text-xs font-medium transition-colors',
               value === opt.value
                 ? 'bg-white/90 dark:bg-white/15 text-text shadow-sm'
                 : 'text-text/50 hover:text-text',

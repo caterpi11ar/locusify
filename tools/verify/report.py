@@ -29,6 +29,8 @@ FIXED = [
     ('GA 脚本在 React 渲染期插入', 'main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 <script>，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。', '只在生产环境加载 GA；dev console 应用侧 error/warning 归零'),
     ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
     ('选择照片抽屉的视觉与可访问性', '程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。', '整块虚线区改为真正的 <button>（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=\"user\"；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0'),
+    ('按钮样式全项目不一致', '运行时实测 82 个可见按钮：圆角出现 0/4/8/12/16px/full 共 6 种；「圆角×高度」组合达 14 种；同一个主 CTA 角色在 6 个文件里有 6 种实现（rounded-full py-3 / rounded-xl py-2.5 / rounded-lg py-1.5 / rounded-lg h-8 / rounded-full size-8 …）；主色同时存在 sky-400、blue-600、cyan-700 三种蓝；地图控件与菜单按钮是方角而缩略图小按钮和关闭按钮是圆形。另外登录抽屉的「验证码/密码」两个 tab 是 display:block，实测文字垂直偏移 -6.3%，「中文」与「发送验证码」也不同程度偏移。',
+     '把 ui/button.tsx 重写为项目原生体系（文字按钮一律 rounded-xl、图标按钮一律 rounded-full、高度只有 36/44/48 三档、inline-flex+items-center 保证垂直居中、主色只有 cyan-700）；写 codemod 做全量归一（21 个文件、圆角 29 处、图标改圆 27 个、主色 34 处、补垂直居中 17 处）；逐个修登录抽屉的 3 处居中问题与预览态 CTA 的胶囊圆角。复测：圆角收敛为 full 41 + 12px 38 两种主导，垂直居中 0 个不达标，设计评审「基本一致」'),
     ('非图片文件静默忽略', '用户选了非图片文件（拖放或 accept 失效时）会被 categorizeFiles 直接丢弃，界面毫无变化，用户无从判断哪里不对。', '跳过时弹 toast「已跳过 N 个文件：仅支持图片和视频」'),
     ('地图控件翻译缺失', 'MapControls 引用的 explory.controls.zoom.in/out、compass、locate 在 locale 里不存在且无 defaultValue，tooltip 直接漏出原始 key；且只有 title 没有 aria-label，无障碍不可达。', '补中英文案 + aria-label'),
     ('持久化绕过中间件', '4 个裸 localStorage key（locusify-tokens 及 MapSection 的 version/help-seen/feedback）绕开 zustand persist，测试只能手抄序列化格式。', '收敛到 tokenStore + uiStore，并带旧数据迁移'),
@@ -192,6 +194,43 @@ ul{padding-left:22px}li{margin:6px 0}
                      f'<td class="r {row["result"]}">{row["result"]}</td>'
                      f'<td><code>{html.escape(row["evidence"][:180])}</code></td></tr>')
         h.append('</table>')
+
+    btn_path = os.path.join(ROOT, 'artifacts', 'button-audit.json')
+    if os.path.exists(btn_path):
+        b = json.load(open(btn_path, encoding='utf-8'))
+        rows = b.get('rows', [])
+        import collections as _c
+        h.append('<h2>按钮一致性审计（运行时实测 82 个可见按钮）</h2>')
+        h.append('<div class="sub">读源码里的 class 得不出用户真正看到的结果 —— 圆角/高度/背景会被 '
+                 'cn() 条件、父容器样式、Tailwind 变体相互覆盖；且按钮浮在地图 canvas 上，'
+                 '底色只能量像素。这里是遍历 6 个界面实测量出来的。</div>')
+        for title, key, fmt in (
+                ('圆角分布', 'radiusPx', lambda v: v),
+                ('高度分布', 'h', lambda v: f'{v}px'),
+                ('字号分布', 'fontSize', lambda v: v)):
+            c = _c.Counter(fmt(r[key]) for r in rows)
+            h.append(f'<h3>{title}（{len(c)} 种）</h3><table><tr><th>值</th><th>按钮数</th></tr>')
+            for v, n in c.most_common(12):
+                h.append(f'<tr><td><code>{html.escape(str(v))}</code></td><td>{n}</td></tr>')
+            h.append('</table>')
+        combo = _c.Counter((r['radiusPx'], r['h']) for r in rows)
+        h.append(f'<h3>圆角 × 高度 组合（{len(combo)} 种，越少越一致）</h3>'
+                 '<table><tr><th>圆角</th><th>高度</th><th>按钮数</th></tr>')
+        for (rad, hh), n in combo.most_common(14):
+            h.append(f'<tr><td><code>{html.escape(rad)}</code></td><td>{hh}px</td><td>{n}</td></tr>')
+        h.append('</table>')
+        off = [r for r in rows if r.get('vOff') is not None]
+        bad = [r for r in off if abs(r['vOff']) > 0.05]
+        h.append(f'<h3>垂直居中（可测 {len(off)} 个，未居中 {len(bad)} 个）</h3>')
+        if bad:
+            h.append('<table><tr><th>偏移</th><th>文案</th><th>尺寸</th><th>display</th><th>align</th></tr>')
+            for r in sorted(bad, key=lambda x: -abs(x['vOff'])):
+                h.append(f'<tr><td class="r FAIL">{r["vOff"]*100:+.1f}%</td>'
+                         f'<td>{html.escape(r["text"])}</td><td>{r["w"]}×{r["h"]}</td>'
+                         f'<td><code>{r["display"]}</code></td><td><code>{r["alignItems"]}</code></td></tr>')
+            h.append('</table>')
+        else:
+            h.append('<p>✓ 无未居中按钮</p>')
 
     audit_path = os.path.join(ROOT, 'artifacts', 'ui-audit.json')
     if os.path.exists(audit_path):

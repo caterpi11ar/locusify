@@ -203,7 +203,7 @@ function SidebarItem({
         data-onboarding={onboardingTarget}
         aria-label={label}
         className={cn(
-          'group flex min-w-8 select-none overflow-hidden rounded-lg text-sm transition-colors',
+          'group flex min-w-8 select-none overflow-hidden rounded-xl text-sm transition-colors',
           expanded ? 'h-9 items-center gap-2' : 'h-[52px] w-full flex-col items-center justify-center gap-0.5 py-1',
           disabled
             ? 'cursor-not-allowed text-text/25'

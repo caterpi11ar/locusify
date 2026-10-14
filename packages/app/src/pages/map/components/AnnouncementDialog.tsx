@@ -107,7 +107,7 @@ export function AnnouncementDialog({ open, onClose }: AnnouncementDialogProps) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl bg-sky-400 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 active:opacity-80"
+            className="w-full rounded-xl bg-cyan-700 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 active:opacity-80"
           >
             {t('map.announcement.dismiss')}
           </button>

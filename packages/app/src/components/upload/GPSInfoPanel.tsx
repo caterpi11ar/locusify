@@ -174,7 +174,7 @@ export function GPSInfoPanel({
         <button
           type="button"
           className={cn(
-            'flex items-center gap-2 rounded-full border px-5 py-3 font-medium whitespace-nowrap transition-all sm:px-8',
+            'border-fill-tertiary text-text hover:bg-fill-secondary flex h-11 items-center gap-2 rounded-xl border px-5 text-sm font-medium whitespace-nowrap transition-colors sm:px-6',
             'border-gray-300 bg-white text-gray-700',
             'hover:border-gray-400 hover:bg-gray-50',
             'dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
@@ -190,10 +190,10 @@ export function GPSInfoPanel({
           type="button"
           disabled={filesWithGPS.length === 0}
           className={cn(
-            'flex items-center gap-2 rounded-full px-5 py-3 font-medium text-white whitespace-nowrap shadow-lg transition-all sm:px-8',
+            'flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap text-white transition-colors sm:px-6',
             filesWithGPS.length === 0
-              ? 'cursor-not-allowed bg-gray-400 dark:bg-gray-600'
-              : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600',
+              ? 'bg-fill-tertiary text-text-secondary cursor-not-allowed'
+              : 'bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900',
           )}
           onClick={onConfirm}
           data-testid="route-create"
