@@ -91,7 +91,7 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
             <button
               type="button"
               onClick={() => setLanguage(language === 'en' ? 'zh-CN' : 'en')}
-              className="bg-fill-secondary hover:bg-fill-tertiary text-text inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition-colors"
+              className="bg-fill-secondary hover:bg-fill-tertiary text-text inline-flex h-9 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-medium transition-colors"
             >
               <i className="i-mingcute-translate-2-line size-4" />
               {language === 'en' ? '中文' : 'EN'}

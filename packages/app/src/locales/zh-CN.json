@@ -50,7 +50,7 @@
   "photos.choose.action": "选择照片",
   "photos.supported.formats": "支持格式：JPG、PNG、HEIC、WebP、AVIF",
   "photos.preview.title": "查看您的照片",
-  "photos.preview.description": "已选择 {{total}} 张照片，其中 {{withGPS}} 张包含 GPS 数据",
+  "photos.preview.hint": "点击下方按钮生成路线，或重新选择照片",
   "photos.preview.usable": "{{count}} 张照片可用于生成路线",
   "photos.no.gps.data": "无GPS数据",
   "photos.warning.no.gps.title": "部分照片缺少GPS数据",

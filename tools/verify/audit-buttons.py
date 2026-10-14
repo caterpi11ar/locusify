@@ -87,7 +87,7 @@ PROBE = r"""
     const cs = getComputedStyle(el);
 
     // 垂直居中：文字行盒的中心 vs 按钮内容区中心
-    let off = null;
+    let off = null, hOff = null;
     const own = [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim());
     if (own.length) {
       const rg = document.createRange();
@@ -101,6 +101,25 @@ PROBE = r"""
         const bb = parseFloat(cs.borderBottomWidth) || 0;
         const inner = { top: r.top + bt + pt, bottom: r.bottom - bb - pb };
         off = +(((txtMid - (inner.top + inner.bottom) / 2)) * 2 / (inner.bottom - inner.top)).toFixed(3);
+      }
+      // 内容 = 文字节点 ∪ 所有非绝对的子元素（图标）。只量文字会把
+      // 「图标+文字」居中排列的按钮误判成偏右。
+      const parts = rects.slice();
+      for (const ch of el.children) {
+        const ccs = getComputedStyle(ch);
+        if (ccs.position === 'absolute') continue;
+        const cr = ch.getBoundingClientRect();
+        if (cr.width > 0 && cr.height > 0) parts.push(cr);
+      }
+      if (parts.length) {
+        const L = Math.min(...parts.map(x => x.left));
+        const R = Math.max(...parts.map(x => x.right));
+        const pl = parseFloat(cs.paddingLeft) || 0;
+        const pr = parseFloat(cs.paddingRight) || 0;
+        const bl = parseFloat(cs.borderLeftWidth) || 0;
+        const br = parseFloat(cs.borderRightWidth) || 0;
+        const innerL = r.left + bl + pl, innerR = r.right - br - pr;
+        hOff = +((((L + R) / 2) - ((innerL + innerR) / 2)) * 2 / (innerR - innerL)).toFixed(3);
       }
     }
 
@@ -116,7 +135,7 @@ PROBE = r"""
       px: { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) },
       testid: el.getAttribute('data-testid') || '',
       cls: (el.className || '').toString().slice(0, 70),
-      vOff: off,
+      vOff: off, hOff, justify: cs.justifyContent, isIcon: !own.length,
     });
   }
   return out;
@@ -275,6 +294,16 @@ def main():
         print(f"         {r['screen']} · {r['cls'][:60]}")
 
     print('\n' + '=' * 70)
+    print('内容水平居中（|偏移| > 8% 且有文字，视为未居中）')
+    print('=' * 70)
+    hb = [r for r in all_rows if r.get('hOff') is not None and abs(r['hOff']) > 0.08]
+    print(f'  未水平居中 {len(hb)} 个')
+    for r in sorted(hb, key=lambda x: -abs(x['hOff']))[:14]:
+        print(f"  [FAIL] {r['hOff']*100:+6.1f}%  「{r['text'][:20]}」 {r['w']}x{r['h']} "
+              f"justify={r['justify']}")
+        print(f"         {r['screen']} · {r['cls'][:66]}")
+
+    print('\n' + '=' * 70)
     print('同类角色但样式不同的按钮（按背景+文字分组）')
     print('=' * 70)
     groups = collections.defaultdict(list)
@@ -294,7 +323,8 @@ def main():
                            'radius_kinds': len(dist('radius')),
                            'height_kinds': len(dist('h')),
                            'combo_kinds': len(combo),
-                           'vcenter_failures': len(bad_off)}},
+                           'vcenter_failures': len(bad_off),
+                           'hcenter_failures': len(hb)}},
               open(args.json, 'w'), ensure_ascii=False, indent=2)
     print(f'\n结果写入 {args.json}')
 

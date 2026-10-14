@@ -50,7 +50,7 @@
   "photos.choose.action": "Choose Photos",
   "photos.supported.formats": "Supported: JPG, PNG, HEIC, WebP, AVIF",
   "photos.preview.title": "Review Your Photos",
-  "photos.preview.description": "{{total}} photo(s) selected, {{withGPS}} with GPS data",
+  "photos.preview.hint": "Create the route below, or choose different photos",
   "photos.preview.usable": "{{count}} photo(s) are ready for your route",
   "photos.no.gps.data": "No GPS data",
   "photos.warning.no.gps.title": "Some photos lack GPS data",

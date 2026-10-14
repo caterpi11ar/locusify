@@ -29,26 +29,19 @@ export function GPSInfoPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
+      {/* 抽屉顶部已有「查看您的照片」标题，这里不再重复一遍大标题，
+          只留真正新增的信息（选中几张、几张有 GPS） */}
       <div className="mb-6 text-center">
-        <m.h2
-          className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+        {/* 这里原本还有一行「已选择 N 张，其中 M 张有 GPS」，
+            与下方绿色横幅「N 张可用于生成路线」说的是同一件事，
+            设计评审指出冗余，故只保留结论性更强的那条。 */}
+        <m.p
+          className="text-text-secondary text-sm"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {t('photos.preview.title')}
-        </m.h2>
-        <m.p
-          className="text-sm text-gray-600 dark:text-gray-400"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          {t('photos.preview.description', {
-            total: files.length,
-            withGPS: filesWithGPS.length,
-          })}
+          {t('photos.preview.hint')}
         </m.p>
       </div>
 
@@ -173,13 +166,7 @@ export function GPSInfoPanel({
       >
         <button
           type="button"
-          className={cn(
-            'border-fill-tertiary text-text hover:bg-fill-secondary flex h-11 items-center gap-2 rounded-xl border px-5 text-sm font-medium whitespace-nowrap transition-colors sm:px-6',
-            'border-gray-300 bg-white text-gray-700',
-            'hover:border-gray-400 hover:bg-gray-50',
-            'dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
-            'dark:hover:border-gray-600 dark:hover:bg-gray-700',
-          )}
+          className="bg-fill-secondary text-text hover:bg-fill-tertiary flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap transition-colors sm:px-6"
           onClick={onCancel}
           data-testid="route-cancel"
         >
@@ -190,7 +177,7 @@ export function GPSInfoPanel({
           type="button"
           disabled={filesWithGPS.length === 0}
           className={cn(
-            'flex h-11 items-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap text-white transition-colors sm:px-6',
+            'flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap text-white transition-colors sm:px-6',
             filesWithGPS.length === 0
               ? 'bg-fill-tertiary text-text-secondary cursor-not-allowed'
               : 'bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900',
