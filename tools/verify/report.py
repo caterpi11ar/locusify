@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """把各层验收结果汇总成一份自包含的 HTML 报告（截图内嵌 base64，可离线打开）。
 
 数据来源：
@@ -7,6 +8,7 @@
   - artifacts/<ts>/*.png 证据截图
 """
 import base64
+import json
 import glob
 import html
 import os
@@ -26,6 +28,7 @@ FIXED = [
     ('react-scan 常驻干扰交互与门禁', 'dev 下 react-scan 默认启动：注入 #react-scan-root 覆盖层拦截页面所有点击（任何 Locator.click() 都报 intercepts pointer events，测试必须额外注入 CSS），并自身产生 console 告警。', '改为显式开启（VITE_REACT_SCAN=1），并去掉它自己的 console.log'),
     ('GA 脚本在 React 渲染期插入', 'main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 <script>，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。', '只在生产环境加载 GA；dev console 应用侧 error/warning 归零'),
     ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
+    ('选择照片抽屉的视觉与可访问性', '程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。', '整块虚线区改为真正的 <button>（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=\"user\"；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0'),
     ('非图片文件静默忽略', '用户选了非图片文件（拖放或 accept 失效时）会被 categorizeFiles 直接丢弃，界面毫无变化，用户无从判断哪里不对。', '跳过时弹 toast「已跳过 N 个文件：仅支持图片和视频」'),
     ('地图控件翻译缺失', 'MapControls 引用的 explory.controls.zoom.in/out、compass、locate 在 locale 里不存在且无 defaultValue，tooltip 直接漏出原始 key；且只有 title 没有 aria-label，无障碍不可达。', '补中英文案 + aria-label'),
     ('持久化绕过中间件', '4 个裸 localStorage key（locusify-tokens 及 MapSection 的 version/help-seen/feedback）绕开 zustand persist，测试只能手抄序列化格式。', '收敛到 tokenStore + uiStore，并带旧数据迁移'),
@@ -189,6 +192,38 @@ ul{padding-left:22px}li{margin:6px 0}
                      f'<td class="r {row["result"]}">{row["result"]}</td>'
                      f'<td><code>{html.escape(row["evidence"][:180])}</code></td></tr>')
         h.append('</table>')
+
+    audit_path = os.path.join(ROOT, 'artifacts', 'ui-audit.json')
+    if os.path.exists(audit_path):
+        a = json.load(open(audit_path, encoding='utf-8'))
+        h.append('<h2>UI 设计审计（选择照片抽屉）</h2>')
+        h.append(f'<div class="sub">按<strong>真实渲染像素</strong>测对比度 —— 抽屉是多层半透明叠加，'
+                 f'用 computed style 算出的底色是假的；且 Tailwind v4 计算色为 oklch()，'
+                 f'canvas.fillStyle 不接受、正则也解析不了，'
+                 f'所以直接解码截图在元素包围盒内取色。</div>')
+        h.append('<h3>文本对比度（WCAG AA：正文 4.5:1 / 大字 3:1）</h3>')
+        h.append('<table><tr><th>文本</th><th>字号</th><th>实测</th><th>要求</th><th>结果</th><th>前景/底色</th><th>类名</th></tr>')
+        for c in sorted(a.get('contrast', []), key=lambda x: x['ratio']):
+            h.append(f'<tr><td>{html.escape(c["text"])}</td><td>{c["size"]}px</td>'
+                     f'<td><b>{c["ratio"]}</b></td><td>{c["need"]}</td>'
+                     f'<td class="r {"PASS" if c["pass"] else "FAIL"}">{"PASS" if c["pass"] else "FAIL"}</td>'
+                     f'<td><code>{c["fg"]} / {c["bg"]}</code></td>'
+                     f'<td><code>{html.escape(c["cls"][:44])}</code></td></tr>')
+        h.append('</table>')
+        h.append('<h3>触控目标（建议 ≥44×44）</h3><table><tr><th>元素</th><th>本体</th><th>有效区</th><th>结果</th></tr>')
+        for t in a.get('targets', []):
+            eff = f'{t["effW"]}×{t["effH"]}' + ('（含关联 label）' if t.get('hasLabel') else '')
+            h.append(f'<tr><td><code>&lt;{t["tag"]}&gt;</code> {html.escape(t.get("testid") or "")}</td>'
+                     f'<td>{t["w"]}×{t["h"]}</td><td>{eff}</td>'
+                     f'<td class="r {"PASS" if t["ok"] else "FAIL"}">{"PASS" if t["ok"] else "FAIL"}</td></tr>')
+        h.append('</table>')
+        h.append('<h3>语义与反模式</h3>')
+        for label, key in (('缺可访问名', 'unlabeled'), ('反模式', 'antipes'),
+                           ('嵌套交互（button 在可点击 div 内）', 'nested')):
+            items = a.get(key, [])
+            h.append(f'<div class="card" style="margin:8px 0"><div class="k"><span>{label}</span>'
+                     f'<span class="pill {"PASS" if not items else "FAIL"}">'
+                     f'{"0 项" if not items else str(len(items)) + " 项"}</span></div></div>')
 
     if shots:
         h.append('<h2>截图证据</h2><div class="gallery">')

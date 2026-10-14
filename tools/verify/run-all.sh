@@ -80,6 +80,14 @@ else
     RESULTS+=("鉴权验收（真实账号）|FAIL|见 /tmp/verify-all-auth.log")
   fi
 
+  log "4c/4 UI 设计审计（对比度/触控目标/语义/反模式）"
+  if python3 "$ROOT/tools/verify/audit-ui.py" --base "http://localhost:$DEV_PORT" --json "$ROOT/artifacts/ui-audit.json" \
+       >/tmp/verify-all-ui.log 2>&1; then
+    RESULTS+=("UI 设计审计|PASS|文本对比度全部达 WCAG AA；触控目标达标；无 transition:all、无可点击 div、无嵌套交互、无缺失可访问名")
+  else
+    RESULTS+=("UI 设计审计|FAIL|见 /tmp/verify-all-ui.log")
+  fi
+
   if [[ -d "$EDGE_DIR" ]]; then
     if python3 "$ROOT/tools/verify/verify-edge.py" --base "http://localhost:$DEV_PORT" \
          --account "$ACCOUNT" --edge-dir "$EDGE_DIR" >/tmp/verify-all-edge.log 2>&1; then
@@ -96,7 +104,10 @@ fi
 # ---------------------------------------------------------------- 报告
 log "生成 HTML 报告"
 printf '%s\n' "${RESULTS[@]}" > /tmp/verify-all-summary.txt
-python3 "$ROOT/tools/verify/report.py"
+if ! python3 "$ROOT/tools/verify/report.py"; then
+  # 报告生成失败不能静默算通过
+  RESULTS+=("HTML 报告|FAIL|report.py 执行失败")
+fi
 REPORT="$ROOT/reports/report.html"
 echo "报告: $REPORT"
 

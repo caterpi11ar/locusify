@@ -123,13 +123,17 @@ export const SelectPhotosDrawer: FC<SelectPhotosDrawerProps> = ({
             type="button"
             aria-label="Close drawer"
             onClick={() => handleOpenChange(false)}
-            className="bg-fill-secondary hover:bg-fill-tertiary text-text/60 hover:text-text flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
+            className="bg-fill-secondary hover:bg-fill-tertiary text-text/60 hover:text-text flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-fill-tertiary focus-visible:outline-none"
           >
             <X className="size-4" />
           </button>
         </div>
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto p-4">
+        {/* Scrollable content area。底部补安全区：
+            抽屉贴底，Home Indicator / 手势条会盖住最后一行内容。 */}
+        <div
+          className="flex-1 overflow-y-auto p-4"
+          style={{ paddingBottom: 'calc(1rem + var(--safe-area-bottom))' }}
+        >
           {/* Step 1: File Selection */}
           {currentStep === DrawerStep.SELECT && (
             <PhotoSelector onFilesSelected={handleFilesSelected} />

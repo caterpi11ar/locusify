@@ -226,69 +226,65 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         onChange={handleFileInputChange}
       />
 
-      {/* Click to select area */}
-      <m.div
-        className={cn(
-          'relative flex w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-12 transition-all duration-300 backdrop-blur-sm',
-          'border-gray-300/50 bg-white/30 hover:border-gray-400/50 hover:bg-white/40 dark:border-gray-600/50 dark:bg-black/20 dark:hover:border-gray-500/50 dark:hover:bg-black/30',
-        )}
+      {/*
+       * 整块就是一个 <button>。
+       *
+       * 之前是可点击 <div> 里再套一个 <button>：
+       *  - div 带 onclick 键盘完全不可达（不是可聚焦元素）；
+       *  - 同一件事有两个交互入口（点空白处 / 点蓝色按钮），语义含糊；
+       *  - 违反界面规范里的「有 onClick 的 div 应用 <button>」。
+       * 现在里面的胶囊是 <span>，只做视觉引导，不再是一个独立控件。
+       *
+       * 颜色全部改用应用的设计 token（text-text / fill-* / material-*）。
+       * 原来用的是硬编码的 text-gray-*、bg-blue-600、bg-white，
+       * 与同一条流程里的其它表面（如提示卡的 sky-400）凑出两种蓝。
+       */}
+      <button
+        type="button"
         onClick={handleClick}
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
+        aria-label={t('photos.choose.action')}
+        aria-describedby="photo-dropzone-formats"
+        className={cn(
+          'group flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl',
+          'border border-dashed border-fill-tertiary bg-fill-tertiary/50 p-8 text-center',
+          // 只过渡真正变化的属性。原来用的 transition-all 是明确的规范反例
+          'transition-colors duration-200',
+          'hover:border-fill-secondary hover:bg-fill-tertiary/60 active:bg-fill-secondary/60',
+          'focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none',
+        )}
       >
-        {/* Icon */}
-        <m.div className="mb-6 text-6xl bg-white size-14 border-fill-tertiary rounded-2xl flex items-center justify-center">
-          <Camera size={20} stroke="#0a0a0a" strokeWidth={1.8} />
-        </m.div>
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-fill-secondary text-text-secondary">
+          <Camera size={22} strokeWidth={1.6} aria-hidden="true" />
+        </span>
 
-        {/* Title */}
-        <m.h2
-          className="mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-100"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {t('photos.select.photos')}
-        </m.h2>
+        {/* 不再重复抽屉标题（「选择照片」）；卡片只讲约束与操作 */}
 
-        {/* Description */}
-        <m.p
-          className="mb-8 text-center text-sm text-gray-600 dark:text-gray-400"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          {t('photos.select.hint')}
-        </m.p>
+        <span className="text-text max-w-[16rem] text-sm leading-relaxed text-pretty">
+          {t('photos.select.requirement')}
+        </span>
 
-        {/* Select button */}
-        <m.button
-          type="button"
-          className="cursor-pointer rounded-full bg-blue-600 px-5 py-3 font-medium whitespace-nowrap text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:px-8 dark:bg-blue-500 dark:hover:bg-blue-600"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <span
+          className={cn(
+            'mt-1 rounded-full px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white',
+            // cyan-700 而非 brand primary(#13ACF0)：白字在 #13ACF0 上只有 2.6:1，
+            // 远低于 AA 的 4.5:1；#0e7490 实测 5.3:1 且同属品牌青色系。
+            'bg-cyan-700 shadow-sm transition-colors duration-200 group-hover:bg-cyan-800',
+          )}
         >
-          {t('photos.choose.files')}
-        </m.button>
+          {t('photos.choose.action')}
+        </span>
 
-        {/* Supported formats */}
-        <m.p
-          className="mt-8 text-xs text-gray-500 dark:text-gray-500"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
+        <span id="photo-dropzone-formats" className="text-text-secondary mt-1 text-[11px]">
           {t('photos.supported.formats')}
-        </m.p>
-      </m.div>
+        </span>
+      </button>
 
       {/* Dev mode: Mock metadata toggle */}
       {env.NODE_ENV === 'development' && (
         <m.div
-          className="mt-4 flex items-center gap-2"
+          // dev-only 的调试开关：之前用高饱和琥珀色，视觉上抢主按钮的注意力。
+          // 改成低调脚注（分隔线 + 次级文字），保留可辨识度但不参与视觉竞争。
+          className="border-fill-quaternary mt-4 flex min-h-11 items-center gap-2 border-t pt-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -299,11 +295,13 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
             data-testid="mock-metadata-toggle"
             checked={useMockMetadata}
             onChange={e => setUseMockMetadata(e.target.checked)}
-            className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="size-5 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
+          {/* 整个 label 都是点击区（htmlFor 把点击转发给 input），
+              避免只有 16px 的小方块可点 */}
           <label
             htmlFor="mock-metadata"
-            className="text-xs text-amber-600 dark:text-amber-400"
+            className="text-text-secondary cursor-pointer py-3.5 text-[11px] tracking-wide"
           >
             DEV: Use mock GPS metadata (Japan locations)
           </label>

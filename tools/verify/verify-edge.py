@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """对抗与边界验收：空值 / 非法输入 / 超量 / 重复提交 / 接口故障。
 
 对应 specs/map-upload-route.plan.md 的 C(c2-c4) 与 D(d1-d3) 组，
