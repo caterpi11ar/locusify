@@ -371,6 +371,8 @@ function MapSectionContent() {
           onExitReplay={handleExitReplay}
           isRecording={isRecording}
           isProcessing={isProcessing}
+          // 提示卡停靠在同一区域，且「查看轨迹」与「开始轨迹回放」是同一动作
+          hideQuickActions={routeReadyPromptOpen}
         />
       )}
 
