@@ -90,9 +90,24 @@ def img_tag(relpath, cap, out_dir):
             f'<figcaption>{html.escape(cap)}</figcaption></figure>')
 
 
+def latest_reports():
+    """每类报告只取日期最新的一份。
+
+    目录里会累积历史日期的报告，全拿进来会把断言重复计数（实测把 45 条
+    算成了 88 条），并让读者误以为有额外的覆盖。
+    """
+    kinds = ('test-report', 'auth-report', 'edge-report')
+    picked = []
+    for kind in kinds:
+        hits = sorted(glob.glob(os.path.join(ROOT, 'reports', f'*-{kind}.md')))
+        if hits:
+            picked.append(hits[-1])
+    return picked
+
+
 def main():
     summary = read_summary()
-    reports = [parse_md(p) for p in sorted(glob.glob(os.path.join(ROOT, 'reports', '*.md')))]
+    reports = [parse_md(p) for p in latest_reports()]
     arts = sorted(glob.glob(os.path.join(ROOT, 'artifacts', '*')))
     shots = []
     for a in arts[-4:]:
