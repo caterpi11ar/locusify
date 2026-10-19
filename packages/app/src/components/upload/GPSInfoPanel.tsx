@@ -170,7 +170,7 @@ export function GPSInfoPanel({
           onClick={onCancel}
           data-testid="route-cancel"
         >
-          <i className="i-mingcute-arrow-left-line text-base" />
+          <i className="i-mingcute-arrow-left-line size-4" aria-hidden="true" />
           {t('photos.previous')}
         </button>
         <button
@@ -185,8 +185,10 @@ export function GPSInfoPanel({
           onClick={onConfirm}
           data-testid="route-create"
         >
-          <i className="i-mingcute-check-line text-base" />
-          {t('photos.generateRoute', { count: filesWithGPS.length })}
+          <i className="i-mingcute-route-line size-4" aria-hidden="true" />
+          {/* 不再带「（N 张）」：量词易被读成 N 条路线，且张数在上方
+              绿色横幅已经写明，重复一次只会让按钮重心偏向文字 */}
+          {t('photos.generateRouteEmpty')}
         </button>
       </m.div>
     </m.div>
