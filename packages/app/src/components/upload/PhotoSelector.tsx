@@ -4,6 +4,7 @@ import { Camera } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { env } from '@/lib/env'
 import { extractExifData } from '@/lib/exif'
 import { categorizeFiles, cn, getFilenameStem } from '@/lib/utils'
@@ -52,6 +53,19 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
     async (fileArray: File[]) => {
       const { imageFiles, videoMap, standaloneVideos } = categorizeFiles(fileArray)
       const files: Photo[] = []
+
+      // categorizeFiles 会静默丢弃既不是图片也不是视频的文件。
+      // 不给反馈的话，用户选了文件却什么都没发生，无从判断哪里不对。
+      const accepted = imageFiles.length + videoMap.size + standaloneVideos.length
+      const rejected = fileArray.length - accepted
+      if (rejected > 0) {
+        toast.error(t('photos.validation.unsupported', {
+          count: rejected,
+          defaultValue: '{{count}} file(s) skipped — only images and videos are supported',
+        }))
+      }
+      if (accepted === 0)
+        return
 
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i]
@@ -178,7 +192,6 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
     },
     [processFileArray],
   )
-
   // Handle file input change
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,7 +264,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         {/* Select button */}
         <m.button
           type="button"
-          className="cursor-pointer rounded-full bg-blue-600 px-8 py-3 font-medium text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="cursor-pointer rounded-full bg-blue-600 px-5 py-3 font-medium whitespace-nowrap text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:px-8 dark:bg-blue-500 dark:hover:bg-blue-600"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -283,6 +296,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           <input
             type="checkbox"
             id="mock-metadata"
+            data-testid="mock-metadata-toggle"
             checked={useMockMetadata}
             onChange={e => setUseMockMetadata(e.target.checked)}
             className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"

@@ -539,7 +539,8 @@ function MapSectionContent() {
           <Maplibre
             markers={displayMarkers}
             initialViewState={initialViewState}
-            autoFitBounds={false}
+            // 回放/录制时不要抢镜头，其余情况下让相机跟随新加入的照片
+            autoFitBounds={!isInAnyReplay && !captureUiActive}
             selectedMarkerId={isInAnyReplay ? null : selectedMarkerId}
             onMarkerClick={handleMarkerClick}
             onContextMenu={isInAnyReplay ? undefined : handleMapContextMenu}

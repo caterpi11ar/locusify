@@ -163,10 +163,14 @@ interface RouteReadyPromptProps {
 export function RouteReadyPrompt({ photoCount, onStartReplay, onDismiss }: RouteReadyPromptProps) {
   const { t } = useTranslation()
 
+  // 移动端底部左下角有一竖排快捷按钮（z-40，高 92px + bottom-3），
+  // 它和这张居中卡片（宽最多 420px）在 390px 屏上会重叠：实测工具栏
+  // x 8..50、卡片按钮 x 33..289，且 z-40 会盖住 z-30 的卡片，把蓝色主按钮的
+  // 左边缘遮掉一截。所以移动端把卡片抬到工具栏之上（bottom-32）。
   return (
     <m.section
       aria-live="polite"
-      className={cn(glassPanel, 'pointer-events-auto absolute bottom-4 left-1/2 z-30 w-[min(calc(100vw-2rem),420px)] -translate-x-1/2 bg-material-opaque/95 p-4 sm:bottom-6')}
+      className={cn(glassPanel, 'pointer-events-auto absolute bottom-32 left-1/2 z-30 w-[min(calc(100vw-2rem),420px)] -translate-x-1/2 bg-material-opaque/95 p-4 sm:bottom-6')}
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.98 }}
