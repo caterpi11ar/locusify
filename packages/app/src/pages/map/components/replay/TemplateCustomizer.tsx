@@ -1,6 +1,7 @@
 import type { FilterType, ReplayTemplateConfig, TextOverlayStyle, TransitionType } from '@/types/template'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Checkbox } from '@/components/ui/checkbox'
 import AudioManager from '@/lib/audio/AudioManager'
 import { audioTracks } from '@/lib/audio/tracks'
 import { cn } from '@/lib/utils'
@@ -235,20 +236,18 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                 </div>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={config.textOverlay.showDate}
-                      onChange={e => update('textOverlay', { ...config.textOverlay, showDate: e.target.checked })}
-                      className="accent-sky-400"
+                      onCheckedChange={checked => update('textOverlay', { ...config.textOverlay, showDate: (checked === true) })}
+                      className="size-4"
                     />
                     <span className="text-2xs text-text/60">{t('template.customize.showDate')}</span>
                   </label>
                   <label className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={config.textOverlay.showLocation}
-                      onChange={e => update('textOverlay', { ...config.textOverlay, showLocation: e.target.checked })}
-                      className="accent-sky-400"
+                      onCheckedChange={checked => update('textOverlay', { ...config.textOverlay, showLocation: (checked === true) })}
+                      className="size-4"
                     />
                     <span className="text-2xs text-text/60">{t('template.customize.showLocation')}</span>
                   </label>
@@ -390,20 +389,18 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={config.lineStyle.glow}
-                  onChange={e => update('lineStyle', { ...config.lineStyle, glow: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('lineStyle', { ...config.lineStyle, glow: (checked === true) })}
+                  className="size-4"
                 />
                 <span className="text-2xs text-text/60">{t('template.customize.glow')}</span>
               </label>
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={config.lineStyle.animated}
-                  onChange={e => update('lineStyle', { ...config.lineStyle, animated: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('lineStyle', { ...config.lineStyle, animated: (checked === true) })}
+                  className="size-4"
                 />
                 <span className="text-2xs text-text/60">{t('template.customize.animated')}</span>
               </label>
@@ -435,20 +432,18 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={cameraConfig.pitchEnabled}
-                  onChange={e => update('camera', { ...cameraConfig, pitchEnabled: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('camera', { ...cameraConfig, pitchEnabled: (checked === true) })}
+                  className="size-4"
                 />
                 <span className="text-2xs text-text/60">{t('template.customize.pitch')}</span>
               </label>
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={cameraConfig.bearingEnabled}
-                  onChange={e => update('camera', { ...cameraConfig, bearingEnabled: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('camera', { ...cameraConfig, bearingEnabled: (checked === true) })}
+                  className="size-4"
                 />
                 <span className="text-2xs text-text/60">{t('template.customize.bearing')}</span>
               </label>

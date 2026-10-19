@@ -5,6 +5,7 @@ import { m } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { Checkbox } from '@/components/ui/checkbox'
 import { env } from '@/lib/env'
 import { extractExifData } from '@/lib/exif'
 import { categorizeFiles, cn, getFilenameStem } from '@/lib/utils'
@@ -289,13 +290,11 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <input
-            type="checkbox"
+          <Checkbox
             id="mock-metadata"
             data-testid="mock-metadata-toggle"
             checked={useMockMetadata}
-            onChange={e => setUseMockMetadata(e.target.checked)}
-            className="size-5 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            onCheckedChange={checked => setUseMockMetadata(checked === true)}
           />
           {/* 整个 label 都是点击区（htmlFor 把点击转发给 input），
               避免只有 16px 的小方块可点 */}

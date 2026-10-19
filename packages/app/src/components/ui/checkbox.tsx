@@ -24,7 +24,10 @@ function Checkbox({
       data-slot="checkbox"
       className={cn(
         'peer size-5 shrink-0 rounded-(--ctl-radius-sm) border transition-colors',
-        'border-fill-tertiary bg-fill-secondary',
+        // 边框原来用 border-fill-tertiary（5% 白）—— 叠在深色抽屉上几乎看不见，
+        // 且不同背景透出的颜色不同，看上去像两个控件。UI 边界按
+        // WCAG 1.4.11 需与相邻色 ≥3:1；text-secondary 实测约 5:1。
+        'border-text-secondary bg-fill-secondary',
         'data-[state=checked]:border-cyan-700 data-[state=checked]:bg-cyan-700',
         'focus-visible:ring-primary focus-visible:ring-2 focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-50',

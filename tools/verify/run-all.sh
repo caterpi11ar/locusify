@@ -80,6 +80,14 @@ else
     RESULTS+=("鉴权验收（真实账号）|FAIL|见 /tmp/verify-all-auth.log")
   fi
 
+  log "4f/4 跨界面同类元素审计（checkbox/radio 等）"
+  if python3 "$ROOT/tools/verify/audit-elements.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/element-audit.json" >/tmp/verify-all-elements.log 2>&1; then
+    RESULTS+=("跨界面同类元素审计|PASS|复选框等同类控件在圆角/尺寸/垂直对齐上完全一致")
+  else
+    RESULTS+=("跨界面同类元素审计|FAIL|见 /tmp/verify-all-elements.log")
+  fi
+
   log "4e/4 布局对齐审计（各界面内容块左右边缘）"
   if python3 "$ROOT/tools/verify/audit-align.py" --base "http://localhost:$DEV_PORT" \
        --json "$ROOT/artifacts/align-audit.json" >/tmp/verify-all-align.log 2>&1; then

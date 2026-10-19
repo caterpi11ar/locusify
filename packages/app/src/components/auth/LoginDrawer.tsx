@@ -189,11 +189,10 @@ export const LoginDrawer: FC<LoginDrawerProps> = ({ open, onOpenChange, dismissi
                 })}
               </div>
 
-              <label className="flex cursor-pointer select-none items-start gap-2">
+              <label className="flex cursor-pointer items-center gap-2 select-none">
                 <Checkbox
                   checked={privacyConsented}
                   onCheckedChange={checked => setPrivacyConsented(checked === true)}
-                  className="mt-0.5"
                 />
                 <span className="text-text-secondary text-xs leading-relaxed">
                   {t('auth.privacy.agree')}

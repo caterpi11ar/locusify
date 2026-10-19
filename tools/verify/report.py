@@ -29,6 +29,7 @@ FIXED = [
     ('GA 脚本在 React 渲染期插入', 'main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 <script>，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。', '只在生产环境加载 GA；dev console 应用侧 error/warning 归零'),
     ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
     ('选择照片抽屉的视觉与可访问性', '程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。', '整块虚线区改为真正的 <button>（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=\"user\"；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0'),
+    ('复选框存在两套实现且看不清', '屏幕上是两套实现：PhotoSelector 用原生 <input type=checkbox>（方角、硬编码 border-gray-300/text-blue-600，无尺寸控制），LoginDrawer 用 Radix Checkbox（圆角 8px，并用 items-start + mt-0.5 硬凑对齐），TemplateCustomizer 还有 6 个浏览器默认 checkbox（accent-sky-400）。此外未选中态的边框用 border-fill-tertiary（仅 5% 白），叠在深色抽屉上几乎看不见，且不同背景透出的颜色不同，看上去像两个不同控件。', '7 个原生 checkbox 全部收编到 Checkbox 组件；登录同意条款的 items-start + mt-0.5 改为 items-center；边框改用 text-secondary（实测对比度 4.51:1，满足 WCAG 1.4.11 的 3:1 要求）。实测两处复选框均为 20×20 / radius 8px / border 1px，精确裁剪后设计评审判定「一致」'),
     ('基础元素层用的是未定义的 token', 'input.tsx / checkbox.tsx 是 shadcn 默认样式，用的 border-input、bg-input、text-muted-foreground、ring-ring、border-border-secondary 等 token **本仓库根本没有定义**，样式实际是坏的。而且 input 是 h-9 rounded-md，与按钮的 h-11 rounded-xl 不是一套 —— 登录表单里输入框与按钮高度差 8px、圆角差 6px。', '按三层 token 架构（Primitive → Semantic → Component）重构：index.css 新增控件尺度 --ctl-height-sm/md/lg（36/44/48）、--ctl-radius-sm/md（8/12）、--ctl-gap（8），并在其上派生 --button-* / --input-* 组件 token；button/input/checkbox 全部改为消费 token，颜色换回项目语义 token。实测登录抽屉 7 个元素：输入框与按钮均 h=44 / r=12px / fs=14px，小控件 h=36 / fs=12，全部落在设计尺度上'),
     ('按钮样式全项目不一致', '运行时实测 82 个可见按钮：圆角出现 0/4/8/12/16px/full 共 6 种；「圆角×高度」组合达 14 种；同一个主 CTA 角色在 6 个文件里有 6 种实现（rounded-full py-3 / rounded-xl py-2.5 / rounded-lg py-1.5 / rounded-lg h-8 / rounded-full size-8 …）；主色同时存在 sky-400、blue-600、cyan-700 三种蓝；地图控件与菜单按钮是方角而缩略图小按钮和关闭按钮是圆形。另外登录抽屉的「验证码/密码」两个 tab 是 display:block，实测文字垂直偏移 -6.3%，「中文」与「发送验证码」也不同程度偏移。',
      '把 ui/button.tsx 重写为项目原生体系（文字按钮一律 rounded-xl、图标按钮一律 rounded-full、高度只有 36/44/48 三档、inline-flex+items-center 保证垂直居中、主色只有 cyan-700）；写 codemod 做全量归一（21 个文件、圆角 29 处、图标改圆 27 个、主色 34 处、补垂直居中 17 处）；逐个修登录抽屉的 3 处居中问题与预览态 CTA 的胶囊圆角。复测：圆角收敛为 full 41 + 12px 38 两种主导，垂直居中 0 个不达标，设计评审「基本一致」'),
@@ -116,7 +117,11 @@ def latest_reports():
 def main():
     summary = read_summary()
     reports = [parse_md(p) for p in latest_reports()]
-    arts = sorted(glob.glob(os.path.join(ROOT, 'artifacts', '*')))
+    # 只取「目录」，且按修改时间排序。之前用 glob('artifacts/*') + sorted(),
+    # 新增的 ui-audit.json 等文件按字典序排在时间戳目录之后，被选成了「最新 4 个」，
+    # 结果一张截图都收不到，报告只有 42KB。
+    arts = [d for d in glob.glob(os.path.join(ROOT, 'artifacts', '*')) if os.path.isdir(d)]
+    arts.sort(key=os.path.getmtime)
     shots = []
     for a in arts[-4:]:
         for png in sorted(glob.glob(os.path.join(a, '*.png'))):
@@ -197,6 +202,34 @@ ul{padding-left:22px}li{margin:6px 0}
                      f'<td class="r {row["result"]}">{row["result"]}</td>'
                      f'<td><code>{html.escape(row["evidence"][:180])}</code></td></tr>')
         h.append('</table>')
+
+    el_path = os.path.join(ROOT, 'artifacts', 'element-audit.json')
+    if os.path.exists(el_path):
+        e = json.load(open(el_path, encoding='utf-8'))
+        rows = e.get('rows', [])
+        h.append('<h2>跨界面同类元素审计（checkbox / radio / select）</h2>')
+        h.append('<div class="sub">用户指出「两个选择框不一样、且没有垂直居中」。核查发现屏幕上确实是两套实现：'
+                 '左侧是原生 &lt;input type=checkbox&gt;（方角、硬编码蓝），右侧是 Radix Checkbox（圆角 8px、'
+                 '用 items-start + mt-0.5 硬凑对齐）。而此前的审计<b>明确把 checkbox 排除在外</b>，所以永远查不到。'
+                 '本审计遍历所有界面，按元素种类聚合，逐类校验圆角 / 尺寸 / 与文字的垂直偏差。</div>')
+        import collections as _c
+        by = _c.defaultdict(list)
+        for x in rows:
+            by[x['kind']].append(x)
+        for kind in ('checkbox', 'radio', 'range'):
+            items = by.get(kind) or []
+            if not items:
+                continue
+            h.append(f'<h3>{kind}（{len(items)} 个）</h3>')
+            h.append('<table><tr><th>界面</th><th>尺寸</th><th>圆角</th><th>与文字垂直偏差</th><th>类名</th></tr>')
+            for x in items:
+                vo = f"{x['vOff'] * 100:+.1f}%" if x.get('vOff') is not None else '—'
+                h.append(f'<tr><td>{html.escape(x["screen"])}</td><td>{x["w"]}×{x["h"]}</td>'
+                         f'<td>{x["radius"]}px</td><td>{vo}</td>'
+                         f'<td><code>{html.escape(x["cls"][:44])}</code></td></tr>')
+            h.append('</table>')
+        probs = e.get('problems') or []
+        h.append(f'<p>结论：<b>{"✓ 同类元素完全一致" if not probs else "✗ " + "；".join(probs)}</b></p>')
 
     align_path = os.path.join(ROOT, 'artifacts', 'align-audit.json')
     if os.path.exists(align_path):
