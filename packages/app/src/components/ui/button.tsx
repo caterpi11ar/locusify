@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils'
  */
 const buttonVariants = cva(
   [
-    'inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap',
+    'inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap',
     'font-medium transition-colors duration-200 select-none',
     'focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none',
     'disabled:pointer-events-none disabled:opacity-50',
@@ -44,13 +44,14 @@ const buttonVariants = cva(
         /** 地图上的浮层按钮：毛玻璃 */
         glass: 'bg-material-thick border-fill-tertiary text-text hover:bg-material-opaque border backdrop-blur-[120px]',
       },
+      // 尺寸走三层 token，不再各处写 h-11 / rounded-xl 这类具体值
       size: {
-        'sm': 'h-9 rounded-xl px-3.5 text-xs',
-        'md': 'h-11 rounded-xl px-5 text-sm',
-        'lg': 'h-12 rounded-xl px-6 text-sm',
-        'icon': 'size-11 rounded-full',
-        'icon-sm': 'size-9 rounded-full',
-        'icon-lg': 'size-12 rounded-full',
+        'sm': 'h-(--button-height-sm) rounded-(--button-radius) gap-(--button-gap) px-3.5 text-xs',
+        'md': 'h-(--button-height-md) rounded-(--button-radius) gap-(--button-gap) px-5 text-sm',
+        'lg': 'h-(--button-height-lg) rounded-(--button-radius) gap-(--button-gap) px-6 text-sm',
+        'icon': 'size-(--button-height-md) rounded-full',
+        'icon-sm': 'size-(--button-height-sm) rounded-full',
+        'icon-lg': 'size-(--button-height-lg) rounded-full',
       },
     },
     defaultVariants: { variant: 'secondary', size: 'md' },

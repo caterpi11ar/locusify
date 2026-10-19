@@ -12,6 +12,7 @@
   python3 tools/verify/audit-ui.py --base http://localhost:1052 [--json out.json]
 """
 import argparse
+import collections
 import json
 import os
 import re
@@ -109,7 +110,22 @@ def measure(w, h, nch, px, box):
 COLLECT = r"""
 () => {
   const scope = document.querySelector('.ant-drawer') || document.body;
-  const res = { contrast: [], targets: [], unlabeled: [], antipes: [], nested: [], headings: [] };
+  const res = { contrast: [], targets: [], unlabeled: [], antipes: [], nested: [], headings: [], base: [] };
+
+  // 基础元素一致性：按钮 / 输入框 / 下拉 应共享同一套高度与圆角
+  for (const el of document.querySelectorAll('button, input:not([type=hidden]):not([type=checkbox]), select, textarea')) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 60 || r.height < 20) continue;      // 只比「横向填充型」控件
+    const cs = getComputedStyle(el);
+    res.base.push({
+      tag: el.tagName.toLowerCase(),
+      type: el.getAttribute('type') || '',
+      h: Math.round(r.height),
+      radius: Math.round(parseFloat(cs.borderTopLeftRadius)),
+      fs: cs.fontSize,
+      text: (el.innerText || el.value || el.placeholder || '').trim().slice(0, 20),
+    });
+  }
 
   for (const el of scope.querySelectorAll('*')) {
     const cs = getComputedStyle(el);
@@ -255,9 +271,80 @@ def main():
             for i in items:
                 print(f'    [FAIL] {fmt(i)}')
 
+    print('\n' + '=' * 68)
+    print('基础元素一致性（按钮 / 输入框应同高同圆角）')
+    print('=' * 68)
+    base_els = raw.get('base', [])
+    hs = collections.Counter(b['h'] for b in base_els)
+    rs = collections.Counter(b['radius'] for b in base_els)
+    print(f'  高度分布: {dict(hs)}')
+    print(f'  圆角分布: {dict(rs)}')
+    for b in base_els:
+        print(f"  <{b['tag']}{(':' + b['type']) if b['type'] else ''}> {b['h']}px r={b['radius']}px "
+              f"fs={b['fs']} 「{b['text'][:16]}」")
+    out['base'] = base_els
+    # 一致性判定：只看有填充的横向控件，允许 icon 按钮不同
+    big = [b for b in base_els if b['h'] >= 32]
+    consistent = len({b['h'] for b in big}) <= 1 and len({b['radius'] for b in big}) <= 1
+    print(f"  → 横向量控件 {len(big)} 个，高度种类 {len({b['h'] for b in big})}、"
+          f"圆角种类 {len({b['radius'] for b in big})} → {'✓ 一致' if consistent else '✗ 不一致'}")
+    out['base_consistent'] = consistent
+
     print('\n标题层级:')
     for x in raw['headings']:
         print(f"  {x['tag']} {x['size']:>6}  「{x['text']}」")
+
+    # ── 登录抽屉：输入框与按钮同屏，是检验「基础元素是否一套」的最佳场景
+    print('\n' + '=' * 68)
+    print('登录抽屉里的基础元素（输入框 vs 按钮）')
+    print('=' * 68)
+    with sync_playwright() as p2:
+        b2 = p2.chromium.launch(headless=True)
+        c2 = b2.new_context(viewport={'width': 390, 'height': 844}, locale='zh-CN')
+        g2 = c2.new_page()
+        g2.route(re.compile(r'/api/v1/'), lambda r: r.fulfill(
+            status=200, content_type='application/json',
+            body=json.dumps({'success': True, 'data': {'id': 'a', 'email': 'a@b.c',
+                                                       'created_at': 'x', 'last_sign_in_at': 'y'}})))
+        g2.goto(f'{base}/zh-CN/', wait_until='domcontentloaded', timeout=60000)
+        g2.wait_for_timeout(6000)
+        login = g2.evaluate(r"""() => {
+          const out = [];
+          const scope = document.querySelector('.ant-drawer') || document.body;
+          for (const el of scope.querySelectorAll('input:not([type=hidden]):not([type=checkbox]), button')) {
+            const r = el.getBoundingClientRect();
+            if (r.width < 60 || r.height < 24) continue;
+            const cs = getComputedStyle(el);
+            out.push({ tag: el.tagName.toLowerCase(), h: Math.round(r.height),
+                       radius: Math.round(parseFloat(cs.borderTopLeftRadius)), fs: cs.fontSize,
+                       text: (el.innerText || el.placeholder || '').trim().slice(0, 18) });
+          }
+          return out;
+        }""")
+        b2.close()
+    for x in login:
+        print(f"  <{x['tag']}> {x['h']}px r={x['radius']}px fs={x['fs']} 「{x['text']}")
+    out['login_base'] = login
+    if login:
+        # 正确判据不是「唯一值」，而是「是否落在设计尺度上」：
+        #   高度只允许 36 / 44 / 48（sm / md / lg）
+        #   圆角只允许 12（文字控件）或 full（图标按钮）
+        #   字号与高度档位对应：36→12px、44/48→14px
+        ALLOWED_H = {36, 44, 48}
+        ALLOWED_R = {12}
+        bad = []
+        for x in login:
+            h, r, fs = x['h'], x['radius'], int(float(x['fs'].replace('px', '')))
+            want_fs = 12 if h == 36 else 14
+            if h not in ALLOWED_H or r not in ALLOWED_R or fs != want_fs:
+                bad.append((x['tag'], h, r, fs))
+        hs, rs = sorted({x['h'] for x in login}), sorted({x['radius'] for x in login})
+        print(f"  → {len(login)} 个元素，高度 {hs}，圆角 {rs}")
+        if bad:
+            print(f"  [FAIL] 偏离尺度 {len(bad)} 个: {bad}")
+        else:
+            print('  → ✓ 全部落在设计尺度上（高度 36/44、圆角 12、字号随档位 12/14）')
+        out['login_base_consistent'] = not bad
 
     json.dump(out, open(args.json, 'w'), ensure_ascii=False, indent=2)
     print(f'\n结果已写入 {args.json}')
