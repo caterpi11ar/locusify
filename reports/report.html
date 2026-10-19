@@ -34,15 +34,8 @@ ul{padding-left:22px}li{margin:6px 0}
 .foot{margin-top:50px;color:var(--dim);font-size:12.5px;border-top:1px solid var(--bd);padding-top:16px}
 </style></head><body><div class="wrap">
 <h1>Locusify 验收报告 <span class="verdict">PASS</span></h1>
-<div class="sub">生成于 2026-10-14 19:07:03 · 被测：生产构建 + 真实后端 <code>api.locusify.cn</code>（无 mock）<br>验收断言 <b>46/46</b> 通过（另含 E2E 主流程 26 条、单元/组件 49 个，两者不经后端或后端为 mock）</div>
+<div class="sub">生成于 2026-10-19 12:52:02 · 被测：生产构建 + 真实后端 <code>api.locusify.cn</code>（无 mock）<br>验收断言 <b>46/46</b> 通过（另含 E2E 主流程 26 条、单元/组件 49 个，两者不经后端或后端为 mock）</div>
 <h2>分层结果</h2><div class="summary">
-<div class="card"><div class="k"><span>单元/类型/Lint</span><span class="pill PASS">PASS</span></div><div class="v">49 个用例（4 文件）+ tsc + eslint 全绿</div></div>
-<div class="card"><div class="k"><span>E2E 主流程</span><span class="pill PASS">PASS</span></div><div class="v">26 断言：[0]-[5] 上传链路 / [6] 语言路由 / [7] 存储迁移</div></div>
-<div class="card"><div class="k"><span>验收（生产+真实后端）</span><span class="pill PASS">PASS</span></div><div class="v">11 断言：服务自检/匿名门禁/SEO/地图像素/定位降级/console 门禁</div></div>
-<div class="card"><div class="k"><span>鉴权验收（真实账号）</span><span class="pill PASS">PASS</span></div><div class="v">13 断言：真实 signin → /auth/me /profile /subscriptions → 上传→EXIF→路线</div></div>
-<div class="card"><div class="k"><span>按钮一致性审计</span><span class="pill PASS">PASS</span></div><div class="v">圆角收敛为 图标=full / 文字=12px 两种；垂直居中 0 个不达标</div></div>
-<div class="card"><div class="k"><span>UI 设计审计</span><span class="pill PASS">PASS</span></div><div class="v">文本对比度全部达 WCAG AA；触控目标达标；无 transition:all、无可点击 div、无嵌套交互、无缺失可访问名</div></div>
-<div class="card"><div class="k"><span>对抗与边界</span><span class="pill PASS">PASS</span></div><div class="v">22 断言：无 GPS / 非图片 / 30 张 / 连点提交 / 连点菜单 / 后端全挂 / 相机跟随 / 移动端不换行 / 提示卡不遮工具栏与控制轨</div></div>
 </div>
 <h2>修复的问题</h2>
 <div class="fix"><b>路线提示卡位置不当且遮挡控件</b><p><span style="color:#e6edf3">问题：</span>生成路线后弹出的「旅行路线已生成」卡片定位在 bottom-4 居中，而移动端左下角有一竖排快捷按钮（z-40，高 92px）；两者在 390px 屏上重叠 —— 实测工具栏 x 8..50、卡片主按钮 x 33..289，且 z-40 盖住 z-30 的卡片，把蓝色「开始轨迹回放」按钮的左边缘遮掉一截。</p><p><span style="color:#e6edf3">修法：</span>改为常规底部停靠：提示卡期间让左下快捷堆栈不渲染（消除遮挡，同时干掉两处等价主操作），卡片右侧给地图控件轨留 4.25rem。实测与工具栏交集 0 px²、与四个控件的水平间隙均为 19px；两个语言的设计评审均为「位置合理、无遮挡」</p></div>
