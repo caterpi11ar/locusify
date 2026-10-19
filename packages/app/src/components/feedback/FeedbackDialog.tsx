@@ -193,7 +193,7 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
                       type="button"
                       onClick={handleSubmit}
                       disabled={rating === 0 || submitting}
-                      className="rounded-lg bg-sky-400 px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-40"
+                      className="rounded-xl bg-cyan-700 px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-40"
                     >
                       {submitting ? '...' : t('feedback.submit')}
                     </button>

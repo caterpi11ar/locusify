@@ -46,7 +46,7 @@ export function TrajectoryStatsBar() {
           {/* Left: Logo + brand — stacked on mobile, inline on desktop */}
           <div className="flex flex-col items-center gap-1 pr-4 sm:flex-row sm:gap-2">
             <img src={locusifyLogo} alt="" className="size-12 rounded sm:size-16" />
-            <span className="text-[10px] font-semibold text-white sm:text-sm">Locusify</span>
+            <span className="text-2xs font-semibold text-white sm:text-sm">Locusify</span>
           </div>
 
           {/* Middle: 2 stat items */}
@@ -59,12 +59,12 @@ export function TrajectoryStatsBar() {
                     precision={item.precision}
                   />
                   {item.unit && (
-                    <span className="ml-0.5 text-[10px] font-normal text-white/60">
+                    <span className="ml-0.5 text-2xs font-normal text-white/60">
                       {item.unit}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-white/60">{item.label}</span>
+                <span className="text-2xs text-white/60">{item.label}</span>
               </div>
             ))}
           </div>
@@ -72,7 +72,7 @@ export function TrajectoryStatsBar() {
           {/* Right: QR code */}
           <div className="flex flex-col items-center gap-1 border-l border-white/15 pl-4">
             <img src={qrcodeImg} alt="QR" className="size-12 rounded sm:size-16" />
-            <span className="text-[9px] text-white/60">{t('stats.bar.scanQr')}</span>
+            <span className="text-2xs text-white/60">{t('stats.bar.scanQr')}</span>
           </div>
         </m.div>
       )}

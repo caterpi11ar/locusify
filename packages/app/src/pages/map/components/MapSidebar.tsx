@@ -203,7 +203,7 @@ function SidebarItem({
         data-onboarding={onboardingTarget}
         aria-label={label}
         className={cn(
-          'group flex min-w-8 select-none overflow-hidden rounded-lg text-sm transition-colors',
+          'group flex min-w-8 select-none overflow-hidden rounded-xl text-sm transition-colors',
           expanded ? 'h-9 items-center gap-2' : 'h-[52px] w-full flex-col items-center justify-center gap-0.5 py-1',
           disabled
             ? 'cursor-not-allowed text-text/25'
@@ -216,7 +216,7 @@ function SidebarItem({
         </span>
         {expanded
           ? <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-          : <span className="max-w-full truncate px-0.5 text-center text-[10px] leading-none">{shortLabel ?? label}</span>}
+          : <span className="max-w-full truncate px-0.5 text-center text-2xs leading-none">{shortLabel ?? label}</span>}
       </button>
       <AnimatePresence>
         {showHint && (

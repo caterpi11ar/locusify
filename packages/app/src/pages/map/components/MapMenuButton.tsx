@@ -41,6 +41,12 @@ interface MapMenuButtonProps {
   isProcessing?: boolean
   /** Whether to show the upload entry hint */
   showUploadHint?: boolean
+  /**
+   * 移动端左下角快捷按钮堆栈是否隐藏。
+   * 路线提示卡停靠在同一区域，且它的「查看轨迹」与提示卡的「开始轨迹回放」
+   * 调的是同一个动作，同屏出现既重叠又是两个等价主操作。
+   */
+  hideQuickActions?: boolean
 }
 
 /**
@@ -62,6 +68,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
   isRecording,
   isProcessing,
   showUploadHint,
+  hideQuickActions,
 }) => {
   const { t } = useTranslation()
   const { shareLink } = useWebShare()
@@ -144,7 +151,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
               <button
                 type="button"
                 onClick={onExitReplay}
-                className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 items-center justify-center transition-colors sm:size-12"
+                className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
                 title={t('workspace.controls.exit', { defaultValue: 'Exit Replay' })}
               >
                 <i className="i-mingcute-close-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
@@ -207,8 +214,9 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 items-center justify-center transition-colors"
+            className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex rounded-full size-10 items-center justify-center transition-colors"
             title={t('menu.toggle', { defaultValue: 'Menu' })}
+            aria-label={t('menu.toggle', { defaultValue: 'Menu' })}
             data-testid="map-menu-toggle"
           >
             <i
@@ -291,7 +299,11 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
       </m.div>
 
       <m.div
-        className="absolute bottom-3 left-2 z-40 flex flex-col-reverse gap-2 sm:hidden"
+        className={cn(
+          'absolute bottom-3 left-2 z-40 flex flex-col-reverse gap-2 sm:hidden',
+          // 提示卡占用同一区域时整体不渲染，避免覆盖与被覆盖
+          hideQuickActions && 'hidden',
+        )}
         style={{ paddingBottom: 'var(--safe-area-bottom)', paddingLeft: 'var(--safe-area-left)' }}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -318,8 +330,9 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
               onClick={() => {
                 onUploadClick?.()
               }}
-              className="group hover:bg-red/10 active:bg-red/20 relative flex size-10 items-center justify-center transition-colors"
+              className="group hover:bg-red/10 active:bg-red/20 relative flex rounded-full size-10 items-center justify-center transition-colors"
               title={t('menu.upload', { defaultValue: 'Upload Photos' })}
+              aria-label={t('menu.upload', { defaultValue: 'Upload Photos' })}
               data-testid="map-menu-upload"
             >
               <i className="i-mingcute-add-line text-red size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
@@ -359,7 +372,7 @@ export const MapMenuButton: FC<MapMenuButtonProps> = ({
                         setShowRoutesHint(false)
                         onRoutesClick?.()
                       }}
-                      className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors"
+                      className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors"
                     >
                       <i className="i-mingcute-route-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
                     </button>

@@ -55,10 +55,10 @@ export function GlobeOrbitOverlay({ onBeginRecording }: GlobeOrbitOverlayProps) 
               />
             </div>
             <div className="mt-1.5 flex items-center justify-between">
-              <span className="text-text-tertiary text-[10px] sm:text-xs">
+              <span className="text-text-tertiary text-2xs sm:text-xs">
                 {isZooming ? '...' : `${Math.round(progress * 360)}° / 360°`}
               </span>
-              <span className="text-text-tertiary text-[10px] sm:text-xs">
+              <span className="text-text-tertiary text-2xs sm:text-xs">
                 {isZooming ? '...' : `${Math.round(progress * 100)}%`}
               </span>
             </div>
@@ -73,7 +73,7 @@ export function GlobeOrbitOverlay({ onBeginRecording }: GlobeOrbitOverlayProps) 
             <button
               type="button"
               onClick={exitOrbit}
-              className="text-text-secondary hover:text-text flex size-7 items-center justify-center rounded-lg transition-colors sm:size-8"
+              className="text-text-secondary hover:text-text flex size-7 items-center justify-center rounded-full transition-colors sm:size-8"
               title={t('workspace.controls.exit')}
             >
               <i className="i-mingcute-close-line text-sm sm:text-base" />
@@ -85,7 +85,7 @@ export function GlobeOrbitOverlay({ onBeginRecording }: GlobeOrbitOverlayProps) 
               onClick={handlePlayClick}
               disabled={isZooming}
               className={cn(
-                'flex size-8 items-center justify-center rounded-full bg-sky-400 text-white shadow-lg transition-transform sm:size-9',
+                'flex size-8 items-center justify-center rounded-full bg-cyan-700 text-white shadow-lg transition-transform sm:size-9',
                 isZooming ? 'opacity-50' : 'hover:scale-105 active:scale-95',
               )}
               title={

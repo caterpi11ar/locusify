@@ -1,6 +1,7 @@
 import type { FilterType, ReplayTemplateConfig, TextOverlayStyle, TransitionType } from '@/types/template'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Checkbox } from '@/components/ui/checkbox'
 import AudioManager from '@/lib/audio/AudioManager'
 import { audioTracks } from '@/lib/audio/tracks'
 import { cn } from '@/lib/utils'
@@ -69,9 +70,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors',
+              'flex shrink-0 items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-colors',
               activeTab === tab.id
-                ? 'bg-sky-400/15 text-sky-400'
+                ? 'bg-cyan-700/15 text-sky-400'
                 : 'text-text/50 hover:bg-text/5 hover:text-text/70',
             )}
           >
@@ -94,11 +95,11 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                     type="button"
                     onClick={() => !isUnavailable && update('music', { ...config.music, trackId: track.id })}
                     className={cn(
-                      'relative rounded-lg border px-2.5 py-2 text-[11px] transition-colors',
+                      'relative rounded-xl border px-2.5 py-2 text-xs transition-colors',
                       isUnavailable
                         ? 'cursor-default border-fill-tertiary opacity-40'
                         : config.music.trackId === track.id
-                          ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                          ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                           : 'border-fill-tertiary text-text/60 hover:border-text/20',
                     )}
                   >
@@ -113,7 +114,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
               })}
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.volume')}</span>
                 <span>
                   {Math.round(config.music.volume * 100)}
@@ -141,9 +142,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   type="button"
                   onClick={() => update('filter', { ...config.filter, type })}
                   className={cn(
-                    'rounded-lg border px-2 py-2 text-[11px] capitalize transition-colors',
+                    'rounded-xl border px-2 py-2 text-xs capitalize transition-colors',
                     config.filter.type === type
-                      ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                      ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                       : 'border-fill-tertiary text-text/60 hover:border-text/20',
                   )}
                 >
@@ -152,7 +153,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
               ))}
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.intensity')}</span>
                 <span>
                   {Math.round(config.filter.intensity * 100)}
@@ -174,13 +175,13 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
         {activeTab === 'text' && (
           <div className="space-y-3">
             <label className="flex items-center justify-between">
-              <span className="text-[11px] text-text/60">{t('template.customize.textOverlay')}</span>
+              <span className="text-xs text-text/60">{t('template.customize.textOverlay')}</span>
               <button
                 type="button"
                 onClick={() => update('textOverlay', { ...config.textOverlay, enabled: !config.textOverlay.enabled })}
                 className={cn(
                   'relative h-5 w-9 rounded-full transition-colors',
-                  config.textOverlay.enabled ? 'bg-sky-400' : 'bg-text/20',
+                  config.textOverlay.enabled ? 'bg-cyan-700' : 'bg-text/20',
                 )}
               >
                 <span
@@ -194,7 +195,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             {config.textOverlay.enabled && (
               <>
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-text/40">{t('template.customize.textStyle')}</span>
+                  <span className="text-2xs text-text/40">{t('template.customize.textStyle')}</span>
                   <div className="flex flex-wrap gap-1">
                     {TEXT_STYLES.map(style => (
                       <button
@@ -202,9 +203,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                         type="button"
                         onClick={() => update('textOverlay', { ...config.textOverlay, style })}
                         className={cn(
-                          'rounded-lg border px-2 py-1 text-[10px] capitalize transition-colors',
+                          'rounded-xl border px-2 py-1 text-2xs capitalize transition-colors',
                           config.textOverlay.style === style
-                            ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                            ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                             : 'border-fill-tertiary text-text/60 hover:border-text/20',
                         )}
                       >
@@ -214,7 +215,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-text/40">{t('template.customize.position')}</span>
+                  <span className="text-2xs text-text/40">{t('template.customize.position')}</span>
                   <div className="flex flex-wrap gap-1">
                     {TEXT_POSITIONS.map(pos => (
                       <button
@@ -222,9 +223,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                         type="button"
                         onClick={() => update('textOverlay', { ...config.textOverlay, position: pos })}
                         className={cn(
-                          'rounded-lg border px-2 py-1 text-[10px] transition-colors',
+                          'rounded-xl border px-2 py-1 text-2xs transition-colors',
                           config.textOverlay.position === pos
-                            ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                            ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                             : 'border-fill-tertiary text-text/60 hover:border-text/20',
                         )}
                       >
@@ -235,32 +236,30 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                 </div>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={config.textOverlay.showDate}
-                      onChange={e => update('textOverlay', { ...config.textOverlay, showDate: e.target.checked })}
-                      className="accent-sky-400"
+                      onCheckedChange={checked => update('textOverlay', { ...config.textOverlay, showDate: (checked === true) })}
+                      className="size-4"
                     />
-                    <span className="text-[10px] text-text/60">{t('template.customize.showDate')}</span>
+                    <span className="text-2xs text-text/60">{t('template.customize.showDate')}</span>
                   </label>
                   <label className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={config.textOverlay.showLocation}
-                      onChange={e => update('textOverlay', { ...config.textOverlay, showLocation: e.target.checked })}
-                      className="accent-sky-400"
+                      onCheckedChange={checked => update('textOverlay', { ...config.textOverlay, showLocation: (checked === true) })}
+                      className="size-4"
                     />
-                    <span className="text-[10px] text-text/60">{t('template.customize.showLocation')}</span>
+                    <span className="text-2xs text-text/60">{t('template.customize.showLocation')}</span>
                   </label>
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-text/40">{t('template.customize.customText')}</span>
+                  <span className="text-2xs text-text/40">{t('template.customize.customText')}</span>
                   <textarea
                     rows={2}
                     value={config.textOverlay.customText ?? ''}
                     onChange={e => update('textOverlay', { ...config.textOverlay, customText: e.target.value })}
                     placeholder={t('template.customize.customTextPlaceholder')}
-                    className="w-full resize-none rounded-lg border border-fill-tertiary bg-transparent px-2.5 py-2 text-[11px] text-text placeholder:text-text/30 focus:outline-none focus:border-text/30"
+                    className="w-full resize-none rounded-lg border border-fill-tertiary bg-transparent px-2.5 py-2 text-xs text-text placeholder:text-text/30 focus:outline-none focus:border-text/30"
                   />
                 </div>
               </>
@@ -277,9 +276,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   type="button"
                   onClick={() => update('transitions', { ...config.transitions, type })}
                   className={cn(
-                    'rounded-lg border px-2 py-2 text-[11px] transition-colors',
+                    'rounded-xl border px-2 py-2 text-xs transition-colors',
                     config.transitions.type === type
-                      ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                      ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                       : 'border-fill-tertiary text-text/60 hover:border-text/20',
                   )}
                 >
@@ -288,7 +287,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
               ))}
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.transitionDuration')}</span>
                 <span>
                   {config.transitions.duration}
@@ -311,7 +310,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
         {activeTab === 'speed' && (
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.segmentDuration')}</span>
                 <span>
                   {(config.segmentDuration / 1000).toFixed(1)}
@@ -329,7 +328,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
               />
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.defaultSpeed')}</span>
                 <span>
                   {config.defaultSpeed}
@@ -352,7 +351,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
         {activeTab === 'line' && (
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.lineColor')}</span>
               </label>
               <div className="flex gap-2">
@@ -371,7 +370,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.lineWidth')}</span>
                 <span>
                   {config.lineStyle.width}
@@ -390,22 +389,20 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={config.lineStyle.glow}
-                  onChange={e => update('lineStyle', { ...config.lineStyle, glow: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('lineStyle', { ...config.lineStyle, glow: (checked === true) })}
+                  className="size-4"
                 />
-                <span className="text-[10px] text-text/60">{t('template.customize.glow')}</span>
+                <span className="text-2xs text-text/60">{t('template.customize.glow')}</span>
               </label>
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={config.lineStyle.animated}
-                  onChange={e => update('lineStyle', { ...config.lineStyle, animated: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('lineStyle', { ...config.lineStyle, animated: (checked === true) })}
+                  className="size-4"
                 />
-                <span className="text-[10px] text-text/60">{t('template.customize.animated')}</span>
+                <span className="text-2xs text-text/60">{t('template.customize.animated')}</span>
               </label>
             </div>
           </div>
@@ -414,7 +411,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
         {activeTab === 'camera' && (
           <div className="space-y-3">
             <div className="space-y-1.5">
-              <span className="text-[10px] text-text/40">{t('template.customize.followMode')}</span>
+              <span className="text-2xs text-text/40">{t('template.customize.followMode')}</span>
               <div className="flex flex-wrap gap-1">
                 {(['smart', 'fixed', 'topdown'] as const).map(mode => (
                   <button
@@ -422,9 +419,9 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                     type="button"
                     onClick={() => update('camera', { ...cameraConfig, followMode: mode })}
                     className={cn(
-                      'rounded-lg border px-2 py-1 text-[10px] capitalize transition-colors',
+                      'rounded-xl border px-2 py-1 text-2xs capitalize transition-colors',
                       cameraConfig.followMode === mode
-                        ? 'border-sky-400 bg-sky-400/10 text-sky-400'
+                        ? 'border-sky-400 bg-cyan-700/10 text-sky-400'
                         : 'border-fill-tertiary text-text/60 hover:border-text/20',
                     )}
                   >
@@ -435,26 +432,24 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={cameraConfig.pitchEnabled}
-                  onChange={e => update('camera', { ...cameraConfig, pitchEnabled: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('camera', { ...cameraConfig, pitchEnabled: (checked === true) })}
+                  className="size-4"
                 />
-                <span className="text-[10px] text-text/60">{t('template.customize.pitch')}</span>
+                <span className="text-2xs text-text/60">{t('template.customize.pitch')}</span>
               </label>
               <label className="flex items-center gap-1.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={cameraConfig.bearingEnabled}
-                  onChange={e => update('camera', { ...cameraConfig, bearingEnabled: e.target.checked })}
-                  className="accent-sky-400"
+                  onCheckedChange={checked => update('camera', { ...cameraConfig, bearingEnabled: (checked === true) })}
+                  className="size-4"
                 />
-                <span className="text-[10px] text-text/60">{t('template.customize.bearing')}</span>
+                <span className="text-2xs text-text/60">{t('template.customize.bearing')}</span>
               </label>
             </div>
             <div className="space-y-1.5">
-              <label className="flex items-center justify-between text-[11px] text-text/50">
+              <label className="flex items-center justify-between text-xs text-text/50">
                 <span>{t('template.customize.damping')}</span>
                 <span>{cameraConfig.damping.toFixed(2)}</span>
               </label>

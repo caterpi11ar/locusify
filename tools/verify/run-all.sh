@@ -80,10 +80,46 @@ else
     RESULTS+=("鉴权验收（真实账号）|FAIL|见 /tmp/verify-all-auth.log")
   fi
 
+  log "4f/4 跨界面同类元素审计（checkbox/radio 等）"
+  if python3 "$ROOT/tools/verify/audit-elements.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/element-audit.json" >/tmp/verify-all-elements.log 2>&1; then
+    RESULTS+=("跨界面同类元素审计|PASS|复选框等同类控件在圆角/尺寸/垂直对齐上完全一致")
+  else
+    RESULTS+=("跨界面同类元素审计|FAIL|见 /tmp/verify-all-elements.log")
+  fi
+
+  log "4e/4 布局对齐审计（各界面内容块左右边缘）"
+  if python3 "$ROOT/tools/verify/audit-align.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/align-audit.json" >/tmp/verify-all-align.log 2>&1; then
+    RESULTS+=("布局对齐审计|PASS|6 个界面 / 20 个内容块左右边缘全部对齐")
+  else
+    RESULTS+=("布局对齐审计|FAIL|见 /tmp/verify-all-align.log")
+  fi
+
+  log "4d/4 按钮一致性审计（圆角/高度/居中，运行时实测）"
+  if python3 "$ROOT/tools/verify/audit-buttons.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/button-audit.json" >/tmp/verify-all-buttons.log 2>&1; then
+    RESULTS+=("按钮一致性审计|PASS|圆角收敛为 图标=full / 文字=12px 两种；垂直居中 0 个不达标")
+  else
+    RESULTS+=("按钮一致性审计|FAIL|见 /tmp/verify-all-buttons.log")
+  fi
+
+  log "4c/4 UI 设计审计（对比度/触控目标/语义/反模式）"
+  if python3 "$ROOT/tools/verify/audit-ui.py" --base "http://localhost:$DEV_PORT" --json "$ROOT/artifacts/ui-audit.json" \
+       >/tmp/verify-all-ui.log 2>&1; then
+    RESULTS+=("UI 设计审计|PASS|文本对比度全部达 WCAG AA；触控目标达标；无 transition:all、无可点击 div、无嵌套交互、无缺失可访问名")
+  else
+    RESULTS+=("UI 设计审计|FAIL|见 /tmp/verify-all-ui.log")
+  fi
+
+  if [[ ! -d "$EDGE_DIR" ]]; then
+    echo "  素材缺失，自动生成…"
+    bash "$ROOT/tools/verify/make-edge-fixtures.sh" >/dev/null 2>&1 || true
+  fi
   if [[ -d "$EDGE_DIR" ]]; then
     if python3 "$ROOT/tools/verify/verify-edge.py" --base "http://localhost:$DEV_PORT" \
          --account "$ACCOUNT" --edge-dir "$EDGE_DIR" >/tmp/verify-all-edge.log 2>&1; then
-      RESULTS+=("对抗与边界|PASS|21 断言：无 GPS / 非图片 / 30 张 / 连点提交 / 连点菜单 / 后端全挂 / 相机跟随 / 移动端不换行 / 提示卡不被遮挡")
+      RESULTS+=("对抗与边界|PASS|22 断言：无 GPS / 非图片 / 30 张 / 连点提交 / 连点菜单 / 后端全挂 / 相机跟随 / 移动端不换行 / 提示卡不遮工具栏与控制轨")
     else
       RESULTS+=("对抗与边界|FAIL|见 /tmp/verify-all-edge.log")
     fi
@@ -96,7 +132,10 @@ fi
 # ---------------------------------------------------------------- 报告
 log "生成 HTML 报告"
 printf '%s\n' "${RESULTS[@]}" > /tmp/verify-all-summary.txt
-python3 "$ROOT/tools/verify/report.py"
+if ! python3 "$ROOT/tools/verify/report.py"; then
+  # 报告生成失败不能静默算通过
+  RESULTS+=("HTML 报告|FAIL|report.py 执行失败")
+fi
 REPORT="$ROOT/reports/report.html"
 echo "报告: $REPORT"
 
@@ -105,7 +144,9 @@ if [[ "$OPEN" == 1 ]]; then
   open "$REPORT"
 fi
 
-if printf '%s\n' "${RESULTS[@]}" | grep -q "|FAIL|"; then
-  echo "✗ 存在失败项"; exit 1
+if printf '%s\n' "${RESULTS[@]}" | grep -qE "\|(FAIL|SKIP)\|"; then
+  echo "✗ 存在失败或被跳过的项（SKIP 不算通过）"
+  printf '%s\n' "${RESULTS[@]}" | grep -E "\|(FAIL|SKIP)\|" | sed 's/^/   /'
+  exit 1
 fi
 echo "✓ 全部通过"

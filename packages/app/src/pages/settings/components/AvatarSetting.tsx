@@ -45,7 +45,7 @@ export const AvatarSetting: FC = () => {
                 ? <img src={user.avatarUrl} alt="" className="size-full object-cover" />
                 : <div className="flex size-full items-center justify-center bg-sky-400 text-lg font-bold text-white">{user.name?.[0] ?? '?'}</div>}
             </div>
-            <span className="text-[10px] text-text/60">{t('settings.avatarProfile')}</span>
+            <span className="text-2xs text-text/60">{t('settings.avatarProfile')}</span>
           </button>
         )}
 
@@ -71,7 +71,7 @@ export const AvatarSetting: FC = () => {
             >
               <span className={cn(preset.icon, 'size-6 text-white')} />
             </div>
-            <span className="text-[10px] text-text/60">{t(preset.nameKey)}</span>
+            <span className="text-2xs text-text/60">{t(preset.nameKey)}</span>
           </button>
         ))}
 
@@ -91,7 +91,7 @@ export const AvatarSetting: FC = () => {
           >
             <div className="size-3 rounded-full bg-sky-400" />
           </div>
-          <span className="text-[10px] text-text/60">{t('settings.avatarNone')}</span>
+          <span className="text-2xs text-text/60">{t('settings.avatarNone')}</span>
         </button>
       </div>
     </div>

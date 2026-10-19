@@ -48,7 +48,7 @@ export function TemplateSelector({ selectedId, onSelect, onUpgradeClick }: Templ
             >
               {/* Pro badge */}
               {template.tier === 'pro' && (
-                <span className="absolute -top-1.5 right-2 rounded-full bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                <span className="absolute -top-1.5 right-2 rounded-full bg-amber-500 px-1.5 py-0.5 text-2xs font-bold uppercase text-white">
                   PRO
                 </span>
               )}
@@ -70,7 +70,7 @@ export function TemplateSelector({ selectedId, onSelect, onUpgradeClick }: Templ
               </span>
 
               {/* Description */}
-              <span className="line-clamp-2 text-[10px] leading-tight text-text/50">
+              <span className="line-clamp-2 text-2xs leading-tight text-text/50">
                 {t(template.descriptionKey)}
               </span>
 

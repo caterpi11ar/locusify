@@ -58,8 +58,8 @@ export const RedeemCodeSection: FC = () => {
           onClick={handleRedeem}
           disabled={loading || !code.trim()}
           className={cn(
-            'flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-white transition-colors',
-            'bg-sky-400 hover:bg-sky-500 disabled:opacity-50',
+            'flex h-8 items-center gap-1.5 rounded-xl px-3 text-xs font-medium text-white transition-colors',
+            'bg-cyan-700 hover:bg-cyan-700 disabled:opacity-50',
           )}
         >
           {loading && <Spinner className="size-3" />}

@@ -90,7 +90,7 @@ export function ReplayStatsCard() {
             {t('template.stats.title')}
           </span>
         </div>
-        <span className="text-[10px] text-text-tertiary">
+        <span className="text-2xs text-text-tertiary">
           {dateRange}
         </span>
       </div>
@@ -114,12 +114,12 @@ export function ReplayStatsCard() {
                 {item.value}
               </span>
               {'unit' in item && item.unit && (
-                <span className="text-[10px] text-text-secondary">
+                <span className="text-2xs text-text-secondary">
                   {item.unit}
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-text-secondary">
+            <span className="text-2xs text-text-secondary">
               {item.label}
             </span>
           </m.div>

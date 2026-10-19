@@ -67,7 +67,7 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
                   <button
                     type="button"
                     onClick={onStartReplay}
-                    className="col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                    className="col-span-2 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-cyan-700 px-4 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                   >
                     <i className="i-mingcute-play-fill text-base" />
                     {t('onboarding.routeReady.startReplay')}
@@ -78,7 +78,7 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
                     <button
                       type="button"
                       onClick={onSelectPhotos}
-                      className="inline-flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-sky-400 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+                      className="inline-flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-cyan-700 px-3 text-sm font-medium text-white transition-colors hover:bg-cyan-700"
                     >
                       <i className="i-mingcute-upload-2-line text-base" />
                       {t('onboarding.empty.selectPhotos')}
@@ -163,14 +163,32 @@ interface RouteReadyPromptProps {
 export function RouteReadyPrompt({ photoCount, onStartReplay, onDismiss }: RouteReadyPromptProps) {
   const { t } = useTranslation()
 
-  // 移动端底部左下角有一竖排快捷按钮（z-40，高 92px + bottom-3），
-  // 它和这张居中卡片（宽最多 420px）在 390px 屏上会重叠：实测工具栏
-  // x 8..50、卡片按钮 x 33..289，且 z-40 会盖住 z-30 的卡片，把蓝色主按钮的
-  // 左边缘遮掉一截。所以移动端把卡片抬到工具栏之上（bottom-32）。
   return (
     <m.section
       aria-live="polite"
-      className={cn(glassPanel, 'pointer-events-auto absolute bottom-32 left-1/2 z-30 w-[min(calc(100vw-2rem),420px)] -translate-x-1/2 bg-material-opaque/95 p-4 sm:bottom-6')}
+      /*
+       * 停靠在底部（bottom sheet 的常规位置），而不是浮在画面中下部。
+       * 之前抬到 bottom-32 只是为了避让左下角快捷按钮堆栈，但那段空隙
+       * 看不出因果，卡片看起来像「飘」在地图中间；正确的做法是直接让
+       * 堆栈在提示卡期间不渲染（见 MapMenuButton 的 hideQuickActions），
+       * 顺带消除两处等价主操作（堆栈的「查看轨迹」与卡片的「开始轨迹回放」
+       * 都调 handleRoutesClick）。
+       *
+       * 宽度不用「居中 + 100vw-2rem」：右侧那个竖排地图控件轨
+       * （zoom/compass/locate，right-2）会在 390px 屏上被卡片盖住
+       * （实测控件 x 341..381、卡片 x 16..374，四个控件全中）。
+       * 改为左侧停靠、右侧给控件轨留 4.25rem，桌面再恢复居中。
+       *
+       * safe-area 一并计入：移动端卡片接近满幅，刘海/Home 指示条区域必须让开。
+       */
+      className={cn(
+        glassPanel,
+        'pointer-events-auto absolute z-30 bg-material-opaque/95 p-4',
+        'left-[calc(1rem+var(--safe-area-left))]',
+        'right-[calc(4.25rem+var(--safe-area-right))]',
+        'bottom-[calc(1rem+var(--safe-area-bottom))]',
+        'sm:right-auto sm:bottom-6 sm:left-1/2 sm:w-[min(calc(100vw-2rem),420px)] sm:-translate-x-1/2',
+      )}
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -178,11 +196,11 @@ export function RouteReadyPrompt({ photoCount, onStartReplay, onDismiss }: Route
     >
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-400">
-          <i className="i-mingcute-check-circle-fill text-xl" />
+          <i className="i-mingcute-check-circle-fill text-xl" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-text text-sm font-semibold">{t('onboarding.routeReady.title')}</h2>
-          <p className="text-text-secondary mt-1 text-xs leading-relaxed">
+          <h2 className="text-text text-balance text-sm font-semibold">{t('onboarding.routeReady.title')}</h2>
+          <p className="text-text-secondary mt-1 text-xs leading-relaxed text-pretty">
             {t('onboarding.routeReady.description', { count: photoCount })}
           </p>
         </div>
@@ -191,15 +209,15 @@ export function RouteReadyPrompt({ photoCount, onStartReplay, onDismiss }: Route
         <button
           type="button"
           onClick={onStartReplay}
-          className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-400 px-4 text-sm font-medium text-white transition-colors hover:bg-sky-500"
+          className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-700 px-4 text-sm font-medium text-white transition-colors hover:bg-cyan-700 focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none"
         >
-          <i className="i-mingcute-play-fill" />
+          <i className="i-mingcute-play-fill" aria-hidden="true" />
           {t('onboarding.routeReady.startReplay')}
         </button>
         <button
           type="button"
           onClick={onDismiss}
-          className="text-text-secondary hover:bg-fill-secondary min-h-10 rounded-xl px-4 text-sm transition-colors"
+          className="text-text-secondary hover:bg-fill-secondary min-h-10 rounded-xl px-4 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-fill-tertiary focus-visible:outline-none"
         >
           {t('onboarding.routeReady.later')}
         </button>

@@ -116,7 +116,7 @@ export const EmailLoginForm: FC<EmailLoginFormProps> = ({ onSuccess, disabled })
           disabled={code.length !== 6 || loading}
           onClick={handleVerify}
           className={cn(
-            'bg-fill-secondary hover:bg-fill-tertiary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+            'bg-cyan-700 text-white hover:bg-cyan-800 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
             'text-text disabled:opacity-50',
           )}
         >
@@ -176,7 +176,7 @@ export const EmailLoginForm: FC<EmailLoginFormProps> = ({ onSuccess, disabled })
         disabled={loading}
         onClick={handleSendCode}
         className={cn(
-          'bg-fill-secondary hover:bg-fill-tertiary flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
+          'bg-cyan-700 text-white hover:bg-cyan-800 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
           'text-text disabled:opacity-50',
         )}
       >

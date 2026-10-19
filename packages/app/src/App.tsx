@@ -12,11 +12,15 @@ const App: FC = () => {
   return (
     <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem disableTransitionOnChange>
       <LazyMotion features={domAnimation} strict key="framer">
-        <MotionConfig transition={{
-          type: 'spring',
-          duration: 0.4,
-          bounce: 0,
-        }}
+        <MotionConfig
+          transition={{
+            type: 'spring',
+            duration: 0.4,
+            bounce: 0,
+          }}
+          // 让 motion 组件跟随系统的 prefers-reduced-motion。
+          // 之前只在 index.css 里为 splash 动画单独关了，其它所有动效都无视该设置。
+          reducedMotion="user"
         >
           <ErrorBoundary
             fallbackRender={(props: { error: unknown }) => <div>{props.error instanceof Error ? props.error.message : 'Unknown error'}</div>}

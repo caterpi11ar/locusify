@@ -29,26 +29,19 @@ export function GPSInfoPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
+      {/* 抽屉顶部已有「查看您的照片」标题，这里不再重复一遍大标题，
+          只留真正新增的信息（选中几张、几张有 GPS） */}
       <div className="mb-6 text-center">
-        <m.h2
-          className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+        {/* 这里原本还有一行「已选择 N 张，其中 M 张有 GPS」，
+            与下方绿色横幅「N 张可用于生成路线」说的是同一件事，
+            设计评审指出冗余，故只保留结论性更强的那条。 */}
+        <m.p
+          className="text-text-secondary text-sm"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {t('photos.preview.title')}
-        </m.h2>
-        <m.p
-          className="text-sm text-gray-600 dark:text-gray-400"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          {t('photos.preview.description', {
-            total: files.length,
-            withGPS: filesWithGPS.length,
-          })}
+          {t('photos.preview.hint')}
         </m.p>
       </div>
 
@@ -91,13 +84,13 @@ export function GPSInfoPanel({
                 {/* GPS status badge */}
                 {file.gpsInfo
                   ? (
-                      <div className="flex items-center gap-1 text-[10px] text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-1 text-2xs text-green-600 dark:text-green-400">
                         <i className="i-mingcute-location-line text-xs" />
                         <span>GPS</span>
                       </div>
                     )
                   : (
-                      <div className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400">
+                      <div className="flex items-center gap-1 text-2xs text-amber-600 dark:text-amber-400">
                         <i className="i-mingcute-alert-line text-xs" />
                         <span>No GPS</span>
                       </div>
@@ -166,40 +159,36 @@ export function GPSInfoPanel({
 
       {/* Action buttons */}
       <m.div
-        className="flex flex-wrap justify-center gap-3 sm:gap-4"
+        className="flex w-full gap-2 sm:gap-3"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
         <button
           type="button"
-          className={cn(
-            'flex items-center gap-2 rounded-full border px-5 py-3 font-medium whitespace-nowrap transition-all sm:px-8',
-            'border-gray-300 bg-white text-gray-700',
-            'hover:border-gray-400 hover:bg-gray-50',
-            'dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300',
-            'dark:hover:border-gray-600 dark:hover:bg-gray-700',
-          )}
+          className="bg-fill-secondary text-text hover:bg-fill-tertiary flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium whitespace-nowrap transition-colors"
           onClick={onCancel}
           data-testid="route-cancel"
         >
-          <i className="i-mingcute-arrow-left-line text-base" />
+          <i className="i-mingcute-arrow-left-line size-4" aria-hidden="true" />
           {t('photos.previous')}
         </button>
         <button
           type="button"
           disabled={filesWithGPS.length === 0}
           className={cn(
-            'flex items-center gap-2 rounded-full px-5 py-3 font-medium text-white whitespace-nowrap shadow-lg transition-all sm:px-8',
+            'flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium whitespace-nowrap text-white transition-colors',
             filesWithGPS.length === 0
-              ? 'cursor-not-allowed bg-gray-400 dark:bg-gray-600'
-              : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600',
+              ? 'bg-fill-tertiary text-text-secondary cursor-not-allowed'
+              : 'bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900',
           )}
           onClick={onConfirm}
           data-testid="route-create"
         >
-          <i className="i-mingcute-check-line text-base" />
-          {t('photos.generateRoute', { count: filesWithGPS.length })}
+          <i className="i-mingcute-route-line size-4" aria-hidden="true" />
+          {/* 不再带「（N 张）」：量词易被读成 N 条路线，且张数在上方
+              绿色横幅已经写明，重复一次只会让按钮重心偏向文字 */}
+          {t('photos.generateRouteEmpty')}
         </button>
       </m.div>
     </m.div>

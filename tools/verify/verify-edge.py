@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """对抗与边界验收：空值 / 非法输入 / 超量 / 重复提交 / 接口故障。
 
 对应 specs/map-upload-route.plan.md 的 C(c2-c4) 与 D(d1-d3) 组，
@@ -357,6 +358,27 @@ def main():
                  geom['section'] is not None and geom['overlap'] == 0,
                  f'{ev.shot(pg, "d6-prompt-overlap")} | 提示卡={geom["section"]} 工具栏={geom["stack"]} 交集={geom["overlap"]}px²',
                  f'交集={geom["overlap"]}px²')
+
+        # 右侧还有一竖排地图控件，提示卡停靠底部时很容易又盖住它
+        ctrl = pg.evaluate("""() => {
+          const sec = [...document.querySelectorAll('button')]
+            .find(b => (b.innerText || '').includes('开始轨迹回放') || (b.innerText || '').includes('Start'))
+            .closest('section');
+          const sr = sec.getBoundingClientRect();
+          const out = [];
+          for (const id of ['map-control-zoom-in', 'map-control-zoom-out', 'map-control-compass', 'map-control-locate']) {
+            const el = document.querySelector(`[data-testid="${id}"]`);
+            if (!el) continue;
+            const r = el.getBoundingClientRect();
+            const hGap = Math.max(sr.left - r.right, r.left - sr.right);
+            out.push({ id, hGap: Math.round(hGap), ok: hGap > 0 });
+          }
+          return out;
+        }""")
+        ev.check('D6', 'd6-controls-clear: 提示卡不遮挡右侧地图控件',
+                 bool(ctrl) and all(c['ok'] for c in ctrl),
+                 '; '.join(f'{c["id"]} 水平间隙={c["hGap"]}px' for c in ctrl),
+                 '; '.join(f'{c["id"]}={c["hGap"]}px' for c in ctrl))
         ev.check('D6', 'd6b-no-crash: 无未捕获异常', not errs, f'pageerror={len(errs)}',
                  '; '.join(errs[:2]) or '无')
         ctx.close()

@@ -18,7 +18,8 @@
     "verify:auth": "bash tools/verify/run-auth.sh",
     "verify:edge": "bash tools/verify/run-edge.sh",
     "verify:all": "bash tools/verify/run-all.sh",
-    "report": "python3 tools/verify/report.py"
+    "report": "python3 tools/verify/report.py",
+    "audit:ui": "python3 tools/verify/audit-ui.py --base http://localhost:1052"
   },
   "dependencies": {
     "react": "19.3.0",

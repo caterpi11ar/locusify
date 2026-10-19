@@ -56,6 +56,36 @@
 
   --color-border: #E2E8F0;
   --color-border-input: #CBD5E1;
+
+  /* ── Layer 1 Primitive：控件尺度（4px 网格，只放原始值）──────────
+     控件 = button / input / select / 分段控件，统一一套尺寸与圆角，
+     避免每个组件各自写 h-9 / h-10 / h-11、rounded-md / rounded-xl。 */
+  --ctl-height-sm: 2.25rem;   /* 36 */
+  --ctl-height-md: 2.75rem;   /* 44 */
+  --ctl-height-lg: 3rem;      /* 48 */
+  --ctl-radius-sm: 0.5rem;    /* 8  —— 小徽标/复选框 */
+  --ctl-radius-md: 0.75rem;   /* 12 —— 所有文字控件与按钮 */
+  --ctl-gap: 0.5rem;          /* 8  —— 图标与文字间距 */
+
+  /* ── Layer 3 Component：按钮（引用上面的原始值，改一处全站生效）──── */
+  --button-height-sm: var(--ctl-height-sm);
+  --button-height-md: var(--ctl-height-md);
+  --button-height-lg: var(--ctl-height-lg);
+  --button-radius: var(--ctl-radius-md);
+  --button-gap: var(--ctl-gap);
+
+  /* ── Layer 3 Component：输入框（与按钮同高同圆角，视觉才成一套）──── */
+  --input-height: var(--ctl-height-md);
+  --input-radius: var(--ctl-radius-md);
+
+  /* 小号文字梯队：此前项目里散落 61 处 text-[9px]/[10px]/[11px] 这类
+     任意值（且多为奇数），既偏离设计尺度、也无法统一调整。
+     统一收敛为两个命名步骤，均为偶数：
+       2xs = 10px（标签、徽标）
+       xs  = 12px（Tailwind 内置，正文辅助）
+     line-height 一并给出，避免各处再各自用 leading-* 调。 */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
 }
 
 :root {

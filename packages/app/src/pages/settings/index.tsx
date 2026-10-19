@@ -107,10 +107,10 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
                       setTimeout(setPricingOpen, 300, true)
                     }}
                     className={cn(
-                      'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                      'rounded-xl px-3 py-1.5 text-xs font-medium transition-colors',
                       isPro
                         ? 'bg-text/10 text-text hover:bg-text/15'
-                        : 'bg-sky-400 text-white hover:bg-sky-500',
+                        : 'bg-cyan-700 text-white hover:bg-cyan-700',
                     )}
                   >
                     {isPro ? t('settings.subscription.manage') : t('settings.subscription.upgrade')}

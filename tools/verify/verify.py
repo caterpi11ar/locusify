@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Locusify 验收 harness：对**生产构建 + 真实后端**做证据化验收。
 
 与 packages/app/e2e/ 的区别：
