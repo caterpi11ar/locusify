@@ -29,6 +29,7 @@ FIXED = [
     ('GA 脚本在 React 渲染期插入', 'main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 <script>，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。', '只在生产环境加载 GA；dev console 应用侧 error/warning 归零'),
     ('非 Vercel 环境稳定 404', '<SpeedInsights/> 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。', '条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL'),
     ('选择照片抽屉的视觉与可访问性', '程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。', '整块虚线区改为真正的 <button>（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=\"user\"；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0'),
+    ('基础元素层用的是未定义的 token', 'input.tsx / checkbox.tsx 是 shadcn 默认样式，用的 border-input、bg-input、text-muted-foreground、ring-ring、border-border-secondary 等 token **本仓库根本没有定义**，样式实际是坏的。而且 input 是 h-9 rounded-md，与按钮的 h-11 rounded-xl 不是一套 —— 登录表单里输入框与按钮高度差 8px、圆角差 6px。', '按三层 token 架构（Primitive → Semantic → Component）重构：index.css 新增控件尺度 --ctl-height-sm/md/lg（36/44/48）、--ctl-radius-sm/md（8/12）、--ctl-gap（8），并在其上派生 --button-* / --input-* 组件 token；button/input/checkbox 全部改为消费 token，颜色换回项目语义 token。实测登录抽屉 7 个元素：输入框与按钮均 h=44 / r=12px / fs=14px，小控件 h=36 / fs=12，全部落在设计尺度上'),
     ('按钮样式全项目不一致', '运行时实测 82 个可见按钮：圆角出现 0/4/8/12/16px/full 共 6 种；「圆角×高度」组合达 14 种；同一个主 CTA 角色在 6 个文件里有 6 种实现（rounded-full py-3 / rounded-xl py-2.5 / rounded-lg py-1.5 / rounded-lg h-8 / rounded-full size-8 …）；主色同时存在 sky-400、blue-600、cyan-700 三种蓝；地图控件与菜单按钮是方角而缩略图小按钮和关闭按钮是圆形。另外登录抽屉的「验证码/密码」两个 tab 是 display:block，实测文字垂直偏移 -6.3%，「中文」与「发送验证码」也不同程度偏移。',
      '把 ui/button.tsx 重写为项目原生体系（文字按钮一律 rounded-xl、图标按钮一律 rounded-full、高度只有 36/44/48 三档、inline-flex+items-center 保证垂直居中、主色只有 cyan-700）；写 codemod 做全量归一（21 个文件、圆角 29 处、图标改圆 27 个、主色 34 处、补垂直居中 17 处）；逐个修登录抽屉的 3 处居中问题与预览态 CTA 的胶囊圆角。复测：圆角收敛为 full 41 + 12px 38 两种主导，垂直居中 0 个不达标，设计评审「基本一致」'),
     ('底部按钮行与提示条左右边缘不对齐', '预览态底部两个按钮所在的容器是 `flex justify-center`，按钮按内容宽度排布，整行只有内容那么宽；而上方的绿色提示条是满宽。结果按钮行左右各缩进一段，与提示条边缘错开 —— 用户反馈「按钮两侧有空白」。同一类问题在项目里重复出现：有的块满宽、有的块内容宽度居中。', '按钮行改 `flex w-full gap-2`、两个按钮改 `flex-1` 平分整行（与登录页 OAuth 按钮同一做法）；dev 调试行被外层 `items-center` 挤成内容宽度，补 `w-full`。新增布局对齐审计：逐界面量每个内容块相对内容区的左右缩进，与主流缩进比对，现 6 个界面 / 20 个内容块全部对齐；设计评审对用户报的界面判为「对齐」'),
@@ -284,6 +285,21 @@ ul{padding-left:22px}li{margin:6px 0}
                      f'<td>{t["w"]}×{t["h"]}</td><td>{eff}</td>'
                      f'<td class="r {"PASS" if t["ok"] else "FAIL"}">{"PASS" if t["ok"] else "FAIL"}</td></tr>')
         h.append('</table>')
+        lb = a.get('login_base') or []
+        if lb:
+            h.append('<h3>基础元素一致性（登录抽屉：输入框 vs 按钮）</h3>')
+            h.append('<div class="sub">判据不是「高度必须唯一」，而是「是否落在设计尺度上」：'
+                     '高度 ∈ {36,44,48}、圆角 = 12、字号随档位 12/14。'
+                     '最初我把 sm/md 两档误判成"不一致"，已修正。</div>')
+            h.append('<table><tr><th>元素</th><th>高度</th><th>圆角</th><th>字号</th><th>内容</th></tr>')
+            for x in lb:
+                h.append(f'<tr><td><code>&lt;{x["tag"]}&gt;</code></td><td>{x["h"]}px</td>'
+                         f'<td>{x["radius"]}px</td><td>{x["fs"]}</td>'
+                         f'<td>{html.escape(x["text"])}</td></tr>')
+            h.append('</table>')
+            ok = a.get('login_base_consistent')
+            h.append(f'<p>结论：<b>{"✓ 全部落在设计尺度上" if ok else "✗ 存在偏离尺度的元素"}</b></p>')
+
         h.append('<h3>语义与反模式</h3>')
         for label, key in (('缺可访问名', 'unlabeled'), ('反模式', 'antipes'),
                            ('嵌套交互（button 在可点击 div 内）', 'nested')):

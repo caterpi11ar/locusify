@@ -34,7 +34,7 @@ ul{padding-left:22px}li{margin:6px 0}
 .foot{margin-top:50px;color:var(--dim);font-size:12.5px;border-top:1px solid var(--bd);padding-top:16px}
 </style></head><body><div class="wrap">
 <h1>Locusify 验收报告 <span class="verdict">PASS</span></h1>
-<div class="sub">生成于 2026-10-19 13:46:45 · 被测：生产构建 + 真实后端 <code>api.locusify.cn</code>（无 mock）<br>验收断言 <b>46/46</b> 通过（另含 E2E 主流程 26 条、单元/组件 49 个，两者不经后端或后端为 mock）</div>
+<div class="sub">生成于 2026-10-19 13:56:51 · 被测：生产构建 + 真实后端 <code>api.locusify.cn</code>（无 mock）<br>验收断言 <b>46/46</b> 通过（另含 E2E 主流程 26 条、单元/组件 49 个，两者不经后端或后端为 mock）</div>
 <h2>分层结果</h2><div class="summary">
 <div class="card"><div class="k"><span>单元/类型/Lint</span><span class="pill PASS">PASS</span></div><div class="v">49 个用例（4 文件）+ tsc + eslint 全绿</div></div>
 <div class="card"><div class="k"><span>E2E 主流程</span><span class="pill PASS">PASS</span></div><div class="v">26 断言：[0]-[5] 上传链路 / [6] 语言路由 / [7] 存储迁移</div></div>
@@ -55,6 +55,7 @@ ul{padding-left:22px}li{margin:6px 0}
 <div class="fix"><b>GA 脚本在 React 渲染期插入</b><p><span style="color:#e6edf3">问题：</span>main.tsx 的 scheduleAnalytics 在渲染窗口内往 document.head 插 &lt;script&gt;，React 19 因此报「Encountered a script tag while rendering React component」—— dev 下稳定一条 error。</p><p><span style="color:#e6edf3">修法：</span>只在生产环境加载 GA；dev console 应用侧 error/warning 归零</p></div>
 <div class="fix"><b>非 Vercel 环境稳定 404</b><p><span style="color:#e6edf3">问题：</span>&lt;SpeedInsights/&gt; 的脚本由 Vercel 注入，本地/自托管/CI 拿不到，稳定产生一条 404 + 一条 ERR_ABORTED 污染控制台。</p><p><span style="color:#e6edf3">修法：</span>条件挂载 import.meta.env.VERCEL；vite envPrefix 暴露 VERCEL</p></div>
 <div class="fix"><b>选择照片抽屉的视觉与可访问性</b><p><span style="color:#e6edf3">问题：</span>程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。</p><p><span style="color:#e6edf3">修法：</span>整块虚线区改为真正的 &lt;button&gt;（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=&quot;user&quot;；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0</p></div>
+<div class="fix"><b>基础元素层用的是未定义的 token</b><p><span style="color:#e6edf3">问题：</span>input.tsx / checkbox.tsx 是 shadcn 默认样式，用的 border-input、bg-input、text-muted-foreground、ring-ring、border-border-secondary 等 token **本仓库根本没有定义**，样式实际是坏的。而且 input 是 h-9 rounded-md，与按钮的 h-11 rounded-xl 不是一套 —— 登录表单里输入框与按钮高度差 8px、圆角差 6px。</p><p><span style="color:#e6edf3">修法：</span>按三层 token 架构（Primitive → Semantic → Component）重构：index.css 新增控件尺度 --ctl-height-sm/md/lg（36/44/48）、--ctl-radius-sm/md（8/12）、--ctl-gap（8），并在其上派生 --button-* / --input-* 组件 token；button/input/checkbox 全部改为消费 token，颜色换回项目语义 token。实测登录抽屉 7 个元素：输入框与按钮均 h=44 / r=12px / fs=14px，小控件 h=36 / fs=12，全部落在设计尺度上</p></div>
 <div class="fix"><b>按钮样式全项目不一致</b><p><span style="color:#e6edf3">问题：</span>运行时实测 82 个可见按钮：圆角出现 0/4/8/12/16px/full 共 6 种；「圆角×高度」组合达 14 种；同一个主 CTA 角色在 6 个文件里有 6 种实现（rounded-full py-3 / rounded-xl py-2.5 / rounded-lg py-1.5 / rounded-lg h-8 / rounded-full size-8 …）；主色同时存在 sky-400、blue-600、cyan-700 三种蓝；地图控件与菜单按钮是方角而缩略图小按钮和关闭按钮是圆形。另外登录抽屉的「验证码/密码」两个 tab 是 display:block，实测文字垂直偏移 -6.3%，「中文」与「发送验证码」也不同程度偏移。</p><p><span style="color:#e6edf3">修法：</span>把 ui/button.tsx 重写为项目原生体系（文字按钮一律 rounded-xl、图标按钮一律 rounded-full、高度只有 36/44/48 三档、inline-flex+items-center 保证垂直居中、主色只有 cyan-700）；写 codemod 做全量归一（21 个文件、圆角 29 处、图标改圆 27 个、主色 34 处、补垂直居中 17 处）；逐个修登录抽屉的 3 处居中问题与预览态 CTA 的胶囊圆角。复测：圆角收敛为 full 41 + 12px 38 两种主导，垂直居中 0 个不达标，设计评审「基本一致」</p></div>
 <div class="fix"><b>底部按钮行与提示条左右边缘不对齐</b><p><span style="color:#e6edf3">问题：</span>预览态底部两个按钮所在的容器是 `flex justify-center`，按钮按内容宽度排布，整行只有内容那么宽；而上方的绿色提示条是满宽。结果按钮行左右各缩进一段，与提示条边缘错开 —— 用户反馈「按钮两侧有空白」。同一类问题在项目里重复出现：有的块满宽、有的块内容宽度居中。</p><p><span style="color:#e6edf3">修法：</span>按钮行改 `flex w-full gap-2`、两个按钮改 `flex-1` 平分整行（与登录页 OAuth 按钮同一做法）；dev 调试行被外层 `items-center` 挤成内容宽度，补 `w-full`。新增布局对齐审计：逐界面量每个内容块相对内容区的左右缩进，与主流缩进比对，现 6 个界面 / 20 个内容块全部对齐；设计评审对用户报的界面判为「对齐」</p></div>
 <div class="fix"><b>字号偏离设计尺度</b><p><span style="color:#e6edf3">问题：</span>项目里散落 61 处 `text-[9px]` / `text-[10px]` / `text-[11px]` 这类任意值字号，其中 9px、11px 都是奇数，既偏离设计尺度也无法统一调整。</p><p><span style="color:#e6edf3">修法：</span>在 `@theme` 定义命名步骤 `--text-2xs: 10px`（含 line-height），9/10px 统一为 `text-2xs`、11px 统一为 `text-xs`（12px）；任意字号从 61 处降到 4 处</p></div>
@@ -186,6 +187,18 @@ ul{padding-left:22px}li{margin:6px 0}
 <tr><td><code>&lt;button&gt;</code> </td><td>356×237</td><td>356×237</td><td class="r PASS">PASS</td></tr>
 <tr><td><code>&lt;input&gt;</code> mock-metadata-toggle</td><td>20×20</td><td>305×44（含关联 label）</td><td class="r PASS">PASS</td></tr>
 </table>
+<h3>基础元素一致性（登录抽屉：输入框 vs 按钮）</h3>
+<div class="sub">判据不是「高度必须唯一」，而是「是否落在设计尺度上」：高度 ∈ {36,44,48}、圆角 = 12、字号随档位 12/14。最初我把 sm/md 两档误判成"不一致"，已修正。</div>
+<table><tr><th>元素</th><th>高度</th><th>圆角</th><th>字号</th><th>内容</th></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>36px</td><td>12px</td><td>12px</td><td>中文</td></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>36px</td><td>12px</td><td>12px</td><td>验证码</td></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>36px</td><td>12px</td><td>12px</td><td>密码</td></tr>
+<tr><td><code>&lt;input&gt;</code></td><td>44px</td><td>12px</td><td>14px</td><td>请输入邮箱</td></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>44px</td><td>12px</td><td>14px</td><td>发送验证码</td></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>44px</td><td>12px</td><td>14px</td><td></td></tr>
+<tr><td><code>&lt;button&gt;</code></td><td>44px</td><td>12px</td><td>14px</td><td></td></tr>
+</table>
+<p>结论：<b>✓ 全部落在设计尺度上</b></p>
 <h3>语义与反模式</h3>
 <div class="card" style="margin:8px 0"><div class="k"><span>缺可访问名</span><span class="pill PASS">0 项</span></div></div>
 <div class="card" style="margin:8px 0"><div class="k"><span>反模式</span><span class="pill PASS">0 项</span></div></div>
