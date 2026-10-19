@@ -104,6 +104,10 @@ else
     RESULTS+=("UI 设计审计|FAIL|见 /tmp/verify-all-ui.log")
   fi
 
+  if [[ ! -d "$EDGE_DIR" ]]; then
+    echo "  素材缺失，自动生成…"
+    bash "$ROOT/tools/verify/make-edge-fixtures.sh" >/dev/null 2>&1 || true
+  fi
   if [[ -d "$EDGE_DIR" ]]; then
     if python3 "$ROOT/tools/verify/verify-edge.py" --base "http://localhost:$DEV_PORT" \
          --account "$ACCOUNT" --edge-dir "$EDGE_DIR" >/tmp/verify-all-edge.log 2>&1; then
@@ -132,7 +136,9 @@ if [[ "$OPEN" == 1 ]]; then
   open "$REPORT"
 fi
 
-if printf '%s\n' "${RESULTS[@]}" | grep -q "|FAIL|"; then
-  echo "✗ 存在失败项"; exit 1
+if printf '%s\n' "${RESULTS[@]}" | grep -qE "\|(FAIL|SKIP)\|"; then
+  echo "✗ 存在失败或被跳过的项（SKIP 不算通过）"
+  printf '%s\n' "${RESULTS[@]}" | grep -E "\|(FAIL|SKIP)\|" | sed 's/^/   /'
+  exit 1
 fi
 echo "✓ 全部通过"
