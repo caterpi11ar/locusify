@@ -181,6 +181,7 @@ export function GPSInfoPanel({
             'dark:hover:border-gray-600 dark:hover:bg-gray-700',
           )}
           onClick={onCancel}
+          data-testid="route-cancel"
         >
           <i className="i-mingcute-arrow-left-line text-base" />
           {t('photos.previous')}
@@ -195,6 +196,7 @@ export function GPSInfoPanel({
               : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl dark:bg-blue-500 dark:hover:bg-blue-600',
           )}
           onClick={onConfirm}
+          data-testid="route-create"
         >
           <i className="i-mingcute-check-line text-base" />
           {t('photos.generateRoute', { count: filesWithGPS.length })}

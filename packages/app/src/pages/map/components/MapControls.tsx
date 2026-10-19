@@ -2,7 +2,8 @@ import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 
 import { useMap } from 'react-map-gl/maplibre'
-import { getCurrentPosition } from '@/lib/geolocation'
+import { toast } from 'sonner'
+import { getCurrentPosition, isPermissionDenied } from '@/lib/geolocation'
 import { cn, glassPanel } from '@/lib/utils'
 import { useRegionStore } from '@/stores/regionStore'
 
@@ -51,7 +52,16 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
       }
       onGeolocate?.(longitude, latitude)
     }).catch((error) => {
-      console.warn('Geolocation error:', error)
+      // 用户自己拒绝时给明确反馈，而不是只往控制台写一行 warn 让用户一脸茫然
+      if (isPermissionDenied(error)) {
+        toast.error(t('explory.location.denied', {
+          defaultValue: 'Location permission denied. Enable it in your browser settings to use this.',
+        }))
+        return
+      }
+      toast.error(t('explory.location.unavailable', {
+        defaultValue: 'Could not determine your location. Please try again.',
+      }))
     })
   }
 
@@ -71,6 +81,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleZoomIn}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.in')}
+          aria-label={t('explory.controls.zoom.in')}
+          data-testid="map-control-zoom-in"
         >
           <i className="i-mingcute-add-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -84,6 +96,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleZoomOut}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.out')}
+          aria-label={t('explory.controls.zoom.out')}
+          data-testid="map-control-zoom-out"
         >
           <i className="i-mingcute-minimize-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -96,6 +110,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleCompass}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.compass')}
+          aria-label={t('explory.controls.compass')}
+          data-testid="map-control-compass"
         >
           <i className="i-mingcute-navigation-line text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>
@@ -108,6 +124,8 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
           onClick={handleGeolocate}
           className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.locate')}
+          aria-label={t('explory.controls.locate')}
+          data-testid="map-control-locate"
         >
           <i className="i-mingcute-location-fill text-text size-5 transition-transform group-hover:scale-110 group-active:scale-95" />
         </button>

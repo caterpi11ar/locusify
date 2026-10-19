@@ -23,3 +23,13 @@ coverage/
 
 # Local reference checkout
 packages/app/lobehub/
+
+# E2E artifacts
+packages/app/e2e/shots/
+artifacts/
+
+# Midscene 视觉验证产物
+midscene_run/
+
+# 验收 harness 的鉴权产物
+tools/verify/.token

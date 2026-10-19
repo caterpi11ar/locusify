@@ -209,6 +209,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         accept="image/*,video/*"
         multiple
         hidden
+        data-testid="photo-file-input"
         onChange={handleFileInputChange}
       />
 

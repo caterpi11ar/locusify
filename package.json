@@ -13,7 +13,9 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "vercel:check": "node scripts/vercel.mjs check",
     "vercel:status": "node scripts/vercel.mjs status",
-    "vercel:list": "node scripts/vercel.mjs list"
+    "vercel:list": "node scripts/vercel.mjs list",
+    "verify": "bash tools/verify/run.sh",
+    "verify:auth": "bash tools/verify/run-auth.sh"
   },
   "dependencies": {
     "react": "19.3.0",
