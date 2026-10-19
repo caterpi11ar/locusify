@@ -56,6 +56,15 @@
 
   --color-border: #E2E8F0;
   --color-border-input: #CBD5E1;
+
+  /* 小号文字梯队：此前项目里散落 61 处 text-[9px]/[10px]/[11px] 这类
+     任意值（且多为奇数），既偏离设计尺度、也无法统一调整。
+     统一收敛为两个命名步骤，均为偶数：
+       2xs = 10px（标签、徽标）
+       xs  = 12px（Tailwind 内置，正文辅助）
+     line-height 一并给出，避免各处再各自用 leading-* 调。 */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
 }
 
 :root {

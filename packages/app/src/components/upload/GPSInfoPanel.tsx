@@ -84,13 +84,13 @@ export function GPSInfoPanel({
                 {/* GPS status badge */}
                 {file.gpsInfo
                   ? (
-                      <div className="flex items-center gap-1 text-[10px] text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-1 text-2xs text-green-600 dark:text-green-400">
                         <i className="i-mingcute-location-line text-xs" />
                         <span>GPS</span>
                       </div>
                     )
                   : (
-                      <div className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400">
+                      <div className="flex items-center gap-1 text-2xs text-amber-600 dark:text-amber-400">
                         <i className="i-mingcute-alert-line text-xs" />
                         <span>No GPS</span>
                       </div>
@@ -159,14 +159,14 @@ export function GPSInfoPanel({
 
       {/* Action buttons */}
       <m.div
-        className="flex flex-wrap justify-center gap-3 sm:gap-4"
+        className="flex w-full gap-2 sm:gap-3"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
         <button
           type="button"
-          className="bg-fill-secondary text-text hover:bg-fill-tertiary flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap transition-colors sm:px-6"
+          className="bg-fill-secondary text-text hover:bg-fill-tertiary flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium whitespace-nowrap transition-colors"
           onClick={onCancel}
           data-testid="route-cancel"
         >
@@ -177,7 +177,7 @@ export function GPSInfoPanel({
           type="button"
           disabled={filesWithGPS.length === 0}
           className={cn(
-            'flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-medium whitespace-nowrap text-white transition-colors sm:px-6',
+            'flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium whitespace-nowrap text-white transition-colors',
             filesWithGPS.length === 0
               ? 'bg-fill-tertiary text-text-secondary cursor-not-allowed'
               : 'bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900',

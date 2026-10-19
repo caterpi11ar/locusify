@@ -107,7 +107,7 @@ export const PhotoMarkerPin: FC<PhotoMarkerPinProps> = ({
 
               {/* Cluster count badge */}
               {isCluster && (
-                <div className="bg-blue absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white ring-2 ring-white dark:ring-black">
+                <div className="bg-blue absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full text-2xs font-bold text-white ring-2 ring-white dark:ring-black">
                   {clusteredMarkers!.length}
                 </div>
               )}

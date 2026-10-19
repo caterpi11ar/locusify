@@ -157,7 +157,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
                     >
                       <span
                         className={cn(
-                          'whitespace-nowrap text-[10px] leading-none sm:text-[11px]',
+                          'whitespace-nowrap text-2xs leading-none sm:text-xs',
                           isActive ? 'font-medium text-sky-400' : 'text-text/60',
                         )}
                       >
@@ -167,7 +167,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
                       </span>
                       <span
                         className={cn(
-                          'whitespace-nowrap font-mono text-[9px] leading-none sm:text-[10px]',
+                          'whitespace-nowrap font-mono text-2xs leading-none sm:text-2xs',
                           isActive ? 'text-sky-300/70' : 'text-text/30',
                         )}
                       >
@@ -209,7 +209,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
         {/* Controls row */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center px-3 py-1.5 sm:px-4 sm:py-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-text-tertiary text-[10px] sm:text-xs">
+            <span className="text-text-tertiary text-2xs sm:text-xs">
               {t('workspace.controls.progress', {
                 current: Math.min(currentWaypointIndex + 1, waypoints.length),
                 total: waypoints.length,
@@ -219,7 +219,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
               <button
                 type="button"
                 onClick={onTemplateClick}
-                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-[10px] transition-colors hover:bg-text/5 sm:text-xs"
+                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-2xs transition-colors hover:bg-text/5 sm:text-xs"
                 title={t('template.selector.title')}
               >
                 <i className="i-mingcute-grid-line text-xs" />
@@ -229,7 +229,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
               <button
                 type="button"
                 onClick={onCustomizeClick}
-                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-[10px] transition-colors hover:bg-text/5 sm:text-xs"
+                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-2xs transition-colors hover:bg-text/5 sm:text-xs"
                 title={t('template.customize.title')}
               >
                 <i className="i-mingcute-settings-3-line text-xs" />
@@ -288,7 +288,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
                 {speedMultiplier}
                 x
               </span>
-              <i className={cn('i-mingcute-down-line text-[10px] transition-transform', speedMenuOpen && 'rotate-180')} />
+              <i className={cn('i-mingcute-down-line text-2xs transition-transform', speedMenuOpen && 'rotate-180')} />
             </button>
 
             <AnimatePresence>

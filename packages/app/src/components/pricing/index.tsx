@@ -146,12 +146,12 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, moda
                   <div className="flex min-h-6 items-center gap-2">
                     <h3 className="text-text text-sm font-semibold">{t(`pricing.plan.${plan}`)}</h3>
                     {plan === 'pro' && (
-                      <span className="border-text/70 text-text rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none">
+                      <span className="border-text/70 text-text rounded px-1.5 py-0.5 text-2xs font-semibold uppercase leading-none">
                         {t('pricing.popular')}
                       </span>
                     )}
                     {isCurrent && (
-                      <span className="bg-fill-secondary text-text-secondary ml-auto shrink-0 rounded px-2 py-1 text-[10px] font-medium">
+                      <span className="bg-fill-secondary text-text-secondary ml-auto shrink-0 rounded px-2 py-1 text-2xs font-medium">
                         {t('pricing.currentPlan')}
                       </span>
                     )}
@@ -224,7 +224,7 @@ export const PricingDrawer: FC<PricingDrawerProps> = ({ open, onOpenChange, moda
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-3 overflow-hidden rounded-xl border border-fill-tertiary bg-material-thick p-3"
             >
-              <div className="space-y-1.5 text-[11px] text-text/60">
+              <div className="space-y-1.5 text-xs text-text/60">
                 {subscription.currentPeriodEnd
                   ? (
                       <>

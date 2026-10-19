@@ -31,6 +31,8 @@ FIXED = [
     ('选择照片抽屉的视觉与可访问性', '程序化审计（真实像素对比度 + 结构检查）与两轮设计评审发现：①「支持格式」12px 灰字对比度仅 3.57:1，主按钮白字在 blue-600 上仅 3.85:1，均低于 AA 4.5:1；②整块虚线区是带 onclick 的 div，键盘完全不可达，且里面又套一个 button，形成两个交互入口；③文案三重重复（标题「选择照片」/ 卡片「选择您的照片」/ 按钮「选择文件」）且「照片/文件」表述不一；④硬编码 text-gray-* 与 bg-blue-600、一块 bg-white 图标底，与同流程的 sky-400 凑出两种蓝，脱离应用的 text-text / fill-* / material-* token 体系；⑤标题层级倒挂：卡片 H2 24px 压过抽屉标题 H2 18px；⑥装饰图标无 aria-hidden，两个按钮无 focus-visible，无 transition:all 未按属性列明；⑦关闭按钮 32×32、dev 复选 16px 均小于 44；⑧全局没有响应 prefers-reduced-motion；⑨dev 调试行高饱和琥珀色抢主按钮注意力。', '整块虚线区改为真正的 <button>（内含 pill 降级为 span，消除嵌套与键盘不可达）；配色全部换回 text-text / text-text-secondary / fill-* token，CTA 用 cyan-700（实测 5.31:1，品牌 primary #13ACF0 配白字只有 2.6:1）；删掉卡片内重复标题、抽屉标题改「添加照片」与按钮「选择照片」区分；对比度、触控目标、aria-hidden、focus-visible、text-pretty 全部补齐；MotionConfig 加 reducedMotion=\"user\"；dev 行改低调脚注。复测：对比度 0 段不达标、反模式 0、嵌套交互 0、缺可访问名 0'),
     ('按钮样式全项目不一致', '运行时实测 82 个可见按钮：圆角出现 0/4/8/12/16px/full 共 6 种；「圆角×高度」组合达 14 种；同一个主 CTA 角色在 6 个文件里有 6 种实现（rounded-full py-3 / rounded-xl py-2.5 / rounded-lg py-1.5 / rounded-lg h-8 / rounded-full size-8 …）；主色同时存在 sky-400、blue-600、cyan-700 三种蓝；地图控件与菜单按钮是方角而缩略图小按钮和关闭按钮是圆形。另外登录抽屉的「验证码/密码」两个 tab 是 display:block，实测文字垂直偏移 -6.3%，「中文」与「发送验证码」也不同程度偏移。',
      '把 ui/button.tsx 重写为项目原生体系（文字按钮一律 rounded-xl、图标按钮一律 rounded-full、高度只有 36/44/48 三档、inline-flex+items-center 保证垂直居中、主色只有 cyan-700）；写 codemod 做全量归一（21 个文件、圆角 29 处、图标改圆 27 个、主色 34 处、补垂直居中 17 处）；逐个修登录抽屉的 3 处居中问题与预览态 CTA 的胶囊圆角。复测：圆角收敛为 full 41 + 12px 38 两种主导，垂直居中 0 个不达标，设计评审「基本一致」'),
+    ('底部按钮行与提示条左右边缘不对齐', '预览态底部两个按钮所在的容器是 `flex justify-center`，按钮按内容宽度排布，整行只有内容那么宽；而上方的绿色提示条是满宽。结果按钮行左右各缩进一段，与提示条边缘错开 —— 用户反馈「按钮两侧有空白」。同一类问题在项目里重复出现：有的块满宽、有的块内容宽度居中。', '按钮行改 `flex w-full gap-2`、两个按钮改 `flex-1` 平分整行（与登录页 OAuth 按钮同一做法）；dev 调试行被外层 `items-center` 挤成内容宽度，补 `w-full`。新增布局对齐审计：逐界面量每个内容块相对内容区的左右缩进，与主流缩进比对，现 6 个界面 / 20 个内容块全部对齐；设计评审对用户报的界面判为「对齐」'),
+    ('字号偏离设计尺度', '项目里散落 61 处 `text-[9px]` / `text-[10px]` / `text-[11px]` 这类任意值字号，其中 9px、11px 都是奇数，既偏离设计尺度也无法统一调整。', '在 `@theme` 定义命名步骤 `--text-2xs: 10px`（含 line-height），9/10px 统一为 `text-2xs`、11px 统一为 `text-xs`（12px）；任意字号从 61 处降到 4 处'),
     ('非图片文件静默忽略', '用户选了非图片文件（拖放或 accept 失效时）会被 categorizeFiles 直接丢弃，界面毫无变化，用户无从判断哪里不对。', '跳过时弹 toast「已跳过 N 个文件：仅支持图片和视频」'),
     ('地图控件翻译缺失', 'MapControls 引用的 explory.controls.zoom.in/out、compass、locate 在 locale 里不存在且无 defaultValue，tooltip 直接漏出原始 key；且只有 title 没有 aria-label，无障碍不可达。', '补中英文案 + aria-label'),
     ('持久化绕过中间件', '4 个裸 localStorage key（locusify-tokens 及 MapSection 的 version/help-seen/feedback）绕开 zustand persist，测试只能手抄序列化格式。', '收敛到 tokenStore + uiStore，并带旧数据迁移'),
@@ -194,6 +196,32 @@ ul{padding-left:22px}li{margin:6px 0}
                      f'<td class="r {row["result"]}">{row["result"]}</td>'
                      f'<td><code>{html.escape(row["evidence"][:180])}</code></td></tr>')
         h.append('</table>')
+
+    align_path = os.path.join(ROOT, 'artifacts', 'align-audit.json')
+    if os.path.exists(align_path):
+        a = json.load(open(align_path, encoding='utf-8'))
+        h.append('<h2>布局对齐审计（各界面内容块左右边缘）</h2>')
+        h.append('<div class="sub">用户反馈「底部按钮和上方提示条没对齐，按钮两侧有空白」，'
+                 '且重复出现多次。根因是同一层里有的块满宽、有的块是内容宽度居中，左右边缘就错开。'
+                 '这里逐个界面量每个内容块相对内容区的左右缩进，与主流缩进比较，超过 1.5px 即判为不对齐。</div>')
+        h.append('<table><tr><th>界面</th><th>内容块</th><th>主流左缩进</th><th>主流右缩进</th><th>未对齐</th></tr>')
+        for s in a.get('summary', []):
+            bad = s.get('bad', 0)
+            h.append(f'<tr><td>{html.escape(s["screen"])}</td><td>{s["blocks"]}</td>'
+                     f'<td>{s["modeL"]}px</td><td>{s["modeR"]}px</td>'
+                     f'<td class="r {"PASS" if bad == 0 else "FAIL"}">{bad}</td></tr>')
+        h.append('</table>')
+        iss = a.get('issues', [])
+        h.append(f'<h3>未对齐明细（{len(iss)} 处）</h3>')
+        if iss:
+            h.append('<table><tr><th>界面</th><th>左偏</th><th>右偏</th><th>尺寸</th><th>内容</th></tr>')
+            for i in iss:
+                h.append(f'<tr><td>{html.escape(i["screen"])}</td><td>{i["dL"]:+}px</td>'
+                         f'<td>{i["dR"]:+}px</td><td>{i["w"]}×{i["h"]}</td>'
+                         f'<td>{html.escape(i["text"][:28])}</td></tr>')
+            h.append('</table>')
+        else:
+            h.append('<p>✓ 无</p>')
 
     btn_path = os.path.join(ROOT, 'artifacts', 'button-audit.json')
     if os.path.exists(btn_path):

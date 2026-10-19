@@ -246,7 +246,7 @@ function UserPanelInfo({
         <UserAvatar avatarUrl={avatarUrl} name={name} className="size-9 rounded-lg" fallbackClassName="size-5" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold leading-[1.4] text-text">{name}</p>
-          <span className="mt-1 inline-flex max-w-full items-center rounded-full bg-fill-secondary px-2 py-0.5 text-[10px] font-medium text-text-secondary">
+          <span className="mt-1 inline-flex max-w-full items-center rounded-full bg-fill-secondary px-2 py-0.5 text-2xs font-medium text-text-secondary">
             <span className="truncate">{planLabel}</span>
           </span>
         </div>

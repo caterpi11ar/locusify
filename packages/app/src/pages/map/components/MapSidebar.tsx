@@ -216,7 +216,7 @@ function SidebarItem({
         </span>
         {expanded
           ? <span className="min-w-0 flex-1 truncate text-left">{label}</span>
-          : <span className="max-w-full truncate px-0.5 text-center text-[10px] leading-none">{shortLabel ?? label}</span>}
+          : <span className="max-w-full truncate px-0.5 text-center text-2xs leading-none">{shortLabel ?? label}</span>}
       </button>
       <AnimatePresence>
         {showHint && (

@@ -55,10 +55,10 @@ export function GlobeOrbitOverlay({ onBeginRecording }: GlobeOrbitOverlayProps) 
               />
             </div>
             <div className="mt-1.5 flex items-center justify-between">
-              <span className="text-text-tertiary text-[10px] sm:text-xs">
+              <span className="text-text-tertiary text-2xs sm:text-xs">
                 {isZooming ? '...' : `${Math.round(progress * 360)}° / 360°`}
               </span>
-              <span className="text-text-tertiary text-[10px] sm:text-xs">
+              <span className="text-text-tertiary text-2xs sm:text-xs">
                 {isZooming ? '...' : `${Math.round(progress * 100)}%`}
               </span>
             </div>

@@ -121,7 +121,7 @@ export const GalleryDrawer: FC<GalleryDrawerProps> = ({ open, onOpenChange, moda
                       {/* Location label */}
                       {photo.gpsInfo && (
                         <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/60 to-transparent px-1.5 py-1">
-                          <p className="truncate text-left text-[10px] leading-tight text-white/90">
+                          <p className="truncate text-left text-2xs leading-tight text-white/90">
                             {formatCoordinates(photo.gpsInfo.latitude, photo.gpsInfo.longitude)}
                           </p>
                         </div>

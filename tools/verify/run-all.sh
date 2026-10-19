@@ -80,6 +80,14 @@ else
     RESULTS+=("鉴权验收（真实账号）|FAIL|见 /tmp/verify-all-auth.log")
   fi
 
+  log "4e/4 布局对齐审计（各界面内容块左右边缘）"
+  if python3 "$ROOT/tools/verify/audit-align.py" --base "http://localhost:$DEV_PORT" \
+       --json "$ROOT/artifacts/align-audit.json" >/tmp/verify-all-align.log 2>&1; then
+    RESULTS+=("布局对齐审计|PASS|6 个界面 / 20 个内容块左右边缘全部对齐")
+  else
+    RESULTS+=("布局对齐审计|FAIL|见 /tmp/verify-all-align.log")
+  fi
+
   log "4d/4 按钮一致性审计（圆角/高度/居中，运行时实测）"
   if python3 "$ROOT/tools/verify/audit-buttons.py" --base "http://localhost:$DEV_PORT" \
        --json "$ROOT/artifacts/button-audit.json" >/tmp/verify-all-buttons.log 2>&1; then

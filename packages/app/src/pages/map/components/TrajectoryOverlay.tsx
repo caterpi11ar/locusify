@@ -136,7 +136,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                       setShowTemplatePanel(false)
                       setShowCustomizePanel(true)
                     }}
-                    className="flex items-center gap-1 rounded-xl bg-text/5 px-2.5 py-1.5 text-[11px] font-medium text-text/60 transition-colors hover:bg-text/10 hover:text-text"
+                    className="flex items-center gap-1 rounded-xl bg-text/5 px-2.5 py-1.5 text-xs font-medium text-text/60 transition-colors hover:bg-text/10 hover:text-text"
                   >
                     <i className="i-mingcute-settings-3-line text-xs" />
                     {t('template.customize.title')}

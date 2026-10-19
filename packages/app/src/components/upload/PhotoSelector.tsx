@@ -274,7 +274,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           {t('photos.choose.action')}
         </span>
 
-        <span id="photo-dropzone-formats" className="text-text-secondary mt-1 text-[11px]">
+        <span id="photo-dropzone-formats" className="text-text-secondary mt-1 text-xs">
           {t('photos.supported.formats')}
         </span>
       </button>
@@ -284,7 +284,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         <m.div
           // dev-only 的调试开关：之前用高饱和琥珀色，视觉上抢主按钮的注意力。
           // 改成低调脚注（分隔线 + 次级文字），保留可辨识度但不参与视觉竞争。
-          className="border-fill-quaternary mt-4 flex min-h-11 items-center gap-2 border-t pt-2"
+          className="border-fill-quaternary mt-4 flex min-h-11 w-full items-center gap-2 border-t pt-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -301,7 +301,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
               避免只有 16px 的小方块可点 */}
           <label
             htmlFor="mock-metadata"
-            className="text-text-secondary cursor-pointer py-3.5 text-[11px] tracking-wide"
+            className="text-text-secondary cursor-pointer py-3.5 text-xs tracking-wide"
           >
             DEV: Use mock GPS metadata (Japan locations)
           </label>
