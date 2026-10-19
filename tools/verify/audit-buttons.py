@@ -81,7 +81,20 @@ PROBE = r"""
     return acc ? over(acc, { r: 0, g: 0, b: 0, a: 1 }) : null;
   };
 
-  for (const el of document.querySelectorAll('button')) {
+  // 盲区：项目里有「button 里的 span」被当成视觉按钮（如选择照片的胶囊），
+  // 只查 <button> 会漏掉它们 —— 用户正是发现这种漏网的元素圆角不一致。
+  const fakeBtns = [...document.querySelectorAll('span, div, a')].filter((el) => {
+
+    const cs = getComputedStyle(el);
+    if (!cs.backgroundColor || cs.backgroundColor === 'rgba(0, 0, 0, 0)') return false;
+    if (parseFloat(cs.borderTopLeftRadius) === 0) return false;
+    const px = parseFloat(cs.paddingLeft) || 0;
+    const r = el.getBoundingClientRect();
+    if (px < 8 || r.height < 20 || r.height > 80 || r.width < 40) return false;
+    const t = (el.innerText || '').trim();
+    return !!t;
+  });
+  for (const el of [...document.querySelectorAll('button'), ...fakeBtns]) {
     const r = el.getBoundingClientRect();
     if (r.width < 6 || r.height < 6) continue;
     const cs = getComputedStyle(el);

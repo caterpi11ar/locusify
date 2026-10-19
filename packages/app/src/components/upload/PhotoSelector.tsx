@@ -265,7 +265,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
 
         <span
           className={cn(
-            'mt-1 rounded-full px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white',
+            'mt-1 rounded-xl px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white',
             // cyan-700 而非 brand primary(#13ACF0)：白字在 #13ACF0 上只有 2.6:1，
             // 远低于 AA 的 4.5:1；#0e7490 实测 5.3:1 且同属品牌青色系。
             'bg-cyan-700 shadow-sm transition-colors duration-200 group-hover:bg-cyan-800',
