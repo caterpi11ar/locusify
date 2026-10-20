@@ -127,9 +127,9 @@ def main() -> None:
     ref, comp = load("ref-5.10.png"), load("composite-5.10.png")
     w = 1400
     panels = [
-        ("live DOM (Playwright screenshot of #stage)", Image.fromarray(ref.astype(np.uint8))),
-        ("offline composite (Canvas2D, html-to-image snapshots)", Image.fromarray(comp.astype(np.uint8))),
-        ("abs diff x3  — red = divergence", heat(ref, comp)),
+        ("replica scene, live render  (hand-built, NOT the real app)", Image.fromarray(ref.astype(np.uint8))),
+        ("offline composite  (Canvas2D + html-to-image snapshots)", Image.fromarray(comp.astype(np.uint8))),
+        ("abs diff x3  - red = divergence", heat(ref, comp)),
     ]
     img = strip([(t, p.resize((w, round(p.height * w / p.width)))) for t, p in panels])
     img.save(OUT / "fig-1-live-vs-composite.png")
@@ -140,24 +140,24 @@ def main() -> None:
     for t in SAMPLES:
         a = Image.fromarray(load(f"ref-{t}.png").astype(np.uint8))
         b = Image.fromarray(load(f"composite-{t}.png").astype(np.uint8))
-        cols.append((f"t={t}s  live", a.resize((tw, round(a.height * tw / a.width)))))
+        cols.append((f"t={t}s  live render", a.resize((tw, round(a.height * tw / a.width)))))
         cols.append((f"t={t}s  composite", b.resize((tw, round(b.height * tw / b.width)))))
     upper = row([cols[0], cols[2], cols[4], cols[6]])
     lower = row([cols[1], cols[3], cols[5], cols[7]])
-    fig2 = strip([("live DOM - 0.00 / 2.60 / 5.10 / 8.30 s", upper),
+    fig2 = strip([("replica scene, live render - 0.00 / 2.60 / 5.10 / 8.30 s", upper),
                   ("offline composite - same timestamps", lower)])
     fig2.save(OUT / "fig-2-timeline.png")
 
     # ── fig 3: glass (backdrop blur) vs no glass, 1:1 crop ──────────────────
     box = (1380, 40, 1860, 350)
-    fig3 = row([("live DOM", crop("ref-5.10.png", box)),
+    fig3 = row([("replica scene, live render", crop("ref-5.10.png", box)),
                 ("composite, blurred map as glass", crop("composite-5.10.png", box)),
                 ("composite, glass skipped", crop("composite-noglass-5.10.png", box))])
     fig3.save(OUT / "fig-3-glass.png")
 
     # ── fig 4: codec round-trip, 1:1 crop of the stats card ─────────────────
     box2 = (1400, 40, 1860, 350)
-    fig4 = row([("composite (source frame)", crop("composite-5.10.png", box2))]
+    fig4 = row([("composite source frame", crop("composite-5.10.png", box2))]
                + [(f"{n} decoded", crop(f"decoded-{k}.png", box2))
                   for n, k in (("webcodecs H.264", "webcodecs"), ("ffmpeg x264", "ffmpeg"), ("MediaRecorder", "recorder"))])
     fig4.save(OUT / "fig-4-codec-roundtrip.png")

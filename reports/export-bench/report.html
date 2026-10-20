@@ -36,16 +36,25 @@
   <li>离线合成帧 vs 真实 UI：<strong>PSNR 25.8–30.1 dB / SSIM 0.96–0.99</strong>，残差几乎全是文字抗锯齿边缘。</li>
 </ul>
 
-<h2>1. 真实 UI vs 离线合成（同一时刻 5.10 s）</h2>
+<h2>⚠ 先看这条：效果图里的界面是复刻件，不是你的 app</h2>
+<p><code>src/scene.ts</code> + <code>bench.css</code> 里那套画面是手写复刻件。真正从仓库搬来的只有地图样式 <code>MapLibreStyleDark.json</code> 和 MapLibre worker 适配；标题文案、路线、日期、照片（程序生成的渐变+噪声图）、统计卡、底栏、水印、二维码、字体（Georgia + Inter）、玻璃强度、间距配色，全部是我按 <code>TrajectoryStatsBar.tsx</code> 与发布说明推断的近似值。</p>
+<ul>
+  <li>标 <code>live</code> 的那一列是"复刻场景的实时渲染"，<strong>不是</strong>你产品里的界面；</li>
+  <li>PSNR/SSIM 证明的是"离线合成 vs 同一棵 DOM 树的实时渲染"自洽，<strong>不能</strong>回答"像不像你的 app"；</li>
+  <li>你看到的差距主要来自复刻件本身；管线对给定 DOM 的重建是准的（27.8 dB / 0.987，残差全在文字边缘）。</li>
+</ul>
+<p>另外：真实导出抓的是 <code>packages/app/src/pages/map/MapSection.tsx:473</code> 那个 16:9 <code>cropRef</code> 容器，也就是地图页本身，不是另做的回放画面。要让效果图变成"你的效果"，取景对象必须换成那个容器（详见 report.md 的"下一步"）。</p>
+
+<h2>1. 复刻场景 vs 离线合成（同一时刻 5.10 s）</h2>
 <figure>
   <img src="fig-1-live-vs-composite.png" alt="真实 UI、离线合成、差异热力图" />
-  <figcaption>上：真实 DOM（Playwright 截图）；中：Canvas2D 离线合成；下：差值 ×3（越黑越一致）。结构、位置、颜色、阴影、玻璃、圆角全部对得上。</figcaption>
+  <figcaption>上：复刻场景的实时渲染；中：Canvas2D 离线合成；下：差值 ×3（越黑越一致）。结构、位置、颜色、阴影、玻璃、圆角全部对得上——但请注意这一列本身是复刻件，不是真实 app。</figcaption>
 </figure>
 
 <h2>2. 四个时刻的一致性</h2>
 <figure>
   <img src="fig-2-timeline.png" alt="0.00 / 2.60 / 5.10 / 8.30 s 对照" />
-  <figcaption>0.00 / 2.60 / 5.10 / 8.30 s，上排真实 UI、下排合成帧。2.60 s 差异最大（照片卡与图钉处于亚像素位移中）。</figcaption>
+  <figcaption>0.00 / 2.60 / 5.10 / 8.30 s，上排复刻场景、下排合成帧。2.60 s 差异最大（照片卡与图钉处于亚像素位移中）。</figcaption>
 </figure>
 
 <table>
@@ -59,7 +68,7 @@
 <h2>3. 玻璃拟态能不能用画布近似</h2>
 <figure>
   <img src="fig-3-glass.png" alt="真实 UI / 有玻璃模糊 / 跳过玻璃模糊" />
-  <figcaption>统计卡 1:1 裁切。把已画好的地图在圆角矩形内"降采样→模糊→升采样"，与真实 <code>backdrop-filter</code> 的差距只有 PSNR 41.16 dB / SSIM 0.998，肉眼不可分辨；跳过玻璃则会明显发灰、失去层次。</figcaption>
+  <figcaption>统计卡 1:1 裁切（复刻场景）。把已画好的地图在圆角矩形内"降采样→模糊→升采样"，与真实 <code>backdrop-filter</code> 的差距只有 PSNR 41.16 dB / SSIM 0.998，肉眼不可分辨；跳过玻璃则会明显发灰、失去层次。</figcaption>
 </figure>
 
 <h2>4. 编码器往返（解码帧 vs 合成源帧）</h2>
