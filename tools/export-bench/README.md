@@ -61,3 +61,13 @@ python tools/export-bench/real/figures-real.py
 - 抓取框自身带 `bg-black`（16:9 信箱底），做「地图 + 静态层」分层合成时必须把克隆根节点
   的背景强制透明，否则会把地图盖黑（这一条踩了很久）。
 - `html-to-image` 的 `filter` 只能排除节点，不能保留背景；玻璃 blur 必须自己在画布上做。
+
+报告出图/截图：
+
+```bash
+cd tools/export-bench/real && node shoot-report.mjs
+```
+
+用 Playwright（`channel: 'chrome'`，1240×1000、2x）把 `reports/export-bench/report.html`
+按 `h2` 切片截成 `shots/report/report-real-*.png`，同时产出一份把图片 base64 内联的
+单文件 HTML（原版引用相对路径，单独发出去会缺图）。
