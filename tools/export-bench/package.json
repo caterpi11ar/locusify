@@ -1,0 +1,10 @@
+{
+  "name": "@locusify/export-bench",
+  "private": true,
+  "type": "module",
+  "description": "Prototype harness comparing Chrome-only video export pipelines for Locusify replays.",
+  "scripts": {
+    "dev": "vite --port 1060",
+    "bench": "node run.mjs"
+  }
+}

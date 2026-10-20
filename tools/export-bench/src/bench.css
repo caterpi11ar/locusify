@@ -1,0 +1,315 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+#stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #0b0d10;
+  color: #fff;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+}
+
+/* Vignette that the app puts over the map while replaying. */
+#vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 55%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(to bottom, rgba(5, 7, 12, 0.55) 0%, rgba(5, 7, 12, 0) 22%),
+    linear-gradient(to top, rgba(5, 7, 12, 0.6) 0%, rgba(5, 7, 12, 0) 26%);
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.title-block {
+  position: absolute;
+  left: 76px;
+  top: 64px;
+  text-shadow: 0 3px 22px rgba(0, 0, 0, 0.6);
+}
+
+.title-block h1 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 78px;
+  font-weight: 600;
+  letter-spacing: -1.5px;
+  line-height: 1.02;
+}
+
+.title-block p {
+  margin: 14px 0 0;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Glass card: the hard part for any DOM -> canvas rasteriser. */
+.stats-card {
+  position: absolute;
+  right: 76px;
+  top: 64px;
+  width: 358px;
+  padding: 26px 30px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 30px;
+  background: rgba(20, 22, 28, 0.5);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(26px) saturate(1.25);
+}
+
+.stats-head {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.stats-values {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 14px 0 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat b {
+  font-size: 40px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.stat span {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.stats-foot {
+  margin-top: 16px;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Photo card that slides in during the replay. */
+#photo-card {
+  position: absolute;
+  right: 76px;
+  top: 352px;
+  width: 520px;
+  height: 640px;
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+  background: #14161c;
+}
+
+#photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-caption {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: 24px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: rgba(8, 10, 14, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 17px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.photo-caption b {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
+/* Bottom stats bar (mirrors TrajectoryStatsBar). */
+#bottom-bar {
+  position: absolute;
+  left: 76px;
+  right: 76px;
+  bottom: 56px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  box-sizing: border-box;
+  height: 95px;
+  padding: 18px 26px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 12, 16, 0.62);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+}
+
+.brand {
+  position: absolute;
+  left: 26px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 22px;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.brand-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #ffb347 0%, #ff6b6b 52%, #7c5cff 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bar-stats {
+  position: absolute;
+  left: 220px;
+  right: 104px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 24px;
+}
+
+.bar-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.bar-stat b {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-stat span {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.qr {
+  position: absolute;
+  right: 26px;
+  top: 19px;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  fill: #111;
+  opacity: 0.92;
+}
+
+
+#watermark {
+  position: absolute;
+  right: 84px;
+  bottom: 20px;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* DOM marker that rides the route (react-map-gl renders these as DOM in-app). */
+#pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+  height: 92px;
+  will-change: transform;
+}
+
+.pin-photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+#pin img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-tag {
+  position: absolute;
+  left: 104px;
+  top: 18px;
+  white-space: nowrap;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(8, 10, 14, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+#bench-ui {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  display: none;
+  font: 12px/1.5 ui-monospace, monospace;
+  color: #9ef;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 10px;
+  border-radius: 8px;
+}

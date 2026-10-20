@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Locusify 导出方案评测 — 效果图</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 32px; background: #0b0d10; color: #e7ecf3;
+         font: 15px/1.7 'Segoe UI', system-ui, sans-serif; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 40px 0 8px; }
+  p, li { color: #b9c3d0; }
+  .lead { color: #8e9aaa; margin: 0 0 24px; }
+  table { border-collapse: collapse; margin: 12px 0 4px; font-size: 14px; }
+  th, td { border: 1px solid #232a34; padding: 6px 10px; text-align: left; }
+  th { background: #141a22; color: #cfd8e3; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  figure { margin: 16px 0 32px; }
+  img { max-width: 100%; border-radius: 10px; border: 1px solid #1d232c; display: block; }
+  figcaption { color: #8e9aaa; font-size: 13px; margin-top: 8px; }
+  code { background: #141a22; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .good { color: #4ec9a0; }
+  .warn { color: #e2b33c; }
+</style>
+</head>
+<body>
+<h1>Locusify 回放视频导出方案评测</h1>
+<p class="lead">Chrome 155 · 1920×1080@30fps · 10 s 时间线 · 300 帧 · 与真实 UI 逐帧对照</p>
+
+<h2>TL;DR</h2>
+<ul>
+  <li><span class="good">WebCodecs H.264 + mediabunny 封 MP4</span>：7.40 s 出片（1.35× 快于实时），13.2 MB，无需 COOP/COEP，无需抓屏权限。</li>
+  <li>MediaRecorder：10.00 s（卡死在实时），10.6 MB WebM，仍要再转一次码。</li>
+  <li>ffmpeg.wasm x264：34.4 s（0.29× 实时），1.68 MB；<span class="warn">core ≈ 32 MB、GPL-2.0-or-later</span>。</li>
+  <li>离线合成帧 vs 真实 UI：<strong>PSNR 25.8–30.1 dB / SSIM 0.96–0.99</strong>，残差几乎全是文字抗锯齿边缘。</li>
+</ul>
+
+<h2>1. 真实 UI vs 离线合成（同一时刻 5.10 s）</h2>
+<figure>
+  <img src="fig-1-live-vs-composite.png" alt="真实 UI、离线合成、差异热力图" />
+  <figcaption>上：真实 DOM（Playwright 截图）；中：Canvas2D 离线合成；下：差值 ×3（越黑越一致）。结构、位置、颜色、阴影、玻璃、圆角全部对得上。</figcaption>
+</figure>
+
+<h2>2. 四个时刻的一致性</h2>
+<figure>
+  <img src="fig-2-timeline.png" alt="0.00 / 2.60 / 5.10 / 8.30 s 对照" />
+  <figcaption>0.00 / 2.60 / 5.10 / 8.30 s，上排真实 UI、下排合成帧。2.60 s 差异最大（照片卡与图钉处于亚像素位移中）。</figcaption>
+</figure>
+
+<table>
+  <tr><th>时刻</th><th>PSNR</th><th>SSIM</th><th>平均绝对误差</th><th>差值 &gt;40 的像素</th></tr>
+  <tr><td>0.00 s</td><td class="num">30.13 dB</td><td class="num">0.9894</td><td class="num">1.23</td><td class="num">0.33 %</td></tr>
+  <tr><td>2.60 s</td><td class="num">25.82 dB</td><td class="num">0.9599</td><td class="num">3.09</td><td class="num">1.31 %</td></tr>
+  <tr><td>5.10 s</td><td class="num">27.82 dB</td><td class="num">0.9869</td><td class="num">1.81</td><td class="num">0.51 %</td></tr>
+  <tr><td>8.30 s</td><td class="num">27.73 dB</td><td class="num">0.9887</td><td class="num">1.81</td><td class="num">0.51 %</td></tr>
+</table>
+
+<h2>3. 玻璃拟态能不能用画布近似</h2>
+<figure>
+  <img src="fig-3-glass.png" alt="真实 UI / 有玻璃模糊 / 跳过玻璃模糊" />
+  <figcaption>统计卡 1:1 裁切。把已画好的地图在圆角矩形内"降采样→模糊→升采样"，与真实 <code>backdrop-filter</code> 的差距只有 PSNR 41.16 dB / SSIM 0.998，肉眼不可分辨；跳过玻璃则会明显发灰、失去层次。</figcaption>
+</figure>
+
+<h2>4. 编码器往返（解码帧 vs 合成源帧）</h2>
+<figure>
+  <img src="fig-4-codec-roundtrip.png" alt="合成源帧与三种编码器解码帧" />
+  <figcaption>同一裁切：合成源帧、WebCodecs H.264、ffmpeg.wasm x264、MediaRecorder VP9。编码这一环已不是瓶颈，三种都在 41 dB 以上。</figcaption>
+</figure>
+
+<table>
+  <tr><th>编码器</th><th>产物 / 体积</th><th>PSNR</th><th>SSIM</th><th>300 帧耗时</th><th>相对实时</th></tr>
+  <tr><td>WebCodecs H.264 High</td><td>mp4 · 13.23 MB</td><td class="num">48.63 dB</td><td class="num">1.0000</td><td class="num">7.40 s</td><td class="num good">1.35×</td></tr>
+  <tr><td>MediaRecorder VP9</td><td>webm · 10.62 MB</td><td class="num">46.13 dB</td><td class="num">0.9999</td><td class="num">10.00 s</td><td class="num">1.00×</td></tr>
+  <tr><td>ffmpeg.wasm x264</td><td>mp4 · 1.68 MB</td><td class="num">41.08 dB</td><td class="num">0.9997</td><td class="num">34.4 s</td><td class="num warn">0.29×</td></tr>
+</table>
+
+<h2>结论</h2>
+<ol>
+  <li>主路径：<code>VideoEncoder</code>（<code>avc1.640028</code>，失败降级 <code>vp09</code>）+ mediabunny 出 MP4。</li>
+  <li>保真兜底：保留 <code>getDisplayMedia</code> 抓屏，但把流直接喂 WebCodecs，去掉 WebM→MP4 中转。</li>
+  <li>ffmpeg.wasm 仅按需加载（32 MB / GPL-2.0-or-later），不进主包。</li>
+  <li>剩余 0.5–1.3 % 的像素差异是文字抗锯齿，属 DOM→canvas 重绘的物理上限；要 100 % 一致只能抓真实合成结果。</li>
+  <li>三条路线都满足隐私约束：照片、EXIF、轨迹、视频均不出设备。</li>
+</ol>
+
+<p class="lead">完整文字版：<code>reports/export-bench/report.md</code>；原始数据：<code>reports/export-bench/metrics.json</code>、<code>reports/export-bench/fidelity.json</code>。</p>
+</body>
+</html>

@@ -29,8 +29,12 @@
     "@antfu/eslint-config": "~9.5.1",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
+    "@ffmpeg/core": "0.12.10",
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "@ffmpeg/util": "0.12.2",
     "@vercel/sdk": "^1.28.41",
     "eslint": "^9",
+    "html-to-image": "^1.11.13",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "typescript": "catalog:"

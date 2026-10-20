@@ -33,3 +33,4 @@ midscene_run/
 
 # 验收 harness 的鉴权产物
 tools/verify/.token
+tools/export-bench/public/ffmpeg-core/
