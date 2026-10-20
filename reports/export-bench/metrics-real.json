@@ -1,0 +1,162 @@
+{
+  "generatedAt": "2026-10-20T09:39:24.487Z",
+  "base": "http://localhost:1070",
+  "captureBox": {
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 1080
+  },
+  "replay": {
+    "status": "configuring",
+    "waypoints": 4,
+    "segments": 3
+  },
+  "states": [
+    {
+      "label": "w0-early",
+      "seg": 0,
+      "p": 0.15,
+      "pos": [
+        116.4058279547,
+        39.90577555934999
+      ],
+      "full": {
+        "totalMs": 292.2,
+        "mapMs": 0.3,
+        "glassMs": 0.5,
+        "rasterMs": 290.9,
+        "glassCount": 2
+      },
+      "staticMs": 156.5,
+      "split": {
+        "totalMs": 0.8,
+        "mapMs": 0.1,
+        "glassMs": 0.2,
+        "patchMs": 0,
+        "patchCount": 0
+      }
+    },
+    {
+      "label": "w1-mid",
+      "seg": 0,
+      "p": 0.75,
+      "pos": [
+        116.39125805750001,
+        39.92726122875
+      ],
+      "full": {
+        "totalMs": 228.7,
+        "mapMs": 0.1,
+        "glassMs": 0.3,
+        "rasterMs": 228,
+        "glassCount": 2
+      },
+      "staticMs": 140.7,
+      "split": {
+        "totalMs": 1,
+        "mapMs": 0.2,
+        "glassMs": 0.2,
+        "patchMs": 0.3,
+        "patchCount": 0
+      }
+    },
+    {
+      "label": "w2-mid",
+      "seg": 1,
+      "p": 0.5,
+      "pos": [
+        116.38258625,
+        39.97149250000001
+      ],
+      "full": {
+        "totalMs": 210.9,
+        "mapMs": 0.1,
+        "glassMs": 0.3,
+        "rasterMs": 210.3,
+        "glassCount": 2
+      },
+      "staticMs": 124.4,
+      "split": {
+        "totalMs": 16.8,
+        "mapMs": 0,
+        "glassMs": 0.4,
+        "patchMs": 15.9,
+        "patchCount": 1
+      }
+    },
+    {
+      "label": "w3-mid",
+      "seg": 2,
+      "p": 0.35,
+      "pos": [
+        116.38899216736002,
+        40.1440869328
+      ],
+      "full": {
+        "totalMs": 220.2,
+        "mapMs": 0.1,
+        "glassMs": 0.2,
+        "rasterMs": 219.8,
+        "glassCount": 2
+      },
+      "staticMs": 117.7,
+      "split": {
+        "totalMs": 11.1,
+        "mapMs": 0.1,
+        "glassMs": 0.2,
+        "patchMs": 10.5,
+        "patchCount": 1
+      }
+    },
+    {
+      "label": "w3-late",
+      "seg": 2,
+      "p": 0.85,
+      "pos": [
+        116.54707859712,
+        40.4091172176
+      ],
+      "full": {
+        "totalMs": 195,
+        "mapMs": 0.1,
+        "glassMs": 0.2,
+        "rasterMs": 194.6,
+        "glassCount": 2
+      },
+      "staticMs": 127,
+      "split": {
+        "totalMs": 0.7,
+        "mapMs": 0.1,
+        "glassMs": 0.2,
+        "patchMs": 0.1,
+        "patchCount": 0
+      }
+    }
+  ],
+  "clip": {
+    "pipeline": "WebCodecs H.264 + mediabunny MP4 mux",
+    "codec": "avc1.640028",
+    "frames": 90,
+    "fps": 30,
+    "bytes": 6215292,
+    "encodeMs": 2440,
+    "framesPerSecond": 36.88,
+    "realtimeFactor": 1.23,
+    "staticMs": 132.8,
+    "frameMs": {
+      "min": 0.1,
+      "p50": 0.3,
+      "p95": 0.5,
+      "max": 13.3,
+      "mean": 0.57
+    },
+    "patchCounts": {
+      "min": 0,
+      "max": 1
+    },
+    "notes": [
+      "WebCodecs config: avc1.640028 @ 1920x1080, 16000 kbps"
+    ]
+  }
+}

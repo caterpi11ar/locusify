@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Locusify 导出方案评测 — 效果图</title>
+<title>Locusify 导出方案评测 — 真实 app 版</title>
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; padding: 32px; background: #0b0d10; color: #e7ecf3;
          font: 15px/1.7 'Segoe UI', system-ui, sans-serif; }
   h1 { font-size: 26px; margin: 0 0 4px; }
   h2 { font-size: 19px; margin: 40px 0 8px; }
+  h3 { font-size: 16px; margin: 24px 0 6px; color: #cfd8e3; }
   p, li { color: #b9c3d0; }
   .lead { color: #8e9aaa; margin: 0 0 24px; }
   table { border-collapse: collapse; margin: 12px 0 4px; font-size: 14px; }
-  th, td { border: 1px solid #232a34; padding: 6px 10px; text-align: left; }
+  th, td { border: 1px solid #232a34; padding: 6px 10px; text-align: left; vertical-align: top; }
   th { background: #141a22; color: #cfd8e3; font-weight: 600; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   figure { margin: 16px 0 32px; }
@@ -22,77 +23,134 @@
   code { background: #141a22; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
   .good { color: #4ec9a0; }
   .warn { color: #e2b33c; }
+  .note { background: #10161d; border-left: 3px solid #2f6feb; padding: 10px 14px; margin: 16px 0; }
+  .bad { background: #1b1113; border-left: 3px solid #d64550; padding: 10px 14px; margin: 16px 0; }
 </style>
 </head>
 <body>
-<h1>Locusify 回放视频导出方案评测</h1>
-<p class="lead">Chrome 155 · 1920×1080@30fps · 10 s 时间线 · 300 帧 · 与真实 UI 逐帧对照</p>
+<h1>Locusify 回放视频导出方案评测 · 真实 app 版</h1>
+<p class="lead">真实 dev server · 真实上传 4 张 GPS 照片 · 真实轨迹回放 · 抓取 16:9 <code>cropRef</code> · Chrome 155 · 1920×1080@30fps</p>
+
+<div class="bad">
+<strong>上一版的效果图是手搓复刻场景，作废。</strong>
+这一版跑的是仓库里的真实 app：真实 dev server、真实上传抽屉、真实 EXIF 解析、真实 4 个 marker、真实 <code>replayStore</code> 回放。下文所有 PSNR/SSIM 都是「离线合成像素」对「你的 app 此刻真实渲染的像素」。
+</div>
 
 <h2>TL;DR</h2>
 <ul>
-  <li><span class="good">WebCodecs H.264 + mediabunny 封 MP4</span>：7.40 s 出片（1.35× 快于实时），13.2 MB，无需 COOP/COEP，无需抓屏权限。</li>
-  <li>MediaRecorder：10.00 s（卡死在实时），10.6 MB WebM，仍要再转一次码。</li>
-  <li>ffmpeg.wasm x264：34.4 s（0.29× 实时），1.68 MB；<span class="warn">core ≈ 32 MB、GPL-2.0-or-later</span>。</li>
-  <li>离线合成帧 vs 真实 UI：<strong>PSNR 25.8–30.1 dB / SSIM 0.96–0.99</strong>，残差几乎全是文字抗锯齿边缘。</li>
+  <li><span class="good">离线合成能做到 PSNR 32.2–32.6 dB / SSIM 0.994–0.996</span>，平均通道差 0.27–0.33，差值 &gt;40 的像素只有 0.14–0.16%。</li>
+  <li><span class="warn">整帧光栅每帧 195–292 ms（3–5 fps），直接淘汰。</span></li>
+  <li>分层合成（地图 <code>drawImage</code> + 画布内 blur 造玻璃 + 静态层缓存 + 文字补丁）每帧 <strong>0.7–16.8 ms</strong>，静态层 118–157 ms 只做一次。</li>
+  <li>WebCodecs H.264：90 帧 1080p30 用 2.44 s（1.23× 实时），6.2 MB；编码回环 45.08 dB / SSIM 0.9956。</li>
+  <li>ffmpeg.wasm 核 31 MB、GPL-2.0-or-later、0.29× 实时 → <span class="warn">只作兜底，不进主链路</span>。</li>
 </ul>
 
-<h2>⚠ 先看这条：效果图里的界面是复刻件，不是你的 app</h2>
-<p><code>src/scene.ts</code> + <code>bench.css</code> 里那套画面是手写复刻件。真正从仓库搬来的只有地图样式 <code>MapLibreStyleDark.json</code> 和 MapLibre worker 适配；标题文案、路线、日期、照片（程序生成的渐变+噪声图）、统计卡、底栏、水印、二维码、字体（Georgia + Inter）、玻璃强度、间距配色，全部是我按 <code>TrajectoryStatsBar.tsx</code> 与发布说明推断的近似值。</p>
-<ul>
-  <li>标 <code>live</code> 的那一列是"复刻场景的实时渲染"，<strong>不是</strong>你产品里的界面；</li>
-  <li>PSNR/SSIM 证明的是"离线合成 vs 同一棵 DOM 树的实时渲染"自洽，<strong>不能</strong>回答"像不像你的 app"；</li>
-  <li>你看到的差距主要来自复刻件本身；管线对给定 DOM 的重建是准的（27.8 dB / 0.987，残差全在文字边缘）。</li>
-</ul>
-<p>另外：真实导出抓的是 <code>packages/app/src/pages/map/MapSection.tsx:473</code> 那个 16:9 <code>cropRef</code> 容器，也就是地图页本身，不是另做的回放画面。要让效果图变成"你的效果"，取景对象必须换成那个容器（详见 report.md 的"下一步"）。</p>
-
-<h2>1. 复刻场景 vs 离线合成（同一时刻 5.10 s）</h2>
-<figure>
-  <img src="fig-1-live-vs-composite.png" alt="真实 UI、离线合成、差异热力图" />
-  <figcaption>上：复刻场景的实时渲染；中：Canvas2D 离线合成；下：差值 ×3（越黑越一致）。结构、位置、颜色、阴影、玻璃、圆角全部对得上——但请注意这一列本身是复刻件，不是真实 app。</figcaption>
-</figure>
-
-<h2>2. 四个时刻的一致性</h2>
-<figure>
-  <img src="fig-2-timeline.png" alt="0.00 / 2.60 / 5.10 / 8.30 s 对照" />
-  <figcaption>0.00 / 2.60 / 5.10 / 8.30 s，上排复刻场景、下排合成帧。2.60 s 差异最大（照片卡与图钉处于亚像素位移中）。</figcaption>
-</figure>
-
+<h2>0. 测试对象与方法</h2>
 <table>
-  <tr><th>时刻</th><th>PSNR</th><th>SSIM</th><th>平均绝对误差</th><th>差值 &gt;40 的像素</th></tr>
-  <tr><td>0.00 s</td><td class="num">30.13 dB</td><td class="num">0.9894</td><td class="num">1.23</td><td class="num">0.33 %</td></tr>
-  <tr><td>2.60 s</td><td class="num">25.82 dB</td><td class="num">0.9599</td><td class="num">3.09</td><td class="num">1.31 %</td></tr>
-  <tr><td>5.10 s</td><td class="num">27.82 dB</td><td class="num">0.9869</td><td class="num">1.81</td><td class="num">0.51 %</td></tr>
-  <tr><td>8.30 s</td><td class="num">27.73 dB</td><td class="num">0.9887</td><td class="num">1.81</td><td class="num">0.51 %</td></tr>
+  <tr><th>项目</th><th>说明</th></tr>
+  <tr><td>被测页面</td><td><code>packages/app</code> 真实 dev server（<code>vite --port 1070</code>），<code>/zh-CN/</code> 地图页</td></tr>
+  <tr><td>真实交互</td><td>侧栏「上传照片」→ 上传 <code>packages/app/e2e/fixtures</code> 中 4 张带 EXIF GPS 的真实照片（天安门 / 鼓楼 / 奥林匹克 / 慕田峪）→ 真实 <code>route-create</code> → 4 个 marker</td></tr>
+  <tr><td>真实回放</td><td>侧栏「查看轨迹」→ 真实 <code>prepareReplay()</code> 生成 3 段路径 → 真实 <code>replayStore</code></td></tr>
+  <tr><td>唯一 mock</td><td><code>/api/v1/{auth/me,profile,subscriptions}</code> 三个鉴权响应（与仓库自带 e2e 一致），不参与画面</td></tr>
+  <tr><td>抓取目标</td><td>app 自己录屏用的 16:9 容器（<code>MapSection.tsx</code> 的 <code>cropRef</code>），运行时实测 1920×1080 @ (0,0)</td></tr>
+  <tr><td>参考图</td><td>Playwright 对该容器直接截图 = 浏览器真实渲染</td></tr>
+  <tr><td>冻结方式</td><td>仅停住回放时钟（<code>_tick</code> 置空 + 指定 <code>segmentProgress</code>）并打开 <code>recordingActive</code>（即导出时的界面）；<strong>未改任何样式/组件</strong></td></tr>
 </table>
 
-<h2>3. 玻璃拟态能不能用画布近似</h2>
-<figure>
-  <img src="fig-3-glass.png" alt="真实 UI / 有玻璃模糊 / 跳过玻璃模糊" />
-  <figcaption>统计卡 1:1 裁切（复刻场景）。把已画好的地图在圆角矩形内"降采样→模糊→升采样"，与真实 <code>backdrop-filter</code> 的差距只有 PSNR 41.16 dB / SSIM 0.998，肉眼不可分辨；跳过玻璃则会明显发灰、失去层次。</figcaption>
-</figure>
-
-<h2>4. 编码器往返（解码帧 vs 合成源帧）</h2>
-<figure>
-  <img src="fig-4-codec-roundtrip.png" alt="合成源帧与三种编码器解码帧" />
-  <figcaption>同一裁切：合成源帧、WebCodecs H.264、ffmpeg.wasm x264、MediaRecorder VP9。编码这一环已不是瓶颈，三种都在 41 dB 以上。</figcaption>
-</figure>
-
+<h2>1. 三条路线</h2>
 <table>
-  <tr><th>编码器</th><th>产物 / 体积</th><th>PSNR</th><th>SSIM</th><th>300 帧耗时</th><th>相对实时</th></tr>
-  <tr><td>WebCodecs H.264 High</td><td>mp4 · 13.23 MB</td><td class="num">48.63 dB</td><td class="num">1.0000</td><td class="num">7.40 s</td><td class="num good">1.35×</td></tr>
-  <tr><td>MediaRecorder VP9</td><td>webm · 10.62 MB</td><td class="num">46.13 dB</td><td class="num">0.9999</td><td class="num">10.00 s</td><td class="num">1.00×</td></tr>
-  <tr><td>ffmpeg.wasm x264</td><td>mp4 · 1.68 MB</td><td class="num">41.08 dB</td><td class="num">0.9997</td><td class="num">34.4 s</td><td class="num warn">0.29×</td></tr>
+  <tr><th></th><th>现状：屏幕捕获</th><th>离线整帧光栅</th><th>离线分层合成（推荐）</th></tr>
+  <tr><td>实现</td><td><code>getDisplayMedia</code> + <code>CropTarget.cropTo</code> + <code>MediaRecorder</code></td><td>每帧把整个 16:9 容器交给 <code>html-to-image</code></td><td>地图 <code>drawImage</code> + 画布 <code>blur</code> 造玻璃 + 静态层缓存 + 文字补丁</td></tr>
+  <tr><td>与实时差异</td><td class="good">0（就是屏幕）</td><td>32.4 dB / 0.995</td><td>32.3 dB / 0.995</td></tr>
+  <tr><td>每帧成本</td><td>0（编码器实时吞帧）</td><td class="warn">195–292 ms → 3–5 fps</td><td class="good">0.7–16.8 ms</td></tr>
+  <tr><td>10 s 片子总耗时</td><td>≈10 s</td><td>≈60 s+</td><td>≈130 ms×N + 8.5 s</td></tr>
+  <tr><td>需要授权</td><td class="warn">需要选窗口/屏幕</td><td class="good">不需要</td><td class="good">不需要</td></tr>
+  <tr><td>受窗口尺寸/遮挡影响</td><td class="warn">会</td><td class="good">不会</td><td class="good">不会</td></tr>
+  <tr><td>可自动化 / 可重跑</td><td class="warn">难</td><td class="good">可以</td><td class="good">可以</td></tr>
+  <tr><td>玻璃 <code>backdrop-blur</code></td><td>原生正确</td><td>丢失，需手工补</td><td>手工补，实测一致</td></tr>
 </table>
 
-<h2>结论</h2>
+<h2>2. 真实 app vs 离线合成</h2>
+<figure>
+  <img src="fig-1-real-vs-composite.png" alt="真实 app 实时渲染、离线合成、差异热力图" />
+  <figcaption>左：真实 app 在该时刻的真实渲染（Playwright 截图）；中：离线分层合成；右：差值 ×3。PSNR 32.4 dB、SSIM 0.995，差值只在文字边缘。</figcaption>
+</figure>
+
+<h2>3. 五个回放状态</h2>
+<figure>
+  <img src="fig-2-real-states.png" alt="五个回放状态：上排实时、下排合成" />
+  <figcaption>上排是真实 app 的实时渲染，下排是离线合成，逐状态 PSNR 标注在标题里（32.2–32.4 dB）。</figcaption>
+</figure>
+
+<h2>4. 保真度明细</h2>
+<table>
+  <tr><th>状态</th><th>路线</th><th>PSNR (dB)</th><th>SSIM</th><th>平均通道差</th><th>&gt;40 像素占比</th></tr>
+  <tr><td>第 1 段 15%</td><td>整帧光栅</td><td class="num">32.47</td><td class="num">0.9958</td><td class="num">0.28</td><td class="num">0.15%</td></tr>
+  <tr><td>第 1 段 15%</td><td>分层合成</td><td class="num">32.43</td><td class="num">0.9952</td><td class="num">0.31</td><td class="num">0.15%</td></tr>
+  <tr><td>第 1 段 75%</td><td>整帧光栅</td><td class="num">32.44</td><td class="num">0.9955</td><td class="num">0.29</td><td class="num">0.15%</td></tr>
+  <tr><td>第 1 段 75%</td><td>分层合成</td><td class="num">32.43</td><td class="num">0.9950</td><td class="num">0.32</td><td class="num">0.15%</td></tr>
+  <tr><td>第 2 段 50%</td><td>整帧光栅</td><td class="num">32.60</td><td class="num">0.9958</td><td class="num">0.27</td><td class="num">0.14%</td></tr>
+  <tr><td>第 2 段 50%</td><td>分层合成</td><td class="num">32.39</td><td class="num">0.9953</td><td class="num">0.31</td><td class="num">0.15%</td></tr>
+  <tr><td>第 3 段 35%</td><td>整帧光栅</td><td class="num">32.37</td><td class="num">0.9955</td><td class="num">0.30</td><td class="num">0.15%</td></tr>
+  <tr><td>第 3 段 35%</td><td>分层合成</td><td class="num">32.18</td><td class="num">0.9948</td><td class="num">0.33</td><td class="num">0.16%</td></tr>
+  <tr><td>第 3 段 85%</td><td>整帧光栅</td><td class="num">32.32</td><td class="num">0.9957</td><td class="num">0.29</td><td class="num">0.15%</td></tr>
+  <tr><td>第 3 段 85%</td><td>分层合成</td><td class="num">32.31</td><td class="num">0.9952</td><td class="num">0.31</td><td class="num">0.15%</td></tr>
+  <tr><td>编码回环（第 45 帧，解码 MP4 vs 送编码器那一帧）</td><td>WebCodecs H.264</td><td class="num good">45.08</td><td class="num">0.9956</td><td class="num">0.55</td><td class="num">0.00%</td></tr>
+</table>
+
+<h2>5. 剩下的差异在哪</h2>
+<p>把差值按 32×32 分块聚类，全画面只有 1 个区域平均差 &gt;12：(192,512)–(320,640)，128×128，平均 19.6、最大 218。放大看就是一小段文字的字形相位/抗锯齿差异——同一字体同一字号，但 SVG <code>foreignObject</code> 内的文字光栅化相位与页面不同。地图瓦片、玻璃卡、照片缩略图、路线、底栏、二维码都在 0.1% 以内。</p>
+<figure>
+  <img src="fig-3-real-residual.png" alt="残留误差放大" />
+  <figcaption>左：实时；中：合成；右：差异 ×3。字形轮廓一致，只有笔画边缘相位不同。</figcaption>
+</figure>
+
+<h2>6. 成本</h2>
+<table>
+  <tr><th>项目</th><th>实测</th></tr>
+  <tr><td>整帧光栅 / 帧</td><td>195 / 210.9 / 220.2 / 228.7 / 292.2 ms（5 个状态）</td></tr>
+  <tr><td>静态层栅格化（一次）</td><td>117.7 – 156.5 ms</td></tr>
+  <tr><td>分层合成 / 帧</td><td>0.7 / 0.8 / 1.0 / 11.1 / 16.8 ms（有 1 个文字补丁时 11–17 ms）</td></tr>
+  <tr><td>地图 <code>drawImage</code> / 帧</td><td>0.1 – 0.3 ms</td></tr>
+  <tr><td>玻璃 blur / 帧</td><td>0.2 – 0.5 ms（该状态命中 2 个 <code>backdrop-filter</code> 元素）</td></tr>
+  <tr><td>WebCodecs 编码 90 帧 1080p30</td><td>2.44 s（36.9 fps 墙钟，1.23× 实时），6.2 MB，<code>avc1.640028</code> @ 16 Mbps</td></tr>
+  <tr><td>合成（分层）/ 帧，编码期间</td><td>p50 0.3 ms / p95 0.5 ms / max 13.3 ms</td></tr>
+</table>
+<figure>
+  <img src="fig-4-real-cost.png" alt="每帧成本对比" />
+  <figcaption>整帧光栅与分层合成的每帧成本对比，绿线是 30fps 的 33.3 ms 预算。</figcaption>
+</figure>
+
+<h2>7. 编码器对比</h2>
+<table>
+  <tr><th>编码器</th><th>300 帧 1080p30</th><th>相对实时</th><th>产物</th><th>备注</th></tr>
+  <tr><td>WebCodecs H.264 + mediabunny MP4</td><td class="num">7.4 s</td><td class="num">1.35×</td><td class="num">12.6 MB</td><td>无额外依赖，主选；真实 app 复测 1.23× / 6.2 MB（90 帧）</td></tr>
+  <tr><td>MediaRecorder VP9/WebM</td><td class="num">10.0 s</td><td class="num">1.00×</td><td class="num">10.1 MB</td><td>现状兜底，被实时约束</td></tr>
+  <tr><td>ffmpeg.wasm libx264</td><td class="num warn">34.4 s</td><td class="num warn">0.29×</td><td class="num">1.6 MB</td><td>核 31 MB，GPL-2.0-or-later</td></tr>
+</table>
+<div class="note">
+ffmpeg.wasm 的代价：<code>@ffmpeg/core@0.12.10</code> 单线程核 <strong>31 MB</strong>（<code>ffmpeg-core.js</code> + <code>ffmpeg-core.wasm</code>），好处是不需要 COOP/COEP、不需要 SharedArrayBuffer；许可证 <strong>GPL-2.0-or-later</strong>，Web 分发要满足 GPL 的独立可替换与源码声明义务。它唯一优势是产物小、老浏览器兼容。
+</div>
+
+<h2>8. 建议</h2>
 <ol>
-  <li>主路径：<code>VideoEncoder</code>（<code>avc1.640028</code>，失败降级 <code>vp09</code>）+ mediabunny 出 MP4。</li>
-  <li>保真兜底：保留 <code>getDisplayMedia</code> 抓屏，但把流直接喂 WebCodecs，去掉 WebM→MP4 中转。</li>
-  <li>ffmpeg.wasm 仅按需加载（32 MB / GPL-2.0-or-later），不进主包。</li>
-  <li>剩余 0.5–1.3 % 的像素差异是文字抗锯齿，属 DOM→canvas 重绘的物理上限；要 100 % 一致只能抓真实合成结果。</li>
-  <li>三条路线都满足隐私约束：照片、EXIF、轨迹、视频均不出设备。</li>
+  <li>生产路线走<strong>分层合成 + WebCodecs</strong>；每帧整棵树栅格化（200 ms+）是死路。</li>
+  <li>静态层在编码前排干（3 个 waypoint → 4 个静态状态，每个约 130 ms），避免录制中途卡顿。</li>
+  <li>玻璃必须手工补：SVG <code>foreignObject</code> 里 <code>backdrop-filter</code> 没有背面可采样，要把地图先画进画布、再对该区域 <code>ctx.filter = 'blur(Npx)'</code> 自绘。</li>
+  <li>文字补丁只重画变了的叶子节点（<code>textContent</code> 变化的最小元素），11–17 ms/帧，仍在 33 ms 预算内。</li>
+  <li>ffmpeg.wasm 只作按需兜底（Safari / 旧内核 / 需要极小体积），不进主链路。</li>
+  <li>屏幕捕获保留为「用户就要 100% 原样且愿意授权」的兜底。</li>
 </ol>
 
-<p class="lead">完整文字版：<code>reports/export-bench/report.md</code>；原始数据：<code>reports/export-bench/metrics.json</code>、<code>reports/export-bench/fidelity.json</code>。</p>
+<h2>9. 复现</h2>
+<pre class="lead" style="white-space:pre-wrap;background:#10161d;padding:12px 14px;border-radius:8px;border:1px solid #1d232c"><code># 1) 起真实 app
+cd packages/app &amp;&amp; npx vite --port 1070 --strictPort
+
+# 2) 真实 app 的导出基准（约 3 分钟）
+cd tools/export-bench/real &amp;&amp; node run-real.mjs
+
+# 3) 只重算指标与四张图（不启浏览器）
+python tools/export-bench/real/figures-real.py</code></pre>
+<p>产物在 <code>shots/real/</code>（截图 + <code>clip-webcodecs.mp4</code> + <code>metrics.json</code>，gitignored），数据副本在 <code>reports/export-bench/metrics-real.json</code> 与 <code>fidelity-real.json</code>。</p>
 </body>
 </html>

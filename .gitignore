@@ -34,3 +34,6 @@ midscene_run/
 # 验收 harness 的鉴权产物
 tools/verify/.token
 tools/export-bench/public/ffmpeg-core/
+
+# 真实 app 导出基准的截图/成片产物
+shots/

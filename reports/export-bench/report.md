@@ -1,197 +1,142 @@
-# Locusify 回放视频导出方案评测 — WebCodecs / ffmpeg.wasm / MediaRecorder
+# 视频导出：用真实 app 跑出来的对比评测
 
-- 评测分支: `feat/export-pipeline-bench`
-- 评测环境: Chrome 155.0.8059.80 (Windows, headless), 16 核 / 32 GB, 1920×1080@30fps, 10 s 时间线
-- 试验台: `tools/export-bench/`（Vite + Playwright，一条命令跑完整套）
-- 原始数据: `reports/export-bench/metrics.json`、`reports/export-bench/fidelity.json`
-- 效果图: `reports/export-bench/fig-1..4-*.png`（见下）
-- 结论: **可行，推荐 WebCodecs(H.264) + mediabunny 封装 MP4 作为主路径；ffmpeg.wasm 退为兼容兜底；MediaRecorder 不再是主路径。**
+> 上一版报告里的效果图是我**手搓的复刻场景**，不是你的产品，已被否定。这一版全部重做：跑的是仓库里的真实 app，像素来自 app 自己的组件、字体、地图样式和真实照片。
 
-## 先看这条：效果图里的界面是我复刻的，不是你的 app
+## 0. 这次测的是什么
 
-这一点必须在读数字之前说清楚，否则数字会被误读。
+| 项目 | 说明 |
+| --- | --- |
+| 被测页面 | `packages/app` 真实 dev server（`vite --port 1070`），`/zh-CN/` 地图页 |
+| 真实交互 | 点侧栏「上传照片」→ 真实上传抽屉 → 选 `packages/app/e2e/fixtures` 里 4 张**带 EXIF GPS 的真实照片**（天安门 / 鼓楼 / 奥林匹克 / 慕田峪）→ 真实解析 EXIF → `route-create` 生成 4 个 marker |
+| 真实回放 | 点侧栏「查看轨迹」→ 真实 `prepareReplay()` 建 3 段路径 → 真实 `replayStore` 驱动 |
+| 唯一 mock | `/api/v1/{auth/me,profile,subscriptions}` 三个鉴权响应（和仓库自带 e2e 一致），与画面无关 |
+| 抓取目标 | app 自己录屏用的那个 16:9 容器（`MapSection.tsx` 的 `cropRef`，运行时实测 `1920×1080 @ (0,0)`） |
+| 参考图 | Playwright 对该容器直接截图 = 浏览器真实渲染结果 |
+| 冻结方式 | 只把回放的时钟停住（`_tick` 置空 + 指定 `segmentProgress`），并把 `recordingActive` 打开——也就是导出视频时的那套界面；**没有改任何样式/组件** |
 
-`tools/export-bench/src/scene.ts` + `bench.css` 里那套画面是**手写复刻件**。真正从仓库搬过来的只有两样：地图样式 `packages/app/src/pages/map/MapLibreStyleDark.json`，和 MapLibre 的 worker 适配。其余全部是我按 `TrajectoryStatsBar.tsx`、发布说明和截图描述**推断**出来的近似值：
+所以下面每一个 PSNR / SSIM 都是「离线合成出的像素」对「你的 app 此刻真实渲染出的像素」，不是对我画的东西打分。
 
-- 标题文案（Iceland · Ring Road）、日期、路线坐标
-- 照片卡与图钉里的图：程序生成的渐变 + 噪声图，**不是真实照片**
-- 统计卡 / 底栏 / 水印 / 二维码的结构与间距
-- 字体（Georgia 衬线 + Inter）、玻璃强度、暗角、各处配色
+## 1. 结论先看
 
-所以：
+1. **离线合成能到 PSNR 32.2–32.6 dB / SSIM 0.994–0.996**，平均每通道差 0.27–0.33，全画面只有 **0.14–0.16%** 的像素差值 >40。肉眼级别：地图、玻璃卡、照片、轨迹、底栏、二维码全部一致，剩下的只是文字抗锯齿的亚像素相位。
+2. **瓶颈不在画质，在每帧成本**。整帧光栅（`html-to-image` 把 16:9 容器整棵树栅格化一次）要 **195–292 ms/帧 ≈ 3–5 fps**，直接淘汰。
+3. **分层合成把每帧压到 0.7–16.8 ms**（中位 1 ms）：地图 canvas 直接 `drawImage`，玻璃用画布内 `blur` 现场做，静态 UI 只栅格化一次（118–157 ms，按 waypoint 排干），每帧只重画变了的文字。
+4. **编码器不是瓶颈但也不快**：WebCodecs H.264 实测 90 帧 1080p30 用 2.44 s（1.23× 实时），产物 6.2 MB（≈16 Mbps）。整条离线管线的总时长 ≈ 静态层 4×130 ms + 视频时长 × 0.85。
+5. **ffmpeg.wasm 不建议进主链路**：核 31 MB、GPL-2.0-or-later、实测 0.29× 实时（3.4 倍于视频时长）。留作兼容兜底即可。
 
-- 图上标 `live` 的那一列，是"我这个复刻场景的实时渲染"，**不是**你产品里的界面；
-- PSNR/SSIM 衡量的是"离线合成管线 vs 同一棵 DOM 树的实时渲染"是否自洽，**不能**回答"合成结果像不像你的 app"；
-- 你看到的差距（构图、字体、卡片、底栏、照片质感、地图观感）主要来自复刻件本身。管线对"给定 DOM"的重建是准的（27.8 dB / SSIM 0.987，残差全在文字边缘）；它对你 app 像不像，取决于取景对象是不是你的真实界面。
+## 2. 三条路线对比
 
-顺带一个对实现更重要的发现：真实导出抓的并不是"另做的回放画面"，而是 `packages/app/src/pages/map/MapSection.tsx:473` 那个 16:9 的 `cropRef` 容器——也就是**地图页本身**。这条决定了替代方案要么接管那个容器，要么和它保持一致。
+| | 现状：屏幕捕获 | 离线整帧光栅 | 离线分层合成（推荐） |
+| --- | --- | --- | --- |
+| 实现 | `getDisplayMedia` + `CropTarget.cropTo` + `MediaRecorder`（`useVideoRecorder.ts`） | 每帧 `html-to-image` 栅格化整个 16:9 容器 | 地图 `drawImage` + 画布 `blur` 造玻璃 + 静态层缓存 + 文字补丁 |
+| 与实时画面差异 | 0（就是屏幕） | 32.4 dB / 0.995 | 32.3 dB / 0.995 |
+| 每帧成本 | 0（编码器实时吞帧） | **195–292 ms** → 3–5 fps | **0.7–16.8 ms** → 60+ fps 余量 |
+| 10 s 片子总耗时 | ≈10 s | ≈60 s+ | ≈130 ms×N + 8.5 s |
+| 需要用户授权 | 需要（选窗口/屏幕） | 不需要 | 不需要 |
+| 依赖窗口尺寸/遮挡 | 是（切标签页、缩放都会坏） | 否 | 否 |
+| 可自动化/可重跑 | 难 | 可以 | 可以 |
+| 分辨率 | 取决于窗口 | 固定 1920×1080 | 固定 1920×1080 |
+| 玻璃 `backdrop-blur` | 原生正确 | 丢失，需手工补 | 手工补，实测一致 |
 
-## 下一步：怎么把效果图换成真实 app
+## 3. 保真度（真实 app，1920×1080）
 
-| 方案 | 做法 | 代价 | 得到什么 |
-|---|---|---|---|
-| A（推荐） | 试验台改为加载真实 app（dev server + 一条 mock trip），对 `cropRef` 那个容器截屏，并对同一棵树做离线合成 | 需要一条可跑的 trip 数据（照片可用公开图替换） | "合成 vs 你的真实界面"的可信数字与效果图 |
-| B | 你给一条真实 trip 或一段现在的导出视频，我以它为基准重算保真度 | 最低 | 只验"像不像成片"，不含逐帧分解 |
-| C | 保持现状 | 0 | 只能证明管线自洽，不能证明像你的产品 |
+| 状态 | 路线 | PSNR (dB) | SSIM | 平均通道差 | 差值>40 的像素 |
+| --- | --- | --- | --- | --- | --- |
+| 第 1 段 15% | 整帧光栅 | 32.47 | 0.9958 | 0.28 | 0.15% |
+| 第 1 段 15% | 分层合成 | 32.43 | 0.9952 | 0.31 | 0.15% |
+| 第 1 段 75% | 整帧光栅 | 32.44 | 0.9955 | 0.29 | 0.15% |
+| 第 1 段 75% | 分层合成 | 32.43 | 0.9950 | 0.32 | 0.15% |
+| 第 2 段 50% | 整帧光栅 | 32.60 | 0.9958 | 0.27 | 0.14% |
+| 第 2 段 50% | 分层合成 | 32.39 | 0.9953 | 0.31 | 0.15% |
+| 第 3 段 35% | 整帧光栅 | 32.37 | 0.9955 | 0.30 | 0.15% |
+| 第 3 段 35% | 分层合成 | 32.18 | 0.9948 | 0.33 | 0.16% |
+| 第 3 段 85% | 整帧光栅 | 32.32 | 0.9957 | 0.29 | 0.15% |
+| 第 3 段 85% | 分层合成 | 32.31 | 0.9952 | 0.31 | 0.15% |
+| 编码回环（第 45 帧，解码 MP4 vs 送进编码器的帧） | WebCodecs H.264 | 45.08 | 0.9956 | 0.55 | 0.00% |
 
-需要你确认的三件事：导出时 `cropRef` 的实际像素尺寸（它是响应式的，跟窗口大小走）、app 用不用自托管字体、能否给一条测试 trip（或允许我用 mock 数据）。
+编码回环 45 dB 意味着 H.264 这一环几乎不引入可见损失；32 dB 那一档完全是 DOM 栅格化/文字相位的事。
 
-## 为什么现在要换
+![真实 app vs 离线合成](fig-1-real-vs-composite.png)
 
-现有导出走 `getDisplayMedia` 抓屏 → `MediaRecorder` 录 WebM → 再转 MP4。问题不在画质，而在**它被绑死在实时上**：
+![五个回放状态](fig-2-real-states.png)
 
-1. 录 10 s 视频必须真的等 10 s 以上，加上 2 s 尾巴，用户点导出后只能干等；
-2. MediaRecorder 只有 VP8/VP9 可用（`avc1.42001f` 在本机直接被判 unsupported），最后仍要一次转码；
-3. 抓屏受窗口尺寸、缩放、被遮挡、多显示器影响，产物不稳定；
-4. 无法"离线重放 + 更快的帧率/更高码率"，导出质量上限被实时渲染能力锁死。
+## 4. 剩下的 32 dB 差在哪
 
-## 三条路线同条件实测（300 帧 / 1080p30 / 10 s 时间线）
+把「实时 vs 分层合成」的差值按 32×32 分块聚类，全画面只有 **1 个** 区域平均差 >12：
 
-| 路线 | 产物 | 尺寸 | 耗时 | 相对实时 | 备注 |
-|---|---|---|---|---|---|
-| WebCodecs H.264 High (`avc1.640028`) + mediabunny 封装 MP4 | `mp4` | 13.23 MB | **7.40 s** | **1.35×（快于实时）** | 16 Mbps，无 COOP/COEP 要求 |
-| MediaRecorder VP9 + `canvas.captureStream` | `webm` | 10.62 MB | **10.00 s** | 1.00×（卡在实时） | 只能等，不能快 |
-| ffmpeg.wasm libx264（单线程 core） | `mp4` | **1.68 MB** | **34.4 s** | 0.29×（慢 3.4×） | 12.4 s 取帧 + JPEG 落 FS，22.0 s ffmpeg 执行 |
+| 区域 | 尺寸 | 平均差 | 最大差 |
+| --- | --- | --- | --- |
+| (192,512)–(320,640) | 128×128 | 19.6 | 218 |
 
-补充说明：
+放大看就是一小段文字的字形相位/抗锯齿差异（同一字号、同一字体，但 SVG `foreignObject` 里的文字光栅化相位与页面不同）。地图瓦片、玻璃卡、照片缩略图、路线、底栏数字、二维码都在 0.1% 以内。
 
-- ffmpeg.wasm 的 34 s 里有 12 s 花在"把每帧编码成 JPEG 再写进 wasm 文件系统"，真正的 x264 只有 22 s。即使优化掉取帧，仍慢于实时 2× 以上。
-- ffmpeg.wasm 体积换来的是体积优势：同样 10 s，1.68 MB（CRF 默认）vs WebCodecs 13.2 MB（16 Mbps）。生产上把码率降到 6–8 Mbps 即可收敛差距，而不必付出 4.6× 的时间成本。
-- 单线程 `@ffmpeg/core` 意味着**不需要** `SharedArrayBuffer`，也就不需要给整站加 COOP/COEP 响应头（现有网络探测确认 `crossOriginIsolated=false`）。代价是解码/编码都跑在主线程 worker 里、慢。
+![残留误差放大](fig-3-real-residual.png)
 
-## 效果图（离线合成 vs 复刻场景的实时渲染）
+这条也解释了为什么整帧光栅和分层合成 PSNR 几乎一样：两者都走 `html-to-image`，误差同源。
 
-四张图都在 `reports/export-bench/` 下：
+## 5. 成本
 
-| 图 | 内容 | 看什么 |
-|---|---|---|
-| `fig-1-live-vs-composite.png` | 上：复刻场景实时渲染；中：离线合成帧；下：差异×3 热力图 | 热力图越黑越一致 |
-| `fig-2-timeline.png` | 0.00 / 2.60 / 5.10 / 8.30 s 四个时刻，上排复刻场景、下排合成 | 全程一致性，不只看某一帧 |
-| `fig-3-glass.png` | 统计卡 1:1 裁切：复刻场景 / 有玻璃模糊 / 跳过玻璃模糊 | 玻璃拟态是不是"能用画布近似" |
-| `fig-4-codec-roundtrip.png` | 合成源帧 + 三种编码器解回来的同一裁切 | 编码器本身丢了多少细节 |
+| 项目 | 实测 |
+| --- | --- |
+| 整帧光栅 / 帧 | 195 ms / 210.9 / 220.2 / 228.7 / 292.2（5 个状态） |
+| 静态层栅格化（一次） | 117.7–156.5 ms |
+| 分层合成 / 帧 | 0.7 / 0.8 / 1.0 / 11.1 / 16.8（有 1 个文字补丁时 11–17 ms） |
+| 地图 `drawImage` / 帧 | 0.1–0.3 ms |
+| 玻璃 blur / 帧 | 0.2–0.5 ms（本状态命中 2 个 `backdrop-filter` 元素） |
+| WebCodecs 编码 90 帧 1080p30 | 2.44 s（36.9 fps 墙钟，1.23× 实时），6.2 MB，`avc1.640028` @ 16 Mbps |
+| 合成（分层）/ 帧（编码期间） | p50 0.3 ms，p95 0.5 ms，max 13.3 ms |
 
-**保真度（合成帧 vs 真实 DOM 截屏，全画幅 1920×1080）：**
+![每帧成本](fig-4-real-cost.png)
 
-| 时刻 | PSNR | SSIM | 平均绝对误差 | 差值 >40 的像素占比 |
-|---|---|---|---|---|
-| 0.00 s | 30.13 dB | 0.9894 | 1.23 | 0.33 % |
-| 2.60 s | 25.82 dB | 0.9599 | 3.09 | 1.31 % |
-| 5.10 s | 27.82 dB | 0.9869 | 1.81 | 0.51 % |
-| 8.30 s | 27.73 dB | 0.9887 | 1.81 | 0.51 % |
+## 6. 编码器对比（沿用复刻场景上的 300 帧基准，场景无关的那部分）
 
-**编码往返（解码帧 vs 合成源帧，5.10 s）：**
+| 编码器 | 300 帧 1080p30 耗时 | 相对实时 | 产物 | 备注 |
+| --- | --- | --- | --- | --- |
+| WebCodecs H.264 + mediabunny MP4 | 7.4 s | 1.35× | 12.6 MB | 无额外依赖，主选；真实 app 上复测 1.23× |
+| MediaRecorder VP9/WebM | 10.0 s | 1.00× | 10.1 MB | 现状兜底，实时约束 |
+| ffmpeg.wasm libx264 | 34.4 s | 0.29× | 1.6 MB | 核 31 MB，GPL-2.0-or-later |
 
-| 编码器 | PSNR | SSIM | 平均绝对误差 | 体积 |
-|---|---|---|---|---|
-| WebCodecs H.264 | **48.63 dB** | 1.0000 | 0.47 | 13.23 MB |
-| MediaRecorder VP9 | 46.13 dB | 0.9999 | 0.74 | 10.62 MB |
-| ffmpeg.wasm x264 | 41.08 dB | 0.9997 | 1.15 | **1.68 MB** |
+ffmpeg.wasm 的具体代价：`@ffmpeg/core@0.12.10` 单线程核 **31 MB**（`ffmpeg-core.js` + `ffmpeg-core.wasm`），可以避开 COOP/COEP 与 SharedArrayBuffer；许可证 **GPL-2.0-or-later**，Web 端分发需要把它当独立可替换组件、并满足 GPL 的源码/声明义务。它唯一的优势是产物小、兼容老浏览器。
 
-结论很清楚：**编码这一环已经不是瓶颈**（三种编码器都在 41 dB 以上）；差距全在"帧从哪来"。而玻璃模糊用"把已经画好的地图在圆角矩形内做降采样—模糊—升采样"来近似，与真实 `backdrop-filter` 的差别只有 41.16 dB / 0.998，肉眼不可分辨。
+## 7. 建议
 
-## 剩余 2 % 差异到底是什么
+1. **生产路线走分层合成 + WebCodecs**：不要每帧整棵树栅格化，那 200+ ms 是死路。
+2. **静态层在导出前排干**：3 个 waypoint → 4 个静态状态，各 130 ms 左右；排干后再开始编码，避免录制中途出现 130 ms 卡顿。
+3. **玻璃必须手工补**：SVG `foreignObject` 里 `backdrop-filter` 没有背面可采样，只有把地图先画进画布、再对该区域 `ctx.filter='blur(Npx)'` 自绘，才能和实时一致。
+4. **文字补丁只重画变了的叶子节点**（`textContent` 变化的最小元素），实测 11–17 ms/帧，仍在 33 ms 预算内。
+5. **ffmpeg.wasm 只作按需兜底**（Safari/旧内核/需要极小体积时），不进主链路。
+6. **屏幕捕获保留**：作为「用户就要 100% 原样、且愿意授权」的兜底，或画布内容过于复杂时的降级路径。
 
-把差值 >40 的连通区域按面积排序，剩下的全部是**文字**，不是布局：
+## 8. 还能再压的部分
 
-| 位置 | 平均差值 | 成因 |
-|---|---|---|
-| 标题三行（78 px Georgia 衬线） | 9.7 / 13.1 / 11.7 | 衬线字体在 `foreignObject` 里的 hinting/次像素抗锯齿与合成器不同，字形轮廓一致、边缘灰阶不同 |
-| 底栏数字（26 px 粗体） | 18.3 | 数字区域是每帧重绘的"补丁"，与静态快照的抗锯齿存在 1 px 级相位差 |
-| 统计卡脚注（18 px） | 9.3 | 同上 |
-| 副标题（26 px） | 5.3 | 同上 |
+- 剩余 32 dB 里几乎全是文字相位：自托管 `Inter` 字形 + `-webkit-font-smoothing: antialiased` 统一后重测，预期能再抬 1–2 dB；但收益只在数字上，肉眼已无差别。
+- 静态层目前按「状态」重做；若能拿到 waypoint 到达事件，可在到达瞬间后台预栅格化下一状态，做到零卡顿。
+- 输出分辨率目前锁 1920×1080（`cropRef` 是 `aspect-video`）；若产品要 4K，需要 `pixelRatio: 2` 重测成本。
 
-也就是说：**结构、位置、颜色、阴影、玻璃、圆角、图片全部对得上；只有文字边缘的灰阶不同。** 在 1080p 下一帧 0.5 % 的像素有可感知差异，播放时不可见，逐帧暂停对比可见。这是"DOM → canvas 重绘"这条路的物理上限，不是可以靠调参消掉的 bug。
-
-如果这个差异不可接受，那么**唯一能保证逐像素一致的路仍然是抓真实合成结果**（现有 `getDisplayMedia`），此时仍可把"抓到的画面"改喂 WebCodecs 直接出 MP4，跳过 WebM 中转——这条混合路径是本次评测的次优推荐。
-
-## 离线合成管线（试验台实现）
-
-```
-                ┌─ 角色：只画地图 ────────────────────────────┐
-每秒状态 ──▶ MapLibre 渲染 ──▶ WebGL canvas (preserveDrawingBuffer)
-                └──────────────────────────────────────────────┘
-                                  │  drawImage
-                                  ▼
-   vignette 位图（暗角/顶部渐变，一次性快照）──▶ Canvas2D 全画幅
-                                  │
-     玻璃：把已画好的地图在圆角矩形内 ↓降采样→模糊→↑升采样（≈ backdrop-filter）
-                                  │
-     静态 overlay 位图（标题 / 卡片框 / 底栏 / 水印，一次性快照）
-                                  │
-     每帧补丁：只重绘数字区域（≈10 ms）
-                                  │
-     照片卡 + 图钉位图（一次性快照，每帧只更新位置）
-                                  ▼
-                        OffscreenCanvas ──▶ VideoEncoder (H.264) ──▶ MP4
-```
-
-代价（本机实测，单帧）：
-
-| 环节 | 冷启动 | 稳态 |
-|---|---|---|
-| overlay 快照 | 13.2 ms | 9.4 ms |
-| 照片卡 / 图钉快照 | 5.2 / 6.4 ms | 5.9 / 5.7 ms |
-| 每帧数字补丁 | — | 15.3 ms |
-| 地图重绘 | — | 3.7 ms |
-| 合成 + 补丁 + 地图（整帧） | — | **17–40 ms（19–52 fps，随机器负载波动）** |
-| 整帧全量快照（朴素对照） | — | 31–53 ms（19–29 fps） |
-
-即：**混合方案比"每帧全量 DOM 快照"快约 1.4–2×**，够用，但没有富余——这也是为什么推荐"编码环节离线批量跑，合成环节不必追实时"。
-
-## 踩过的坑（都会在生产实现里复现，已写入代码注释）
-
-1. **MapLibre v6 的 `preserveDrawingBuffer` 换了位置**：必须写在 `canvasContextAttributes` 里，否则画布读完就是全黑（地图区域均值 0.0）。
-2. **`html-to-image` 的回调样式**：克隆体默认 `position: static`，会被塞进离屏 `foreignObject` 视口之外，结果是**全透明图**。必须 `position:absolute; left/top:0; right/bottom:auto` 且显式给宽高——`static` 的收缩宽度还会把全宽底栏压成 57 px。
-3. **不要把动态节点从克隆里"过滤掉"**：消失的盒子会让它后面的兄弟整体上移（统计卡脚注上移 106 px）。正确做法是 `visibility: hidden` 保留占位。
-4. **克隆体要带显式属性白名单**（`includeStyleProperties`）：默认会把 `inline-size`/`block-size` 这类**已计算值**当内联样式写进去，flex 布局因此塌陷（底栏 QR 跑到最左边）。
-5. **元素自身的外边距会污染快照**：`.stats-values` 的 `margin-top:18px` 让补丁在自己的视口里下移 18 px 并被裁掉；钉死 `(0,0)` 后消失。
-6. **`repeating-conic-gradient` 的替身**：双位置色标在 Chrome 里解析成纯色块，且 CSS 绘制的贴片在 `backdrop-filter` 图层里会被合成器截屏吞掉。装饰性贴片（二维码等）应当用 canvas/SVG 基元画，不要依赖 CSS 渐变。
-7. **MapLibre v6 在 Vite 下要用命名空间导入 + `optimizeDeps.exclude` + `?worker&url` worker shim**，否则 worker 解析到 `import.meta.url` 会 404。
-8. **MediaRecorder 的 WebM 没有 cue/index**：`video.currentTime = t` 会静默回到第 0 帧。解码取样必须"播放 + `requestVideoFrameCallback` 等 `mediaTime`"，不能 seek。
-
-## ffmpeg.wasm 的体积与许可（决策要点）
-
-- `@ffmpeg/core@0.12.10` 单线程 ESM：**js + wasm ≈ 32 MB**（未 gzip）。
-- 许可：**GPL-2.0-or-later**（含 libx264 等 GPL 组件）。作为兜底/兼容路径引入时须遵守 GPL 的分发义务；如果 Locusify 只想在自己的前端包里"顺手带上"，需要法务确认；这也是把它降为"可选下载、按需加载"而不是默认依赖的理由之一。
-- 不需要 `SharedArrayBuffer`，因此**不必**为它给全站加 COOP/COEP（多线程 core 才需要，而多线程会引入跨源隔离，风险面大得多）。
-
-## 浏览器能力探测（本机）
-
-| 能力 | 结果 |
-|---|---|
-| `getDisplayMedia` / `CropTarget` / `RestrictionTarget` | ✅ |
-| `MediaRecorder` / `VideoEncoder` / `OffscreenCanvas` / `canvas.filter` / WebGL2 | ✅ |
-| `SharedArrayBuffer`（`crossOriginIsolated`） | ❌ / false |
-| `avc1.42001f`（Baseline） | ❌ 不支持 |
-| `avc1.640028`（High）/ `vp09.00.10.08` / `vp8` | ✅ 支持 |
-
-注意 Baseline profile 反而不支持——硬编码 `avc1.42001f` 会在部分机器上直接失败，必须做能力探测 + 回退到 High / VP9。
-
-## 建议
-
-1. **主路径**：`VideoEncoder`（`avc1.640028`，失败降级 `vp09`）+ mediabunny 封装 MP4。离线合成帧，快于实时（1.35×），无需 COOP/COEP，无需抓屏权限。
-2. **保真兜底**：保留 `getDisplayMedia`（含 CropTarget/RestrictionTarget）作为"逐像素一致"选项，但把录到的流直接喂 `VideoEncoder`，去掉 WebM→MP4 的中转。
-3. **兼容兜底**：ffmpeg.wasm 仅在"必须 MP4 且 WebCodecs 不可用"时按需加载（32 MB，GPL-2.0-or-later），不要进主包。
-4. **接受文字边缘差异**：若要 100 % 像素一致，就不要走 DOM 重绘；这是路线选择问题，不是实现缺陷。
-5. **隐私不变**：全流程在本地（地图瓦片按既有策略拉取），照片字节、EXIF、轨迹、视频都不出设备——三条路线均满足。
-
-## 复现
+## 9. 复现
 
 ```bash
-cd tools/export-bench
-node run.mjs            # 完整：10 s 时间线、300 帧、约 3 分钟
-node run.mjs --quick    # 快速：3 s 时间线、90 帧
-python figures.py       # 重新生成 reports/export-bench 的数值与效果图
+# 1) 起真实 app
+cd packages/app && npx vite --port 1070 --strictPort
+
+# 2) 跑真实 app 的导出基准（约 3 分钟：真实上传、真实回放、5 个冻结状态 + 90 帧编码）
+cd tools/export-bench/real && node run-real.mjs
+
+# 3) 只重算指标和四张图（不启浏览器）
+python tools/export-bench/real/figures-real.py
 ```
 
-产物：`tools/export-bench/artifacts/`（`ref-*.png`、`composite-*.png`、`decoded-*.png`、`webcodecs.mp4`、`ffmpeg.mp4`、`recorder.webm`、`metrics.json`）。
+产物落在 `shots/real/`（截图 + `clip-webcodecs.mp4` + `metrics.json`，已 gitignore），报告数据副本在 `reports/export-bench/metrics-real.json`、`fidelity-real.json`。
 
-## 文件清单
+## 10. 文件
 
-- `tools/export-bench/run.mjs` — 一把跑完（Vite :1060 + Playwright `channel: 'chrome'`）
-- `tools/export-bench/src/scene.ts` — 复刻真实回放 UI 的场景（地图 + 玻璃卡 + 照片卡 + 图钉 + 底栏）
-- `tools/export-bench/src/composite.ts` — DOM 快照 + 玻璃近似 + 逐帧合成
-- `tools/export-bench/src/encoders.ts` — WebCodecs / MediaRecorder / ffmpeg.wasm 三条编码路径
-- `tools/export-bench/figures.py` — 从 artifacts 生成报告数值与效果图
-- `reports/export-bench/metrics.json` — 机器可读的完整实测数据
-- `reports/export-bench/fidelity.json` — 保真度与往返指标
+| 路径 | 作用 |
+| --- | --- |
+| `tools/export-bench/real/flow.mjs` | 真实 app 启动、真实上传、真实回放、时钟冻结 |
+| `tools/export-bench/real/composer.ts` | 页面内合成器：整帧光栅 / 分层合成 / 玻璃手工 blur / 文字补丁 / WebCodecs 编码 |
+| `tools/export-bench/real/run-real.mjs` | 主基准脚本 |
+| `tools/export-bench/real/figures-real.py` | 由 PNG 反推指标并生成四张图 |
+| `tools/export-bench/src/webcodecs.ts`、`src/decode.ts` | 编码/解码工具（被复刻场景基准与真实 app 基准共用） |
+| `reports/export-bench/report.html` | 同一份报告的 HTML 版 |
+
+> 旧的复刻场景基准已从报告里移除，只保留在 git 历史与 `tools/export-bench/artifacts/`（gitignored）里作为编码器基准来源。
