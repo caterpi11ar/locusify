@@ -62,6 +62,5 @@ Locusify 是一款基于浏览器的 GPS 照片地图和旅行轨迹视频制作
 
 - [Locusify application](https://app.locusify.cn/en/)
 - [Locusify 中文版](https://app.locusify.cn/zh-CN/)
-- [GitHub source repository](https://github.com/caterpi11ar/locusify)
 - [Product Hunt listing](https://www.producthunt.com/products/locusify)
 - [XML sitemap](https://app.locusify.cn/sitemap.xml)

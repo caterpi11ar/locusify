@@ -66,7 +66,7 @@ export async function generateMetadata({
     title: `${title} | ${SITE_NAME}`,
     description,
     keywords: locale === 'zh' ? post.targetKeywords.zh : post.targetKeywords.en,
-    authors: [{ name: 'caterpi11ar', url: 'https://github.com/caterpi11ar' }],
+    authors: [{ name: 'caterpi11ar' }],
     creator: 'caterpi11ar',
     publisher: SITE_NAME,
     robots: isIndexable ? { index: true, follow: true } : { index: false, follow: true },

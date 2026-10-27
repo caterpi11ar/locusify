@@ -134,9 +134,7 @@ export default async function LocaleLayout({
         '@type': 'Person',
         '@id': PERSON_ID,
         'name': 'caterpi11ar',
-        'url': 'https://github.com/caterpi11ar',
         'worksFor': { '@id': ORGANIZATION_ID },
-        'sameAs': ['https://github.com/caterpi11ar'],
       },
       {
         '@type': 'WebSite',

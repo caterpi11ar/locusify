@@ -18,7 +18,6 @@ export function FooterSection({ variant = 'default' }: { variant?: 'default' | '
       { label: t('links.blog'), href: '/blog' },
     ],
     social: [
-      { label: 'GitHub', href: 'https://github.com/caterpi11ar' },
       { label: 'Buy Me a Coffee', href: 'https://www.buymeacoffee.com/daiqin1046z' },
       { label: 'RSS', href: locale === 'zh' ? '/rss.xml' : '/en/rss.xml' },
     ],

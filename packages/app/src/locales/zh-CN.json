@@ -203,7 +203,6 @@
   "settings.privacy.noTracking": "我们使用匿名页面访问分析（Google Analytics）以改善应用体验，不共享任何个人数据",
   "settings.about.version": "版本",
   "settings.about.website": "官网",
-  "settings.about.github": "GitHub",
   "settings.about.appName": "Locusify",
   "settings.section.replay": "回放",
   "settings.avatar": "头像",
