@@ -26,8 +26,11 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
   const activeRef = useRef(active)
 
   const offsets = () => {
-    const cards = Array.from(rail.current?.children ?? []) as HTMLElement[]
-    return cards.map(card => card.offsetLeft - (cards[0]?.offsetLeft ?? 0))
+    const node = rail.current
+    if (!node)
+      return []
+    const cards = Array.from(node.children) as HTMLElement[]
+    return cards.map(card => Math.max(0, card.offsetLeft + card.offsetWidth / 2 - node.clientWidth / 2))
   }
 
   const position = useCallback(() => {
@@ -114,7 +117,7 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
     return null
 
   return (
-    <section aria-label={t('replay.photos.label')} aria-roledescription="carousel" className="min-w-0 overflow-hidden rounded-2xl bg-linear-[160deg,#eaf3fd,#f5f8fc] py-4 dark:bg-linear-[160deg,#102235,#0c151f]">
+    <section aria-label={t('replay.photos.label')} aria-roledescription="carousel" className="relative w-full min-w-0 overflow-hidden">
       <div className="relative">
         <svg className="pointer-events-none absolute left-0 top-3.5 h-12 w-full text-[#8fa8be] dark:text-[#65809a]" viewBox="0 0 1200 48" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 0 Q600 48 1200 0" fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
@@ -123,7 +126,7 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
           ref={rail}
           aria-label={t('replay.photos.navigation')}
           tabIndex={0}
-          className="relative m-0 flex list-none items-start gap-7 overflow-x-auto overscroll-x-contain px-6 pb-12 pt-8 [scrollbar-width:none] touch-pan-y cursor-grab select-none focus-visible:outline-2 focus-visible:outline-accent data-[dragging=true]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+          className="relative m-0 flex list-none items-start gap-3 overflow-x-auto overscroll-x-contain px-[16%] pb-10 pt-8 [scrollbar-width:none] touch-pan-y cursor-grab select-none focus-visible:outline-2 focus-visible:outline-accent sm:gap-5 data-[dragging=true]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
           onKeyDown={onKey}
           onScroll={() => {
             if (!frame.current) {
@@ -184,13 +187,13 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
               className="relative w-full shrink-0 origin-[50%_-18px] [transform:translateY(var(--hang-y,12px))_rotate(var(--tilt))] motion-reduce:[transform:translateY(var(--hang-y,12px))]"
               style={{ '--tilt': `${[-2, 1.6, -1, 2][index % 4]}deg` } as CSSProperties}
             >
-              <div className={`relative rounded-[3px] bg-white p-2 pb-4 text-neutral-900 shadow-[0_12px_25px_-12px_rgb(23_53_83/0.3)] transition-[scale,box-shadow] duration-300 motion-reduce:transition-none dark:bg-[#19232f] dark:text-[#f5f7fa] ${active === index ? 'ring-2 ring-accent/60' : 'scale-95'}`}>
+              <div className={`relative text-neutral-900 transition-opacity duration-300 motion-reduce:transition-none dark:text-[#f5f7fa] ${active === index ? 'opacity-100' : 'opacity-50'}`}>
                 <span aria-hidden="true" className="pointer-events-none absolute -top-[18px] left-[calc(50%-6px)] z-10 h-[29px] w-3 rounded-[3px] bg-linear-[90deg,#6d8ca7,#b7cce0_48%,#6d8ca7] shadow-sm after:absolute after:left-[5px] after:top-[9px] after:h-[9px] after:w-0.5 after:rounded-[1px] after:bg-[#6d8ca7] dark:bg-linear-[90deg,#3d617e,#799cbb_48%,#3d617e]" />
                 <div style={{ filter: getFilterStyle(templateConfig.filter.type, templateConfig.filter.intensity) }}>
                   <LazyMedia
                     src={marker.photo.thumbnailUrl}
                     alt={marker.photo.title || id}
-                    className="aspect-[4/3] max-h-[33dvh] w-full bg-black/5"
+                    className="aspect-[4/3] max-h-[45dvh] w-full"
                     objectFit={marker.photo.height > marker.photo.width ? 'contain' : 'cover'}
                     thumbHash={marker.photo.thumbHash}
                     videoSource={marker.photo.video}
@@ -216,20 +219,18 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
           ))}
         </ul>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 text-xs text-neutral-700 dark:text-slate-300">
-        <span role="status" aria-live="polite" aria-atomic="true" className="tabular-nums">
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-1 text-neutral-700 dark:text-slate-300">
+        <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
           {active + 1}
           {' / '}
           {waypoints.length}
         </span>
-        <div className="flex gap-2">
-          <button type="button" disabled={active === 0} onClick={() => select(active - 1)} aria-label={t('replay.photos.previous')} className="grid size-9 cursor-pointer place-items-center rounded-full border border-current/20 bg-white transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-35 dark:bg-slate-800">
-            <ChevronLeft className="size-4" aria-hidden="true" />
-          </button>
-          <button type="button" disabled={active === waypoints.length - 1} onClick={() => select(active + 1)} aria-label={t('replay.photos.next')} className="grid size-9 cursor-pointer place-items-center rounded-full border border-current/20 bg-white transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-35 dark:bg-slate-800">
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </button>
-        </div>
+        <button type="button" disabled={active === 0} onClick={() => select(active - 1)} aria-label={t('replay.photos.previous')} className="pointer-events-auto grid size-11 cursor-pointer place-items-center opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-0">
+          <ChevronLeft className="size-4" aria-hidden="true" />
+        </button>
+        <button type="button" disabled={active === waypoints.length - 1} onClick={() => select(active + 1)} aria-label={t('replay.photos.next')} className="pointer-events-auto grid size-11 cursor-pointer place-items-center opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-0">
+          <ChevronRight className="size-4" aria-hidden="true" />
+        </button>
       </div>
     </section>
   )
