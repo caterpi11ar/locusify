@@ -1,9 +1,5 @@
 {
   "replay.photos.label": "旅途照片",
-  "replay.photos.navigation": "照片卡片。使用左右方向键、Home 或 End 切换。",
-  "replay.photos.select": "选择第 {{index}} 张照片：{{title}}",
-  "replay.photos.previous": "上一张照片",
-  "replay.photos.next": "下一张照片",
   "error.404.title": "页面未找到",
   "error.404.description": "找不到所请求的页面",
   "error.404.back": "返回",

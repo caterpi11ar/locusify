@@ -1,7 +1,6 @@
-import type { CSSProperties, KeyboardEvent, PointerEvent } from 'react'
+import type { CSSProperties } from 'react'
 import type { ReplayWaypoint } from '@/stores/replay/types'
 import type { ReplayTemplateConfig } from '@/types/template'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LazyMedia } from '@/components/ui/lazy-media'
@@ -11,16 +10,13 @@ import { getFilterStyle } from '@/lib/replay/filters'
 interface Props {
   waypoints: ReplayWaypoint[]
   activeIndex: number
-  onSelect: (index: number) => void
   templateConfig: ReplayTemplateConfig
 }
 
-/** Replay owns selection. Scroll events only update geometry, never seek playback. */
-export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templateConfig }: Props) {
+/** Display only: replay owns selection and scrolling; the rail never seeks. */
+export function PolaroidLineCarousel({ waypoints, activeIndex, templateConfig }: Props) {
   const { t } = useTranslation()
   const rail = useRef<HTMLUListElement>(null)
-  const drag = useRef<{ id: number, x: number, y: number, scroll: number, moved: boolean } | null>(null)
-  const suppressClick = useRef(false)
   const frame = useRef(0)
   const active = Math.max(0, Math.min(activeIndex, waypoints.length - 1))
   const activeRef = useRef(active)
@@ -51,12 +47,37 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
   }, [])
 
   useEffect(() => {
+    const previous = activeRef.current
     activeRef.current = active
-    // A replay update wins over an unfinished gesture.
-    drag.current = null
-    if (rail.current)
-      rail.current.dataset.dragging = 'false'
     scrollTo(active)
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const animations: Animation[] = []
+    if (previous !== active && !reducedMotion.matches) {
+      const direction = active > previous ? 1 : -1
+      // Keep string height and resting tilt separate from the damped swing.
+      for (const [index, card] of Array.from(rail.current?.children ?? []).entries()) {
+        if (Math.abs(index - active) > 1 && index !== previous)
+          continue
+        const photo = card.firstElementChild
+        if (photo) {
+          animations.push(photo.animate(
+            [0, -7, 4, -2, 0.8, 0].map(angle => ({ transform: `rotate(${angle * direction}deg)` })),
+            { duration: 850, easing: 'ease-out' },
+          ))
+        }
+      }
+    }
+    const stopMotion = () => {
+      if (reducedMotion.matches) {
+        animations.forEach(animation => animation.cancel())
+        scrollTo(active, false)
+      }
+    }
+    reducedMotion.addEventListener('change', stopMotion)
+    return () => {
+      reducedMotion.removeEventListener('change', stopMotion)
+      animations.forEach(animation => animation.cancel())
+    }
   }, [active, waypoints, scrollTo])
 
   useEffect(() => {
@@ -73,61 +94,18 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
     }
   }, [waypoints, position, scrollTo])
 
-  const select = (index: number) => {
-    const next = Math.max(0, Math.min(index, waypoints.length - 1))
-    scrollTo(next)
-    if (next !== active)
-      onSelect(next)
-  }
-
-  const onKey = (event: KeyboardEvent<HTMLUListElement>) => {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
-      return
-    const next = event.key === 'ArrowRight' ? active + 1 : event.key === 'ArrowLeft' ? active - 1 : event.key === 'Home' ? 0 : event.key === 'End' ? waypoints.length - 1 : undefined
-    if (next === undefined)
-      return
-    event.preventDefault()
-    const destination = Math.max(0, Math.min(next, waypoints.length - 1))
-    rail.current?.children[destination]?.querySelector('button')?.focus({ preventScroll: true })
-    select(destination)
-  }
-
-  const endDrag = (event: PointerEvent<HTMLUListElement>, cancelled = false) => {
-    const start = drag.current
-    if (!start || start.id !== event.pointerId)
-      return
-    drag.current = null
-    event.currentTarget.dataset.dragging = 'false'
-    if (event.currentTarget.hasPointerCapture(event.pointerId))
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    if (!start.moved)
-      return
-    suppressClick.current = true
-    if (cancelled) {
-      scrollTo(active)
-      return
-    }
-    const left = event.currentTarget.scrollLeft
-    const positions = offsets()
-    const nearest = positions.reduce((best, offset, index) => Math.abs(offset - left) < Math.abs(positions[best] - left) ? index : best, 0)
-    select(nearest)
-  }
-
   if (!waypoints.length)
     return null
 
   return (
-    <section aria-label={t('replay.photos.label')} aria-roledescription="carousel" className="relative w-full min-w-0 overflow-hidden">
+    <section aria-label={t('replay.photos.label')} className="relative w-full min-w-0 overflow-hidden">
       <div className="relative">
         <svg className="pointer-events-none absolute left-0 top-3.5 h-12 w-full text-[#8fa8be] dark:text-[#65809a]" viewBox="0 0 1200 48" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 0 Q600 48 1200 0" fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
         </svg>
         <ul
           ref={rail}
-          aria-label={t('replay.photos.navigation')}
-          tabIndex={0}
-          className="relative m-0 flex list-none items-start gap-3 overflow-x-auto overscroll-x-contain px-[16%] pb-10 pt-8 [scrollbar-width:none] touch-pan-y cursor-grab select-none focus-visible:outline-2 focus-visible:outline-accent sm:gap-5 data-[dragging=true]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-          onKeyDown={onKey}
+          className="pointer-events-none relative m-0 flex list-none items-start gap-3 overflow-hidden px-[16%] pb-10 pt-8 select-none sm:gap-5"
           onScroll={() => {
             if (!frame.current) {
               frame.current = requestAnimationFrame(() => {
@@ -136,58 +114,17 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
               })
             }
           }}
-          onPointerDown={(event) => {
-            suppressClick.current = false
-            if (!event.isPrimary || event.button !== 0)
-              return
-            // Stop any in-flight smooth scroll before measuring a new gesture.
-            event.currentTarget.scrollTo({ left: event.currentTarget.scrollLeft, behavior: 'instant' })
-            drag.current = { id: event.pointerId, x: event.clientX, y: event.clientY, scroll: event.currentTarget.scrollLeft, moved: false }
-          }}
-          onPointerMove={(event) => {
-            const start = drag.current
-            if (!start || start.id !== event.pointerId)
-              return
-            const dx = event.clientX - start.x
-            if (!start.moved && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(event.clientY - start.y)) {
-              start.moved = true
-              event.currentTarget.setPointerCapture(event.pointerId)
-              event.currentTarget.dataset.dragging = 'true'
-            }
-            if (start.moved) {
-              event.preventDefault()
-              event.currentTarget.scrollLeft = start.scroll - dx
-            }
-          }}
-          onPointerUp={event => endDrag(event)}
-          onPointerCancel={event => endDrag(event, true)}
-          onPointerLeave={() => {
-            if (!drag.current?.moved)
-              drag.current = null
-          }}
-          onLostPointerCapture={(event) => {
-            // Touch starts with implicit capture on the image. Its bubbled loss
-            // when capture moves to the rail must not cancel the new drag.
-            if (event.target === event.currentTarget && drag.current)
-              endDrag(event, true)
-          }}
-          onDragStart={event => event.preventDefault()}
-          onClickCapture={(event) => {
-            if (suppressClick.current) {
-              event.preventDefault()
-              event.stopPropagation()
-              suppressClick.current = false
-            }
-          }}
+
         >
           {waypoints.map(({ id, marker }, index) => (
             <li
               key={id}
               data-selected={active === index}
+              aria-current={active === index ? 'true' : undefined}
               className="relative w-full shrink-0 origin-[50%_-18px] [transform:translateY(var(--hang-y,12px))_rotate(var(--tilt))] motion-reduce:[transform:translateY(var(--hang-y,12px))]"
               style={{ '--tilt': `${[-2, 1.6, -1, 2][index % 4]}deg` } as CSSProperties}
             >
-              <div className={`relative text-neutral-900 transition-opacity duration-300 motion-reduce:transition-none dark:text-[#f5f7fa] ${active === index ? 'opacity-100' : 'opacity-50'}`}>
+              <div className={`relative origin-[50%_-18px] text-neutral-900 transition-opacity duration-300 motion-reduce:transition-none dark:text-[#f5f7fa] ${active === index ? 'opacity-100' : 'opacity-50'}`}>
                 <span aria-hidden="true" className="pointer-events-none absolute -top-[18px] left-[calc(50%-6px)] z-10 h-[29px] w-3 rounded-[3px] bg-linear-[90deg,#6d8ca7,#b7cce0_48%,#6d8ca7] shadow-sm after:absolute after:left-[5px] after:top-[9px] after:h-[9px] after:w-0.5 after:rounded-[1px] after:bg-[#6d8ca7] dark:bg-linear-[90deg,#3d617e,#799cbb_48%,#3d617e]" />
                 <div style={{ filter: getFilterStyle(templateConfig.filter.type, templateConfig.filter.intensity) }}>
                   <LazyMedia
@@ -197,41 +134,27 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, onSelect, templat
                     objectFit={marker.photo.height > marker.photo.width ? 'contain' : 'cover'}
                     thumbHash={marker.photo.thumbHash}
                     videoSource={marker.photo.video}
+                    showBadge={false}
                   />
                 </div>
-                <button
-                  type="button"
-                  aria-label={t('replay.photos.select', { index: index + 1, title: marker.photo.title })}
-                  aria-pressed={active === index}
-                  tabIndex={active === index ? 0 : -1}
-                  onClick={() => select(index)}
-                  className="mt-2 flex w-full cursor-pointer flex-wrap items-baseline justify-between gap-1 rounded px-1 text-left focus-visible:outline-2 focus-visible:outline-accent"
-                >
+                <div className="mt-2 flex w-full flex-wrap items-baseline justify-between gap-1 px-1 text-left">
                   <span className="font-handwriting text-[0.65rem] text-neutral-700 dark:text-slate-300">
                     {marker.photo.dateTaken ? formatDate(new Date(marker.photo.dateTaken), { year: 'numeric', month: '2-digit', day: '2-digit' }) : `${index + 1} / ${waypoints.length}`}
                   </span>
                   <span className="font-mono text-[0.5rem] text-neutral-500 dark:text-slate-400">
                     {formatCoordinates(marker.latitude, marker.longitude, marker.latitudeRef, marker.longitudeRef)}
                   </span>
-                </button>
+                </div>
               </div>
             </li>
           ))}
         </ul>
       </div>
-      <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-center justify-between px-1 text-neutral-700 dark:text-slate-300">
-        <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-          {active + 1}
-          {' / '}
-          {waypoints.length}
-        </span>
-        <button type="button" disabled={active === 0} onClick={() => select(active - 1)} aria-label={t('replay.photos.previous')} className="pointer-events-auto grid size-11 cursor-pointer place-items-center opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-0">
-          <ChevronLeft className="size-4" aria-hidden="true" />
-        </button>
-        <button type="button" disabled={active === waypoints.length - 1} onClick={() => select(active + 1)} aria-label={t('replay.photos.next')} className="pointer-events-auto grid size-11 cursor-pointer place-items-center opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-0">
-          <ChevronRight className="size-4" aria-hidden="true" />
-        </button>
-      </div>
+      <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {active + 1}
+        {' / '}
+        {waypoints.length}
+      </span>
     </section>
   )
 }

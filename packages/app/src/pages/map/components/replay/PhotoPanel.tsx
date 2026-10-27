@@ -11,7 +11,6 @@ export function PhotoPanel() {
   const currentWaypointIndex = useReplayStore(s => s.currentWaypointIndex)
   const status = useReplayStore(s => s.status)
   const templateConfig = useReplayStore(s => s.templateConfig)
-  const seekToWaypoint = useReplayStore(s => s.seekToWaypoint)
 
   // Determine which waypoint to show
   const displayIndex = status === 'completed'
@@ -50,7 +49,6 @@ export function PhotoPanel() {
           <PolaroidLineCarousel
             waypoints={waypoints}
             activeIndex={displayIndex}
-            onSelect={seekToWaypoint}
             templateConfig={templateConfig}
           />
 

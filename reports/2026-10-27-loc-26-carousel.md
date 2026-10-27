@@ -2,7 +2,9 @@
 
 Replaced the PhotoPanel photo display with a controlled PolaroidLineCarousel. The transparent carousel fills the entire left panel, with no background container, paper border, active outline or decorative shadow. The active image is centered at 68% of the panel width; adjacent images peek into the viewport at half opacity. The hanging string spans the panel. MetadataEditor and journal text remain outside carousel event handlers and align with the central photo. Styling uses Tailwind utilities, including clips, dark mode and reduced motion. No CSS Module, custom class selector, dependency, upload or telemetry was added.
 
-The replay store owns the active index. External changes scroll the selected card into view; arrows, keyboard and completed mouse/touch drags call the existing seekToWaypoint interface. Scroll events only position the clips on the string and never seek replay. Empty collections render no carousel; single collections disable both arrows. The existing seek-to-last/completed behavior is retained.
+The replay store exclusively owns the active index. The photo rail is display-only: no selection callback, navigation buttons, tab stops, dragging, touch navigation or keyboard navigation. Hidden overflow allows programmatic positioning without native horizontal scrolling. Media interaction badges are hidden. MetadataEditor and existing replay controls remain independent. Empty collections render no carousel; single collections remain static; completed playback shows the last photo.
+
+Index changes animate the entering/outgoing photos around the hanging point with a damped 850 ms rotation sequence (0, -7, 4, -2, 0.8, 0 degrees, reversed for backward travel). String-height geometry and resting tilt are separate from the swing. New changes and unmount cancel old animations. Reduced motion disables the swing and smooth scroll, including preference changes while an animation is running.
 
 ## Checks
 
@@ -10,9 +12,9 @@ The replay store owns the active index. External changes scroll the selected car
 - `pnpm --filter @locusify/app exec vitest run`: 4 files, 49 existing tests passed.
 - ESLint on the two changed components and two locale files: passed.
 - `pnpm --filter @locusify/app build`: passed, including TypeScript and localized SEO pages. Vite reports large chunks, including maplibre, as a warning.
-- Chrome browser interaction assertions: previous/next boundaries; timeline-to-photo synchronization; only one index change during smooth navigation; Home/End and completed last item; mouse drag; CDP touch swipe; metadata editing and ArrowRight isolation; external replay index updates; reduced-motion transforms and disabled transitions; single and empty collections.
-- Visual layout assertions: transparent gallery and photo wrappers, no frame shadow/padding, full left-panel width, centered active image and simultaneously visible portions of both adjacent images for a middle selection.
-- Viewports: 1440×900, 768×1024, 844×390, 390×844. Gallery remains within its panel. Short landscape view keeps carousel arrows visible; the surrounding panel scrolls to retain access to captions/editor. Existing portrait rotate-device overlay is retained.
+- Chrome browser assertions: no controls/tab stops; mouse drag, horizontal wheel, keys and synthetic touch cannot navigate photos; external replay updates still center the active photo; swing keyframes execute and settle; changing reduced-motion preference cancels an active swing; single/empty/completed states; metadata editor remains outside the display.
+- locusify-viewport 1.0.0 verifier: 19 checked screenshots and 2 expected negative cases pass. Application captures use fresh contexts for pc-1440, tablet-768-portrait, phone-390-landscape and phone-390-portrait with DPR 1, matching screen/viewport sizes, mobile touch emulation and PNG dimension checks. Evidence includes browser version and actual swing transforms.
+- Viewports: 1440×900, 768×1024, 844×390, 390×844. Gallery remains within its panel; the surrounding panel scrolls to retain access to captions/editor. Existing portrait rotate-device overlay is retained.
 
 Browser checks used built-in generated demo images and mocked authentication API responses. They did not use a real account or private photos. Synthetic touch is not a physical iOS/Safari test. Existing LazyMedia handles image/video display; real Live Photo and recording/export need independent QA. Existing React script-tag and Ant Design deprecation console messages were observed outside the changed component.
 
