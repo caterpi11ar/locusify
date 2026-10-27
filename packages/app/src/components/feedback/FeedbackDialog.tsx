@@ -7,11 +7,13 @@ import { cn, glassPanel } from '@/lib/utils'
 interface FeedbackDialogProps {
   open: boolean
   onClose: () => void
+  completed?: boolean
 }
 
-export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
+export function FeedbackDialog({ open, onClose, completed = false }: FeedbackDialogProps) {
   const { t } = useTranslation()
-  const [done, setDone] = useState(false)
+  const [submitted, setDone] = useState(false)
+  const done = completed || submitted
   const [rating, setRating] = useState(0)
   const [hoveredStar, setHoveredStar] = useState(0)
   const [feedbackText, setFeedbackText] = useState('')
@@ -34,11 +36,11 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
 
   // Auto-dismiss thank-you after 2s
   useEffect(() => {
-    if (!done)
+    if (!open || !done)
       return
     const timer = setTimeout(onClose, 2000)
     return () => clearTimeout(timer)
-  }, [done, onClose])
+  }, [open, done, onClose])
 
   const handleSubmit = useCallback(async () => {
     if (needsFeedback && !feedbackText.trim()) {
@@ -85,6 +87,7 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
         <button
           type="button"
           onClick={onClose}
+          aria-label={t('feedback.thankYou.dismiss')}
           className="text-text-tertiary hover:text-text-secondary absolute top-3 right-3 z-10 transition-colors"
         >
           <i className="i-mingcute-close-line text-base" />
@@ -203,6 +206,7 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
             : (
                 <m.div
                   key="thankyou"
+                  role="status"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}

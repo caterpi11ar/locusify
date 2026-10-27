@@ -1,6 +1,7 @@
 import type { FC } from 'react'
 import { Suspense } from 'react'
 import { Outlet } from 'react-router'
+import { DiscoverySurvey } from '@/components/auth/DiscoverySurvey'
 import { Spinner } from '@/components/ui/spinner'
 import { SplashScreen } from '@/components/ui/splash-screen'
 import { useAuthStore } from '@/stores/authStore'
@@ -17,6 +18,7 @@ const Layout: FC = () => {
       <Suspense fallback={<Spinner />}>
         <Outlet />
       </Suspense>
+      <DiscoverySurvey />
     </div>
   )
 }

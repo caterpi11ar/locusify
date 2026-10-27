@@ -1,3 +1,5 @@
+import { discoverySources } from "@/validators/discovery-source.validators";
+
 export const openApiSpec = {
   openapi: "3.1.0",
   info: {
@@ -178,6 +180,39 @@ export const openApiSpec = {
     },
   },
   paths: {
+    "/api/v1/discovery-source": {
+      get: {
+        summary: "Read survey eligibility and pending/submitted/skipped/ineligible state",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": { description: "Success envelope with data: { eligible, status, source }; source nullable" },
+          "401": { description: "Authentication required" },
+        },
+      },
+      put: {
+        summary: "Finalize survey once; retries return the first persisted response",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                oneOf: [
+                  { type: "object", additionalProperties: false, required: ["source"], properties: { source: { type: "string", enum: discoverySources } } },
+                  { type: "object", additionalProperties: false, required: ["status"], properties: { status: { const: "skipped" } } },
+                ],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Success envelope with data: { eligible, status, source }; first response wins" },
+          "403": { description: "Account is not eligible" },
+          "400": { description: "Invalid JSON, unknown fields or invalid source" },
+          "401": { description: "Authentication required" },
+        },
+      },
+    },
     // ─── Health ───
     "/api/health": {
       get: {
