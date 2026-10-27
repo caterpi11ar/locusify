@@ -4,8 +4,6 @@ import { X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LegalDrawer } from '@/components/auth/LegalDrawer'
-import { FeedbackDialog } from '@/components/feedback'
-import { PricingDrawer } from '@/components/pricing'
 import { Separator } from '@/components/ui/separator'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { cn, glassPanel } from '@/lib/utils'
@@ -24,27 +22,23 @@ interface SettingsDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onLogout?: () => void
+  onFeedback: () => void
+  onPricing: () => void
   modal?: boolean
   desktopOffset?: number
 }
 
-export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, onLogout, modal, desktopOffset = 0 }) => {
+export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, onLogout, onFeedback, onPricing, modal, desktopOffset = 0 }) => {
   const { t } = useTranslation()
   const isMobile = useIsMobile()
   const user = useAuthStore(s => s.user)
   const { subscription, isPro } = useSubscriptionStore()
-  const [pricingOpen, setPricingOpen] = useState(false)
   const [legalType, setLegalType] = useState<'privacy-policy' | 'terms-of-service' | null>(null)
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   const handleLogout = useCallback(() => {
     onOpenChange(false)
     onLogout?.()
   }, [onOpenChange, onLogout])
-
-  const handleCloseFeedback = useCallback(() => {
-    setFeedbackOpen(false)
-  }, [])
 
   return (
     <>
@@ -52,7 +46,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
         open={open}
         onClose={() => onOpenChange(false)}
         placement={isMobile ? 'bottom' : 'left'}
-        size={isMobile ? 'auto' : 480}
+        size={isMobile ? '80dvh' : 480}
         mask={{ enabled: modal ?? isMobile, closable: modal ?? isMobile }}
         zIndex={!isMobile && modal === false ? 900 : undefined}
         closable={false}
@@ -75,7 +69,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
               <X className="size-4" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 pb-safe">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-safe">
             {user && (
               <SettingsSection label={t('settings.section.account')}>
                 <AccountSection onLogout={handleLogout} />
@@ -102,10 +96,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
                   </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      onOpenChange(false)
-                      setTimeout(setPricingOpen, 300, true)
-                    }}
+                    onClick={onPricing}
                     className={cn(
                       'rounded-xl px-3 py-1.5 text-xs font-medium transition-colors',
                       isPro
@@ -128,10 +119,7 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
               <Separator />
               <button
                 type="button"
-                onClick={() => {
-                  onOpenChange(false)
-                  setTimeout(setFeedbackOpen, 300, true)
-                }}
+                onClick={onFeedback}
                 className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-fill-secondary"
               >
                 <div className="flex items-center gap-2">
@@ -161,8 +149,6 @@ export const SettingsDrawer: FC<SettingsDrawerProps> = ({ open, onOpenChange, on
           </div>
         </div>
       </Drawer>
-      <PricingDrawer open={pricingOpen} onOpenChange={setPricingOpen} modal={modal} desktopOffset={desktopOffset} />
-      <FeedbackDialog open={feedbackOpen} onClose={handleCloseFeedback} />
       {legalType && (
         <LegalDrawer
           type={legalType}
