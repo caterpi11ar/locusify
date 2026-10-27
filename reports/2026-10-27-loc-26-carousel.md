@@ -18,4 +18,10 @@ Index changes animate the entering/outgoing photos around the hanging point with
 
 Browser checks used built-in generated demo images and mocked authentication API responses. They did not use a real account or private photos. Synthetic touch is not a physical iOS/Safari test. Existing LazyMedia handles image/video display; real Live Photo and recording/export need independent QA. Existing React script-tag and Ant Design deprecation console messages were observed outside the changed component.
 
-Screenshots and the browser assertion script are attached to the Multica delivery rather than embedded as runtime-local paths. Independent acceptance remains pending.
+Screenshots and the browser assertion script are attached to the Multica delivery rather than embedded as runtime-local paths. The user accepted the visual result and authorized merging.
+
+## Merge review follow-up
+
+Inactive cards now render thumbnails without a video source; changing active state remounts LazyMedia so visited videos cannot retain playback or stale load state. The active media also applies the existing template transition variants and duration independently of the hanging swing. Reduced motion cancels both animations.
+
+Browser regression checks passed for all six transition modes and configured timing, and repeated video navigation (0, 1, 2, 0) retained exactly one video element with thumbnail neighbors. This checks media lifecycle with a synthetic video source, not real video decoding. The four viewport checks, ESLint, typecheck, 49 tests and production build passed again.

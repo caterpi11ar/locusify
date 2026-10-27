@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { LazyMedia } from '@/components/ui/lazy-media'
 import { formatCoordinates, formatDate } from '@/lib/formatters'
 import { getFilterStyle } from '@/lib/replay/filters'
+import { getTransitionVariants } from '@/lib/replay/transitions'
 
 interface Props {
   waypoints: ReplayWaypoint[]
@@ -53,6 +54,19 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, templateConfig }:
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const animations: Animation[] = []
     if (previous !== active && !reducedMotion.matches) {
+      const transition = getTransitionVariants(templateConfig.transitions.type, templateConfig.transitions.duration)
+      const media = rail.current?.children[active]?.firstElementChild?.children[1]?.firstElementChild
+      if (media) {
+        const keyframes = [transition.initial, transition.animate].map(state => ({
+          opacity: state.opacity ?? 1,
+          filter: state.filter ?? 'none',
+          transform: `translate(${state.x ?? 0}px, ${state.y ?? 0}px) scale(${state.scale ?? 1})`,
+        } as Keyframe))
+        animations.push(media.animate(keyframes, {
+          duration: transition.transition.duration * 1000,
+          easing: transition.transition.ease ? `cubic-bezier(${transition.transition.ease.join(',')})` : 'linear',
+        }))
+      }
       const direction = active > previous ? 1 : -1
       // Keep string height and resting tilt separate from the damped swing.
       for (const [index, card] of Array.from(rail.current?.children ?? []).entries()) {
@@ -78,7 +92,7 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, templateConfig }:
       reducedMotion.removeEventListener('change', stopMotion)
       animations.forEach(animation => animation.cancel())
     }
-  }, [active, waypoints, scrollTo])
+  }, [active, waypoints, scrollTo, templateConfig.transitions.type, templateConfig.transitions.duration])
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -128,12 +142,13 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, templateConfig }:
                 <span aria-hidden="true" className="pointer-events-none absolute -top-[18px] left-[calc(50%-6px)] z-10 h-[29px] w-3 rounded-[3px] bg-linear-[90deg,#6d8ca7,#b7cce0_48%,#6d8ca7] shadow-sm after:absolute after:left-[5px] after:top-[9px] after:h-[9px] after:w-0.5 after:rounded-[1px] after:bg-[#6d8ca7] dark:bg-linear-[90deg,#3d617e,#799cbb_48%,#3d617e]" />
                 <div style={{ filter: getFilterStyle(templateConfig.filter.type, templateConfig.filter.intensity) }}>
                   <LazyMedia
+                    key={`${id}-${active === index}`}
                     src={marker.photo.thumbnailUrl}
                     alt={marker.photo.title || id}
                     className="aspect-[4/3] max-h-[45dvh] w-full"
                     objectFit={marker.photo.height > marker.photo.width ? 'contain' : 'cover'}
                     thumbHash={marker.photo.thumbHash}
-                    videoSource={marker.photo.video}
+                    videoSource={active === index ? marker.photo.video : undefined}
                     showBadge={false}
                   />
                 </div>
