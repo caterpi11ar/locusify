@@ -1,0 +1,67 @@
+# Button and button-like control source inventory
+
+Generated from base e2552238 plus LOC-22 changes. Each listed file was inspected by source scan; this is not a claim that every state was exercised in a browser. See report.md for runtime coverage.
+
+| File | Native/button component declarations | Click handlers | Disabled-state declarations |
+| --- | ---: | ---: | ---: |
+| `packages/web/components/header.tsx` | 1 | 8 | 0 |
+| `packages/web/components/announcement-banner.tsx` | 2 | 2 | 0 |
+| `packages/app/src/components/auth/EmailLoginForm.tsx` | 4 | 4 | 4 |
+| `packages/app/src/components/feedback/FeedbackDialog.tsx` | 4 | 4 | 1 |
+| `packages/app/src/components/pricing/index.tsx` | 3 | 3 | 1 |
+| `packages/app/src/components/auth/LegalDrawer.tsx` | 1 | 1 | 0 |
+| `packages/app/src/components/auth/LoginDrawer.tsx` | 6 | 6 | 3 |
+| `packages/app/src/components/auth/LoginButton.tsx` | 1 | 1 | 0 |
+| `packages/app/src/components/upload/PhotoSelector.tsx` | 4 | 1 | 0 |
+| `packages/app/src/components/auth/PasswordLoginForm.tsx` | 6 | 6 | 6 |
+| `packages/app/src/components/upload/GPSInfoPanel.tsx` | 3 | 3 | 1 |
+| `packages/web/components/language-switcher.tsx` | 4 | 4 | 0 |
+| `packages/app/src/components/upload/SelectPhotosDrawer.tsx` | 1 | 1 | 0 |
+| `packages/app/src/components/ui/field.tsx` | 0 | 0 | 2 |
+| `packages/app/src/pages/settings/index.tsx` | 5 | 5 | 0 |
+| `packages/app/src/pages/error/404.tsx` | 1 | 0 | 0 |
+| `packages/app/src/pages/error/ErrorElement.tsx` | 2 | 2 | 0 |
+| `packages/web/components/ui/alert.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/auth/ResetPassword.tsx` | 2 | 2 | 3 |
+| `packages/web/components/sections/faq-section.tsx` | 1 | 1 | 0 |
+| `packages/app/src/pages/map/index.tsx` | 0 | 1 | 0 |
+| `packages/app/src/pages/map/MapLibre.tsx` | 0 | 2 | 0 |
+| `packages/web/components/ui/button-group.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/settings/components/AccountSection.tsx` | 2 | 2 | 1 |
+| `packages/web/components/ui/breadcrumb.tsx` | 0 | 0 | 1 |
+| `packages/web/components/ui/calendar.tsx` | 1 | 0 | 2 |
+| `packages/web/components/sections/hero-section.tsx` | 1 | 1 | 0 |
+| `packages/web/components/ui/carousel.tsx` | 2 | 2 | 2 |
+| `packages/app/src/pages/settings/components/AvatarSetting.tsx` | 3 | 3 | 0 |
+| `packages/app/src/components/ui/spinner.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/settings/components/RedeemCodeSection.tsx` | 1 | 1 | 2 |
+| `packages/app/src/components/ui/lazy-media/LivePhotoBadge.tsx` | 0 | 1 | 0 |
+| `packages/app/src/pages/settings/components/SettingOptionGroup.tsx` | 1 | 1 | 0 |
+| `packages/app/src/pages/map/components/ClusterPhotoGrid.tsx` | 0 | 1 | 0 |
+| `packages/app/src/pages/map/components/FirstJourneyPrompt.tsx` | 5 | 5 | 0 |
+| `packages/app/src/pages/map/components/ClusterMarker.tsx` | 0 | 2 | 0 |
+| `packages/app/src/pages/map/components/AnnouncementDialog.tsx` | 1 | 1 | 0 |
+| `packages/app/src/pages/map/components/GlobeOrbitOverlay.tsx` | 2 | 2 | 1 |
+| `packages/app/src/pages/map/components/GalleryDrawer.tsx` | 3 | 3 | 0 |
+| `packages/app/src/pages/map/components/MapBackButton.tsx` | 0 | 1 | 0 |
+| `packages/app/src/pages/map/components/MapContextMenu.tsx` | 1 | 1 | 1 |
+| `packages/web/components/ui/field.tsx` | 0 | 0 | 2 |
+| `packages/app/src/pages/map/components/MapControls.tsx` | 4 | 4 | 0 |
+| `packages/web/components/ui/input-group.tsx` | 1 | 1 | 1 |
+| `packages/app/src/pages/map/components/MapSidebar.tsx` | 1 | 3 | 1 |
+| `packages/web/components/ui/input-otp.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/map/components/PhotoMarkerPin.tsx` | 0 | 2 | 0 |
+| `packages/app/src/pages/map/components/MapMenuButton.tsx` | 5 | 6 | 1 |
+| `packages/web/components/ui/item.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/map/components/RecordingErrorDialog.tsx` | 1 | 1 | 0 |
+| `packages/app/src/pages/map/components/SaveVideoDialog.tsx` | 2 | 2 | 0 |
+| `packages/app/src/pages/map/components/replay/MetadataEditor.tsx` | 2 | 2 | 0 |
+| `packages/web/components/ui/pagination.tsx` | 0 | 0 | 0 |
+| `packages/app/src/pages/map/components/replay/ReplayControls.tsx` | 10 | 10 | 0 |
+| `packages/app/src/pages/map/components/TrajectoryOverlay.tsx` | 4 | 4 | 0 |
+| `packages/app/src/pages/map/components/UserPanel.tsx` | 6 | 10 | 0 |
+| `packages/app/src/pages/map/components/replay/TemplateCustomizer.tsx` | 9 | 9 | 1 |
+| `packages/app/src/pages/map/components/replay/TemplateSelector.tsx` | 0 | 1 | 0 |
+| `packages/web/components/ui/sidebar.tsx` | 2 | 2 | 4 |
+| `packages/web/components/ui/spinner.tsx` | 0 | 0 | 0 |
+| `packages/web/components/ui/table.tsx` | 0 | 0 | 0 |

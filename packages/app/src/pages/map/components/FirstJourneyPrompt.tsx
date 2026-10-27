@@ -53,11 +53,11 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
       }}
     >
       <div className="grid items-stretch gap-5 sm:grid-cols-[1fr_240px]">
-        <div className="flex flex-col justify-center text-center sm:text-left">
-          <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400/20 to-violet-400/10 text-sky-400 ring-1 ring-sky-400/20 shadow-[0_12px_32px_rgba(56,189,248,0.12)] sm:mx-0">
-            <i className="i-mingcute-route-line text-3xl" />
+        <div className="flex min-w-0 flex-col text-center sm:text-left">
+          <div className="bg-fill-secondary text-text-secondary mx-auto mb-4 flex size-12 shrink-0 items-center justify-center rounded-2xl sm:mx-0">
+            <i className="i-mingcute-route-line text-[22px]" />
           </div>
-          <p className="text-text-secondary max-w-sm text-sm leading-relaxed">
+          <p className="text-text-secondary mt-auto max-w-sm text-sm leading-relaxed">
             {t('onboarding.empty.description')}
           </p>
 
@@ -94,11 +94,6 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
                   </>
                 )}
           </div>
-
-          <p className="text-text-tertiary mt-3 flex items-center justify-center gap-1.5 text-xs sm:justify-start">
-            <i className="i-mingcute-shield-line" />
-            {t('onboarding.empty.privacy')}
-          </p>
         </div>
 
         <ManualPlacementAnimation isMobile={isMobile} />

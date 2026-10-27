@@ -1,0 +1,100 @@
+[
+  {
+    "state": "desktop homepage",
+    "controls": [
+      {
+        "label": "复制",
+        "cursor": "pointer"
+      },
+      {
+        "label": "关闭横幅",
+        "cursor": "pointer"
+      },
+      {
+        "label": "中",
+        "cursor": "pointer"
+      },
+      {
+        "label": "EN",
+        "cursor": "pointer"
+      },
+      {
+        "label": "立即体验",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 如何将我的旅行照片定位到地图上？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 免费吗？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 会上传我的照片到服务器吗？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 支持哪些照片格式？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "轨迹回放动画是怎么工作的？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "我可以将旅行路线导出为视频吗？\n+",
+        "cursor": "pointer"
+      }
+    ]
+  },
+  {
+    "state": "FAQ keyboard",
+    "text": "Locusify 免费吗？+"
+  },
+  {
+    "state": "mobile homepage",
+    "controls": [
+      {
+        "label": "复制",
+        "cursor": "pointer"
+      },
+      {
+        "label": "关闭横幅",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Toggle menu",
+        "cursor": "pointer"
+      },
+      {
+        "label": "立即体验",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 如何将我的旅行照片定位到地图上？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 免费吗？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 会上传我的照片到服务器吗？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "Locusify 支持哪些照片格式？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "轨迹回放动画是怎么工作的？\n+",
+        "cursor": "pointer"
+      },
+      {
+        "label": "我可以将旅行路线导出为视频吗？\n+",
+        "cursor": "pointer"
+      }
+    ]
+  }
+]

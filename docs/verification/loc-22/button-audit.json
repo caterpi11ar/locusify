@@ -1,0 +1,329 @@
+[
+  {
+    "state": "upload drawer",
+    "controls": [
+      {
+        "label": "Synthetic Test",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "上传照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "查看轨迹",
+        "disabled": true,
+        "cursor": "not-allowed"
+      },
+      {
+        "label": "我的照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "分享",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用帮助",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "设置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "Close drawer",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "选择照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ]
+  },
+  {
+    "state": "upload keyboard Enter",
+    "fileChooser": true
+  },
+  {
+    "state": "settings",
+    "controls": [
+      {
+        "label": "Synthetic Test",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "上传照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "查看轨迹",
+        "disabled": true,
+        "cursor": "not-allowed"
+      },
+      {
+        "label": "我的照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "分享",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用帮助",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "设置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ]
+  },
+  {
+    "state": "text input",
+    "cursor": "text"
+  },
+  {
+    "state": "OTP pending request",
+    "controls": [
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "中文",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "验证码",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "密码",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "发送中...",
+        "disabled": true,
+        "cursor": "default"
+      },
+      {
+        "label": "使用 Google 登录",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用 GitHub 登录",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "隐私政策",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "服务条款",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ]
+  },
+  {
+    "state": "duplicate submit blocked",
+    "requests": 1
+  },
+  {
+    "state": "mobile login",
+    "controls": [
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "中文",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "验证码",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "密码",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "发送验证码",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用 Google 登录",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用 GitHub 登录",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "隐私政策",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "服务条款",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ]
+  },
+  {
+    "state": "mobile map menu",
+    "controls": [
+      {
+        "label": "?需要帮助？点这里随时查看",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "Menu",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "上传照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ]
+  }
+]

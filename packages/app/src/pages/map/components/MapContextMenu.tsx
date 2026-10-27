@@ -67,7 +67,7 @@ export function MapContextMenu({ position, onAddPhotos, onClose }: MapContextMen
         <button
           type="button"
           role="menuitem"
-          className="text-text relative flex w-full cursor-default items-center gap-2 rounded-xl px-3 py-2 text-sm outline-hidden select-none transition-colors hover:bg-fill-secondary active:bg-fill-tertiary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-text-secondary"
+          className="text-text relative flex w-full cursor-pointer data-[disabled]:cursor-default items-center gap-2 rounded-xl px-3 py-2 text-sm outline-hidden select-none transition-colors hover:bg-fill-secondary active:bg-fill-tertiary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-text-secondary"
           onClick={() => {
             onAddPhotos()
             onClose()

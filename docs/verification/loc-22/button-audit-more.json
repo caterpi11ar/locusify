@@ -1,0 +1,333 @@
+[
+  {
+    "state": "settings loaded",
+    "controls": [
+      {
+        "label": "Synthetic",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "上传照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "查看轨迹",
+        "disabled": true,
+        "cursor": "not-allowed"
+      },
+      {
+        "label": "我的照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "分享",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用帮助",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "设置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "我知道了",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "Close drawer",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "退出登录",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "English",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "中文",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "S头像照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "旅行者",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "摄影师",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "探险家",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "背包客",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "骑行者",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "默认",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "升级",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "兑换",
+        "disabled": true,
+        "cursor": "default"
+      },
+      {
+        "label": "用户反馈",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "隐私政策",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "服务条款",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ],
+    "failures": []
+  },
+  {
+    "state": "map canvas",
+    "cursor": "grab"
+  },
+  {
+    "state": "map context menu",
+    "controls": [
+      {
+        "label": "Synthetic",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "上传照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "查看轨迹",
+        "disabled": true,
+        "cursor": "not-allowed"
+      },
+      {
+        "label": "我的照片",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "分享",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "使用帮助",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "设置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "放大",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "缩小",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置朝向为正北",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "定位到我的位置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "添加",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ],
+    "failures": []
+  },
+  {
+    "state": "synthetic replay controls",
+    "controls": [
+      {
+        "label": "退出",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "编辑信息",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "4/10 17:0035.6762°N 139.6503°E",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "步行",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "4/11 17:0035.2324°N 139.1069°E",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "步行",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "4/12 17:0035.0116°N 135.7681°E",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "步行",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "4/13 17:0034.6937°N 135.5023°E",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "选择模版",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "自定义",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "重置",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "播放",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "下一步",
+        "disabled": false,
+        "cursor": "pointer"
+      },
+      {
+        "label": "1x",
+        "disabled": false,
+        "cursor": "pointer"
+      }
+    ],
+    "failures": []
+  },
+  {
+    "state": "actual app recording layout",
+    "geometry": {
+      "dpr": 1,
+      "viewport": [
+        1280,
+        720
+      ],
+      "canvasPixels": [
+        1280,
+        720
+      ],
+      "canvasCSS": [
+        1280,
+        720
+      ],
+      "cursor": "none"
+    }
+  }
+]
