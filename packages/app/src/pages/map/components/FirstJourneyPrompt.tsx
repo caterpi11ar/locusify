@@ -61,6 +61,12 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
             {t('onboarding.empty.description')}
           </p>
 
+          {isMobile && (
+            <div className="mt-4">
+              <ManualPlacementAnimation isMobile />
+            </div>
+          )}
+
           <div className="mt-4 grid grid-cols-2 gap-2">
             {canStartReplay
               ? (
@@ -96,7 +102,7 @@ export function EmptyJourneyPrompt({ open, onSelectPhotos, onUseDemo, onStartRep
           </div>
         </div>
 
-        <ManualPlacementAnimation isMobile={isMobile} />
+        {!isMobile && <ManualPlacementAnimation isMobile={false} />}
       </div>
     </Modal>
   )
@@ -106,7 +112,7 @@ function ManualPlacementAnimation({ isMobile }: { isMobile: boolean }) {
   const { t } = useTranslation()
 
   return (
-    <div className="relative mx-auto flex w-full max-w-[240px] flex-col justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-400/10 via-fill-secondary/60 to-violet-400/10 p-3">
+    <div className="relative mx-auto flex w-full flex-col justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-400/10 via-fill-secondary/60 to-violet-400/10 p-3 sm:max-w-[240px]">
       <div className="relative h-32 overflow-hidden rounded-xl bg-[#111827]">
         {/* Simplified map lines */}
         <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(30deg,transparent_45%,rgba(125,211,252,.4)_46%,rgba(125,211,252,.4)_48%,transparent_49%),linear-gradient(120deg,transparent_58%,rgba(167,139,250,.35)_59%,rgba(167,139,250,.35)_61%,transparent_62%)]" />
