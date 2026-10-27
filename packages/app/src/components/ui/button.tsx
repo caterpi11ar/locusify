@@ -25,7 +25,7 @@ const buttonVariants = cva(
     'inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap',
     'font-medium transition-colors duration-200 select-none',
     'focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none',
-    'disabled:pointer-events-none disabled:opacity-50',
+    'disabled:pointer-events-none disabled:cursor-default disabled:opacity-50',
     '[&_svg]:pointer-events-none [&_svg]:shrink-0',
   ].join(' '),
   {

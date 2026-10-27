@@ -93,6 +93,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
                   <button
                     key={track.id}
                     type="button"
+                    disabled={isUnavailable}
                     onClick={() => !isUnavailable && update('music', { ...config.music, trackId: track.id })}
                     className={cn(
                       'relative rounded-xl border px-2.5 py-2 text-xs transition-colors',

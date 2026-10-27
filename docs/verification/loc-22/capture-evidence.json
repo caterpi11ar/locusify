@@ -1,0 +1,171 @@
+{
+  "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "dpr": 1.0000000298023224,
+  "viewport": [
+    1280,
+    720
+  ],
+  "encoder": [
+    {
+      "codec": "avc1.640028",
+      "width": 1920,
+      "height": 1080,
+      "displayWidth": 1920,
+      "displayHeight": 1080,
+      "bitrate": 12000000,
+      "alpha": "discard",
+      "avc": {
+        "format": "avc"
+      }
+    },
+    {
+      "codec": "avc1.640028",
+      "width": 1920,
+      "height": 1080,
+      "displayWidth": 1920,
+      "displayHeight": 1080,
+      "bitrate": 12000000,
+      "alpha": "discard",
+      "avc": {
+        "format": "avc"
+      }
+    }
+  ],
+  "constraints": {
+    "video": {
+      "displaySurface": "browser",
+      "suppressLocalAudioPlayback": true
+    },
+    "audio": true,
+    "preferCurrentTab": true,
+    "selfBrowserSurface": "include",
+    "surfaceSwitching": "exclude"
+  },
+  "track": {
+    "aspectRatio": 1.7777777777777777,
+    "cursor": "motion",
+    "deviceId": "web-contents-media-stream://7:8",
+    "displaySurface": "browser",
+    "frameRate": 30,
+    "height": 1080,
+    "logicalSurface": true,
+    "resizeMode": "crop-and-scale",
+    "suppressLocalAudioPlayback": true,
+    "width": 1920
+  },
+  "mediaRecorder": {
+    "options": {
+      "mimeType": "video/webm;codecs=vp9"
+    },
+    "videoBitsPerSecond": 2500000,
+    "audioBitsPerSecond": 128000,
+    "mimeType": "video/webm;codecs=vp9"
+  },
+  "raw": {
+    "bytes": 1394605,
+    "type": "video/webm;codecs=vp9,opus",
+    "width": 1920,
+    "height": 1080,
+    "codec": "vp9",
+    "duration": 9.947,
+    "stats": {
+      "packetCount": 302,
+      "averagePacketRate": 30.48657379366041,
+      "averageBitrate": 1122358.166767616
+    },
+    "minGap": 0.010999999999999677,
+    "maxGap": 0.28800000000000026,
+    "gaps": [
+      17000,
+      34000,
+      33000,
+      75000,
+      13000,
+      72000,
+      78000,
+      77000,
+      278000,
+      16000,
+      73000,
+      11000,
+      12000,
+      22000,
+      23000,
+      288000,
+      28000,
+      25000,
+      19000,
+      21000,
+      18000,
+      20000,
+      32000,
+      38000,
+      39000
+    ],
+    "packetCount": 302
+  },
+  "output": {
+    "bytes": 1423211,
+    "type": "video/mp4",
+    "width": 1920,
+    "height": 1080,
+    "codec": "avc",
+    "duration": 9.94701388888889,
+    "stats": {
+      "packetCount": 302,
+      "averagePacketRate": 30.48655242154556,
+      "averageBitrate": 1015172.31477814
+    },
+    "minGap": 0.010989583333333108,
+    "maxGap": 0.28800347222222245,
+    "gaps": [
+      16997,
+      34010,
+      32986,
+      33003,
+      75000,
+      12986,
+      72014,
+      78003,
+      76997,
+      278003,
+      16007,
+      77986,
+      17014,
+      71997,
+      73003,
+      72986,
+      10990,
+      15990,
+      11997,
+      21997,
+      22014,
+      23003,
+      22986,
+      288003,
+      28003,
+      33993,
+      25000,
+      19010,
+      21007,
+      18003,
+      18993,
+      20000,
+      20990,
+      31997,
+      38003,
+      39010
+    ],
+    "packetCount": 302
+  },
+  "crop": {
+    "x": 0,
+    "y": 0,
+    "width": 1280,
+    "height": 720,
+    "top": 0,
+    "right": 1280,
+    "bottom": 720,
+    "left": 0
+  }
+}
