@@ -11,6 +11,7 @@ import { useWebShare } from '@/hooks/useWebShare'
 import { createDemoPhotos } from '@/lib/demo-photos'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
+import { useDiscoverySurveyStore } from '@/stores/discoverySurveyStore'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
 import { useRegionStore } from '@/stores/regionStore'
@@ -73,6 +74,7 @@ const SettingsDrawer = lazy(() =>
 
 function MapSectionContent() {
   const user = useAuthStore(s => s.user)
+  const discoverySurveyOpen = useDiscoverySurveyStore(s => s.open)
   const markers = usePhotoStore(s => s.markers)
   const selectedMarkerId = usePhotoStore(s => s.selectedMarkerId)
   const setSelectedMarkerId = usePhotoStore(s => s.setSelectedMarkerId)
@@ -429,7 +431,7 @@ function MapSectionContent() {
       {/* Announcement dialog — shown once per version */}
       <Suspense fallback={null}>
         <AnimatePresence>
-          {announcementOpen && !!user && (
+          {announcementOpen && !!user && !discoverySurveyOpen && (
             <AnnouncementDialog
               open
               onClose={handleDismissAnnouncement}
@@ -456,7 +458,7 @@ function MapSectionContent() {
       {/* Feedback dialog — shown every 7 days, lowest priority */}
       <Suspense fallback={null}>
         <AnimatePresence>
-          {feedbackOpen && !!user && !announcementOpen && !videoDialogOpen && (
+          {feedbackOpen && !!user && !announcementOpen && !videoDialogOpen && !discoverySurveyOpen && (
             <FeedbackDialog
               open
               onClose={handleDismissFeedback}
@@ -513,7 +515,7 @@ function MapSectionContent() {
 
         <Suspense fallback={null}>
           <AnimatePresence>
-            {!announcementOpen && !isInAnyReplay && !!user && helpOpen && !uploadDrawerOpen && (
+            {!announcementOpen && !isInAnyReplay && !!user && helpOpen && !uploadDrawerOpen && !discoverySurveyOpen && (
               <EmptyJourneyPrompt
                 open
                 onSelectPhotos={handleHelpSelectPhotos}

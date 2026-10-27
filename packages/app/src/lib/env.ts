@@ -5,7 +5,7 @@ const envSchema = z.object({
   /** Node.js environment mode */
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   /** Backend API base URL */
-  VITE_API_BASE_URL: z.string().default('http://localhost:3000'),
+  VITE_API_BASE_URL: z.string().url().transform(value => value.replace(/\/$/, '')).default('https://api.locusify.cn'),
   /** Debug: force Pro subscription status */
   VITE_DEBUG_PRO: z.coerce.boolean().default(false),
   /** 显式开启 react-scan（默认关：它会拦截点击并产生 console 告警） */
