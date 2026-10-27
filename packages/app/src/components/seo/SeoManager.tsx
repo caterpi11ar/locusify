@@ -117,7 +117,7 @@ export function SeoManager() {
             'name': 'Locusify',
             'url': SITE_URL,
             'logo': { '@type': 'ImageObject', 'url': `${SITE_URL}/logo.png`, 'width': 256, 'height': 256 },
-            'sameAs': ['https://github.com/caterpi11ar/locusify', 'https://www.producthunt.com/products/locusify'],
+            'sameAs': ['https://www.producthunt.com/products/locusify'],
           },
           {
             '@type': 'WebSite',

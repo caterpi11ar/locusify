@@ -203,7 +203,6 @@
   "settings.privacy.noTracking": "We use anonymous page-view analytics (Google Analytics) to improve the app — no personal data is shared",
   "settings.about.version": "Version",
   "settings.about.website": "Website",
-  "settings.about.github": "GitHub",
   "settings.about.appName": "Locusify",
   "settings.section.replay": "Replay",
   "settings.avatar": "Avatar",

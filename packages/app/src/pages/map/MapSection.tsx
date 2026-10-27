@@ -257,6 +257,11 @@ function MapSectionContent() {
     setPricingOpen(true)
   }, [closeMenuDrawers])
 
+  const handleFeedbackClick = useCallback(() => {
+    closeMenuDrawers()
+    setFeedbackOpen(true)
+  }, [closeMenuDrawers])
+
   const handleGalleryClick = useCallback(() => {
     closeMenuDrawers()
     setGalleryOpen(true)
@@ -402,7 +407,7 @@ function MapSectionContent() {
           />
         )}
         {settingsOpen && (
-          <SettingsDrawer open onOpenChange={setSettingsOpen} onLogout={handleLoginClick} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
+          <SettingsDrawer open onOpenChange={setSettingsOpen} onLogout={handleLoginClick} onFeedback={handleFeedbackClick} onPricing={handlePricingClick} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
         )}
         {pricingOpen && (
           <PricingDrawer open onOpenChange={setPricingOpen} modal={mapDrawerModal} desktopOffset={mapDrawerDesktopOffset} />
