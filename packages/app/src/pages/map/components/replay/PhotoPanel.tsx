@@ -4,13 +4,14 @@ import { getRandomQuote } from '@/data/journalQuotes'
 import { useReplayStore } from '@/stores/replayStore'
 import { MetadataEditor } from './MetadataEditor'
 import { PhotoPanelBackground } from './PhotoPanelBackground'
-import { PhotoTicket } from './PhotoTicket'
+import { PolaroidLineCarousel } from './PolaroidLineCarousel'
 
 export function PhotoPanel() {
   const waypoints = useReplayStore(s => s.waypoints)
   const currentWaypointIndex = useReplayStore(s => s.currentWaypointIndex)
   const status = useReplayStore(s => s.status)
   const templateConfig = useReplayStore(s => s.templateConfig)
+  const seekToWaypoint = useReplayStore(s => s.seekToWaypoint)
 
   // Determine which waypoint to show
   const displayIndex = status === 'completed'
@@ -44,11 +45,12 @@ export function PhotoPanel() {
       <PhotoPanelBackground />
 
       {/* Ticket area — vertically centered */}
-      <div className="relative flex flex-1 items-start justify-center overflow-hidden px-10 pt-24">
-        <div className="w-full max-w-md">
-          <PhotoTicket
-            marker={waypoint?.marker ?? null}
-            waypointIndex={displayIndex}
+      <div className="relative flex flex-1 items-start justify-center overflow-y-auto px-2 pt-16 sm:px-4 lg:px-10 lg:pt-24">
+        <div className="w-full min-w-0 max-w-md">
+          <PolaroidLineCarousel
+            waypoints={waypoints}
+            activeIndex={displayIndex}
+            onSelect={seekToWaypoint}
             templateConfig={templateConfig}
           />
 
