@@ -22,7 +22,7 @@ export const LoginButton: FC<LoginButtonProps> = ({ onClick }) => {
         <button
           type="button"
           onClick={onClick}
-          className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
+          className="group hover:bg-fill-secondary active:bg-fill-tertiary relative flex size-10 rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary items-center justify-center transition-colors sm:size-12"
         >
           {user
             ? (

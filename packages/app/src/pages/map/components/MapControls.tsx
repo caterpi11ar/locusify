@@ -79,7 +79,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
         <button
           type="button"
           onClick={handleZoomIn}
-          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
+          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 rounded-t-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.in')}
           aria-label={t('explory.controls.zoom.in')}
           data-testid="map-control-zoom-in"
@@ -94,7 +94,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
         <button
           type="button"
           onClick={handleZoomOut}
-          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
+          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 rounded-b-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.zoom.out')}
           aria-label={t('explory.controls.zoom.out')}
           data-testid="map-control-zoom-out"
@@ -108,7 +108,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
         <button
           type="button"
           onClick={handleCompass}
-          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
+          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.compass')}
           aria-label={t('explory.controls.compass')}
           data-testid="map-control-compass"
@@ -122,7 +122,7 @@ export function MapControls({ onGeolocate }: MapControlsProps) {
         <button
           type="button"
           onClick={handleGeolocate}
-          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex rounded-full size-10 items-center justify-center transition-colors sm:size-12"
+          className="group hover:bg-fill-secondary active:bg-fill-tertiary flex size-10 rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary items-center justify-center transition-colors sm:size-12"
           title={t('explory.controls.locate')}
           aria-label={t('explory.controls.locate')}
           data-testid="map-control-locate"
