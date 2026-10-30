@@ -1,15 +1,15 @@
 import type { CSSProperties, RefObject } from 'react'
-import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
+import type { MapLayerMouseEvent, MapRef } from 'react-map-gl/maplibre'
 
 import type { PhotoMarker } from '@/types/map'
-import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map from 'react-map-gl/maplibre'
+import { getMapStyle } from '@/features/afilmory/shared/offline-map'
 import { getCurrentPosition, isGeolocationGranted } from '@/lib/geolocation'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { useMapStore } from '@/stores/mapStore'
-import { useRegionStore } from '@/stores/regionStore'
 
+import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
 import { clusterMarkers } from './clustering'
 import { CurrentLocationMarker } from './components/CurrentLocationMarker'
@@ -23,8 +23,6 @@ import { StarfieldCanvas } from './components/StarfieldCanvas'
 import { TrajectoryController } from './components/TrajectoryController'
 import { TrajectoryLineLayer } from './components/TrajectoryLineLayer'
 import { WaypointDot } from './components/WaypointDot'
-import MapStyleDark from './MapLibreStyleDark.json'
-import MapStyleLight from './MapLibreStyleLight.json'
 import { calculateMapBounds, calculateZoomFromBounds, getFragmentModeForZoom } from './utils'
 // Side-effect: must run before any Map instance is created.
 import '@/lib/maplibre-worker'
@@ -78,8 +76,7 @@ export function Maplibre({
   mapRef,
   autoFitBounds = true,
 }: PureMaplibreProps) {
-  const { resolvedTheme } = useTheme()
-  const mapStyle = (resolvedTheme === 'light' ? MapStyleLight : MapStyleDark) as StyleSpecification
+  const mapStyle = getMapStyle()
 
   const isReplayMode = useReplayStore(s => s.isReplayMode)
   const earthZoomPhase = useReplayStore(s => s.earthZoomPhase)

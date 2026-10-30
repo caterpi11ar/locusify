@@ -7,7 +7,7 @@ export default defineConfig(config => mergeConfig(
   {
 
     test: {
-      include: ['test/**/*.test.{ts,tsx}'],
+      include: ['test/**/*.test.{ts,tsx}', 'src/features/afilmory/**/*.test.ts'],
       setupFiles: ['test/setup.ts'],
     },
   },

@@ -3,6 +3,7 @@ import type { PhotoMarker } from '@/types/map'
 import { AnimatePresence, m } from 'motion/react'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
@@ -81,7 +82,8 @@ function MapSectionContent() {
   const mapRef = useRef<MapRef>(null)
   const cropRef = useRef<HTMLDivElement>(null)
   const { shareLink } = useWebShare()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const isMobile = useIsMobile()
 
   // Region photo mapping — auto GPS→country matching
@@ -266,8 +268,8 @@ function MapSectionContent() {
 
   const handleGalleryClick = useCallback(() => {
     closeMenuDrawers()
-    setGalleryOpen(true)
-  }, [closeMenuDrawers])
+    navigate(i18n.language.startsWith('zh') ? '/zh-CN/photos' : '/en/photos')
+  }, [closeMenuDrawers, navigate, i18n.language])
 
   const handleHelpClick = useCallback(() => {
     closeMenuDrawers()

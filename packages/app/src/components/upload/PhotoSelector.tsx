@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Checkbox } from '@/components/ui/checkbox'
 import { env } from '@/lib/env'
 import { extractExifData } from '@/lib/exif'
+import { readLocalMediaDimensions } from '@/lib/local-media-dimensions'
 import { categorizeFiles, cn, getFilenameStem } from '@/lib/utils'
 import { convertExifGPSToDecimal } from '@/pages/map/utils'
 import { GPSDirection } from '@/types/map'
@@ -42,9 +43,10 @@ function generateMockDate(index: number): string {
 
 interface PhotoSelectorProps {
   onFilesSelected: (files: Photo[]) => void
+  gallery?: boolean
 }
 
-export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
+export function PhotoSelector({ onFilesSelected, gallery = false }: PhotoSelectorProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [useMockMetadata, setUseMockMetadata] = useState(false)
@@ -73,6 +75,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
 
         // Create preview URL
         const preview = URL.createObjectURL(file)
+        const dimensions = await readLocalMediaDimensions(preview)
 
         // Extract EXIF data using the browser-compatible extractExifData function
         const exif = await extractExifData(file)
@@ -126,6 +129,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           id: `${file.name}-${file.lastModified}`,
           file,
           preview,
+          ...dimensions,
           name: file.name,
           size: file.size,
           type: file.type,
@@ -145,6 +149,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
       for (let i = 0; i < standaloneVideos.length; i++) {
         const videoFile = standaloneVideos[i]
         const preview = URL.createObjectURL(videoFile)
+        const dimensions = await readLocalMediaDimensions(preview, true)
         const videoUrl = preview // video blob URL serves as both preview and source
 
         // Use mock metadata in dev mode if enabled (offset index by imageFiles.length)
@@ -163,6 +168,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
           id: `${videoFile.name}-${videoFile.lastModified}`,
           file: videoFile,
           preview,
+          ...dimensions,
           name: videoFile.name,
           size: videoFile.size,
           type: videoFile.type,
@@ -261,7 +267,7 @@ export function PhotoSelector({ onFilesSelected }: PhotoSelectorProps) {
         {/* 不再重复抽屉标题（「选择照片」）；卡片只讲约束与操作 */}
 
         <span className="text-text max-w-[16rem] text-sm leading-relaxed text-pretty">
-          {t('photos.select.requirement')}
+          {gallery ? t('photos.gallery.requirement', { defaultValue: 'Photos with or without GPS are welcome' }) : t('photos.select.requirement')}
         </span>
 
         <span

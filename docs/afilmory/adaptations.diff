@@ -1,0 +1,969 @@
+--- apps/web/src/components/ui/map/MapLibre.tsx
++++ packages/app/src/features/afilmory/map/ui/MapLibre.tsx
+@@ -1,18 +1,12 @@
+-// Styles
+-import 'maplibre-gl/dist/maplibre-gl.css'
+-
+-import { clsxm, focusRing } from '@afilmory/utils'
+ import type { FeatureCollection } from 'geojson'
++
++import type { MapRef } from 'react-map-gl/maplibre'
++import type { PhotoMarker } from '@/types/map'
+ import { useCallback, useEffect, useMemo, useState } from 'react'
+-import type { MapRef } from 'react-map-gl/maplibre'
+ import Map from 'react-map-gl/maplibre'
+-
+-import { siteConfig } from '~/config'
+-import { getMapStyle } from '~/lib/map/style'
+-import { mapLibreWorkerUrl } from '~/lib/map/worker'
+-import { calculateMapBounds } from '~/lib/map-utils'
+-import type { PhotoMarker } from '~/types/map'
+-
++import { cn as clsxm } from '@/lib/utils'
++import { calculateMapBounds } from '@/pages/map/utils'
++import { getMapStyle } from '../../shared/offline-map'
+ import {
+   ClusterMarker,
+   clusterMarkers,
+@@ -23,8 +17,17 @@
+   MapControls,
+   PhotoMarkerPin,
+ } from './shared'
++// Styles
++import 'maplibre-gl/dist/maplibre-gl.css'
++
++import '@/lib/maplibre-worker'
++
++const focusRing = 'focus-visible:ring-2 focus-visible:ring-primary'
++
++const siteConfig = { mapProjection: 'mercator' as const }
+ 
+ export interface PureMaplibreProps {
++  onSelectionClose?: () => void
+   id?: string
+   initialViewState?: {
+     longitude: number
+@@ -44,7 +47,8 @@
+   autoFitBounds?: boolean
+ }
+ 
+-export const Maplibre = ({
++export function Maplibre({
++  onSelectionClose,
+   id,
+   initialViewState = DEFAULT_VIEW_STATE,
+   markers = DEFAULT_MARKERS,
+@@ -52,13 +56,14 @@
+   geoJsonData,
+   onMarkerClick,
+   onGeoJsonClick,
+-  onGeolocate,
++  onGeolocate: _onGeolocate,
+   onClusterClick,
+   className = 'w-full h-full',
+   style = DEFAULT_STYLE,
+   mapRef,
+   autoFitBounds = true,
+-}: PureMaplibreProps) => {
++}: PureMaplibreProps) {
++  const [mapError, setMapError] = useState(false)
+   const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom)
+   const [viewState, setViewState] = useState(initialViewState)
+   const [isMapLoaded, setIsMapLoaded] = useState(false)
+@@ -80,6 +85,10 @@
+ 
+   // Handle marker close - call onMarkerClick with the currently selected marker to toggle it off
+   const handleMarkerClose = useCallback(() => {
++    if (onSelectionClose) {
++      onSelectionClose()
++      return
++    }
+     if (selectedMarkerId && onMarkerClick) {
+       // Find the currently selected marker and call onMarkerClick to deselect it
+       const selectedMarker = markers.find(marker => marker.id === selectedMarkerId)
+@@ -87,7 +96,7 @@
+         onMarkerClick(selectedMarker)
+       }
+     }
+-  }, [selectedMarkerId, onMarkerClick, markers])
++  }, [selectedMarkerId, onMarkerClick, markers, onSelectionClose])
+ 
+   // Clustered markers
+   const clusteredMarkers = useMemo(
+@@ -136,7 +145,7 @@
+       const newViewState = {
+         longitude: markers[0].longitude,
+         latitude: markers[0].latitude,
+-        zoom: 13, // 单点时的合理缩放级别
++        zoom: 4, // Fixed low-resolution offline overview, not street detail.
+       }
+       setViewState(newViewState)
+       setCurrentZoom(newViewState.zoom)
+@@ -172,7 +181,7 @@
+           {
+             padding,
+             duration: 800, // 平滑动画
+-            maxZoom: 15, // 最大缩放级别限制，避免过度放大
++            maxZoom: 5, // Low-resolution offline basemap.
+           },
+         )
+       }
+@@ -225,28 +234,30 @@
+ 
+   return (
+     <div className={className} style={style}>
++      {mapError && <div role="alert" className="absolute top-16 left-4 z-50 bg-background p-4 text-foreground">离线底图不可用 / Offline map unavailable</div>}
+       <Map
+         id={id}
+         ref={mapRef}
+         {...viewState}
+         style={{ width: '100%', height: '100%' }}
+         mapStyle={getMapStyle()}
+-        workerUrl={mapLibreWorkerUrl}
+         projection={projection}
+         attributionControl={false}
++        maxZoom={6}
+         interactiveLayerIds={geoJsonData ? ['data'] : undefined}
+         onClick={onGeoJsonClick}
+         onLoad={handleMapLoad}
++        onError={() => setMapError(true)}
+         onMove={(evt) => {
+           setCurrentZoom(evt.viewState.zoom)
+           setViewState(evt.viewState)
+         }}
+       >
+         {/* Map Controls */}
+-        <MapControls onGeolocate={onGeolocate} />
++        <MapControls />
+ 
+         <a
+-          href="https://www.openstreetmap.org/copyright"
++          href="https://www.naturalearthdata.com/about/terms-of-use/"
+           target="_blank"
+           rel="noopener noreferrer"
+           className={clsxm(
+@@ -254,7 +265,7 @@
+             focusRing,
+           )}
+         >
+-          © OpenStreetMap contributors
++          Made with Natural Earth · Offline overview
+         </a>
+ 
+         {/* Photo Markers */}
+--- apps/web/src/components/ui/map/shared/clustering.test.ts
++++ packages/app/src/features/afilmory/map/ui/shared/clustering.test.ts
+@@ -1,38 +1,35 @@
++import type { PhotoMarker } from '@/types/map'
+ import assert from 'node:assert/strict'
+-// eslint-disable-next-line test/no-import-node-test
+-import { it } from 'node:test'
+ 
+-import type { PhotoMarker } from '~/types/map'
++import { it } from 'vitest'
+ 
+ import { clusterMarkers } from './clustering'
+ 
+-const createMarker = (id: string, longitude: number, latitude: number): PhotoMarker => ({
+-  id,
+-  longitude,
+-  latitude,
+-  photo: {
++function createMarker(id: string, longitude: number, latitude: number): PhotoMarker {
++  return {
+     id,
+-    title: id,
+-    dateTaken: '2026-01-01T00:00:00.000Z',
+-    description: '',
+-    tags: [],
+-    keywords: [],
+-    regions: [],
+-    originalUrl: `/photos/${id}.jpg`,
+-    format: 'jpg',
+-    thumbnailUrl: `/thumbs/${id}.jpg`,
+-    thumbHash: null,
+-    width: 1000,
+-    height: 750,
+-    aspectRatio: 4 / 3,
+-    s3Key: `${id}.jpg`,
+-    lastModified: '2026-01-01T00:00:00.000Z',
+-    size: 100,
+-    exif: null,
+-    toneAnalysis: null,
+-    location: null,
+-  },
+-})
++    longitude,
++    latitude,
++    photo: {
++      id,
++      title: id,
++      dateTaken: '2026-01-01T00:00:00.000Z',
++      description: '',
++      tags: [],
++      originalUrl: `/photos/${id}.jpg`,
++      thumbnailUrl: `/thumbs/${id}.jpg`,
++      thumbHash: null,
++      width: 1000,
++      height: 750,
++      aspectRatio: 4 / 3,
++      s3Key: `${id}.jpg`,
++      lastModified: '2026-01-01T00:00:00.000Z',
++      size: 100,
++      exif: null,
++      toneAnalysis: null,
++    },
++  }
++}
+ 
+ it('clusterMarkers keeps the selected marker independent so its active card remains map anchored while zooming out', () => {
+   const selected = createMarker('selected', 121.5001, 31.2001)
+--- apps/web/src/components/ui/map/shared/clustering.ts
++++ packages/app/src/features/afilmory/map/ui/shared/clustering.ts
+@@ -1,6 +1,6 @@
+-import type { PhotoMarker } from '~/types/map'
++import type { ClusterPoint } from './types'
+ 
+-import type { ClusterPoint } from './types'
++import type { PhotoMarker } from '@/types/map'
+ 
+ /**
+  * Simple clustering algorithm for small datasets
+--- apps/web/src/components/ui/map/shared/photo-marker-card-behavior.test.ts
++++ packages/app/src/features/afilmory/map/ui/shared/photo-marker-card-behavior.test.ts
+@@ -1,6 +1,5 @@
+ import assert from 'node:assert/strict'
+-// eslint-disable-next-line test/no-import-node-test
+-import { it } from 'node:test'
++import { it } from 'vitest'
+ 
+ import { resolvePhotoMarkerCardBehavior } from './photo-marker-card-behavior'
+ 
+--- apps/web/src/components/ui/map/shared/photo-marker-card-behavior.ts
++++ packages/app/src/features/afilmory/map/ui/shared/photo-marker-card-behavior.ts
+@@ -1,6 +1,8 @@
+-export const resolvePhotoMarkerCardBehavior = ({ isSelected }: { isSelected: boolean }) => ({
+-  hoverCardCloseDelay: 100,
+-  hoverCardOpen: undefined,
+-  hoverCardOpenDelay: 400,
+-  renderAnchoredCard: isSelected,
+-})
++export function resolvePhotoMarkerCardBehavior({ isSelected }: { isSelected: boolean }) {
++  return {
++    hoverCardCloseDelay: 100,
++    hoverCardOpen: undefined,
++    hoverCardOpenDelay: 400,
++    renderAnchoredCard: isSelected,
++  }
++}
+--- apps/web/src/components/ui/map/shared/types.ts
++++ packages/app/src/features/afilmory/map/ui/shared/types.ts
+@@ -1,5 +1,5 @@
+ import type { FeatureCollection } from 'geojson'
+-import type { PhotoMarker } from '~/types/map'
++import type { PhotoMarker } from '@/types/map'
+ 
+ // LayerProps type definition for compatibility
+ export interface LayerProps {
+--- apps/web/src/modules/gallery/Masonic.tsx
++++ packages/app/src/features/afilmory/gallery/Masonic.tsx
+@@ -1,12 +1,12 @@
+-// @copy internal masonic hooks
+-import { useScrollViewElement } from '@afilmory/ui'
++import type { ContainerPosition, MasonryProps, MasonryScrollerProps, Positioner } from 'masonic'
+ import { clearRequestTimeout, requestTimeout } from '@essentials/request-timeout'
+ import { useWindowSize } from '@react-hook/window-size'
+ import { isEqual, throttle } from 'es-toolkit/compat'
+-import type { ContainerPosition, MasonryProps, MasonryScrollerProps, Positioner } from 'masonic'
+ import { createResizeObserver, useMasonry, usePositioner, useScrollToIndex } from 'masonic'
+ import { useForceUpdate } from 'motion/react'
+ import * as React from 'react'
++// @copy internal masonic hooks
++import { useScrollViewElement } from '../shared/local-gallery'
+ 
+ export interface MasonryRef {
+   reposition: () => void
+@@ -19,19 +19,21 @@
+  *
+  * @param props
+  */
+-export const Masonry = <Item,>(props: MasonryProps<Item> & { ref?: React.Ref<MasonryRef> }) => {
++export function Masonry<Item,>(props: MasonryProps<Item> & { ref?: React.Ref<MasonryRef> }) {
++  const containerRef = React.useRef<null | HTMLElement>(null)
+   const [scrollTop, setScrollTop] = React.useState(0)
+   const [isScrolling, setIsScrolling] = React.useState(false)
+   const scrollElement = useScrollViewElement()
+ 
+   const fps = props.scrollFps || 12
+   React.useEffect(() => {
+-    if (!scrollElement) return
++    if (!scrollElement)
++      return
+ 
+     const scrollTimer: number | null = null
+     const handleScroll = throttle(() => {
+       setIsScrolling(true)
+-      setScrollTop(scrollElement.scrollTop)
++      setScrollTop(Math.max(0, scrollElement.scrollTop - (containerRef.current?.offsetTop ?? 0)))
+     }, 1000 / fps)
+ 
+     scrollElement.addEventListener('scroll', handleScroll)
+@@ -45,11 +47,13 @@
+   }, [fps, scrollElement])
+   const didMount = React.useRef(0)
+   React.useEffect(() => {
+-    if (didMount.current === 1) setIsScrolling(true)
++    if (didMount.current === 1)
++      setIsScrolling(true)
+     let didUnsubscribe = false
+     const to = requestTimeout(
+       () => {
+-        if (didUnsubscribe) return
++        if (didUnsubscribe)
++          return
+         // This is here to prevent premature bail outs while maintaining high resolution
+         // unsets. Without it there will always bee a lot of unnecessary DOM writes to style.
+         setIsScrolling(false)
+@@ -63,7 +67,6 @@
+     }
+   }, [fps, scrollTop])
+ 
+-  const containerRef = React.useRef<null | HTMLElement>(null)
+   const windowSize = useWindowSize({
+     initialWidth: props.ssrWidth,
+     initialHeight: props.ssrHeight,
+@@ -84,7 +87,7 @@
+ 
+   React.useImperativeHandle(props.ref, () => ({
+     reposition: () => {
+-      setPositionIndex((i) => i + 1)
++      setPositionIndex(i => i + 1)
+     },
+   }))
+ 
+@@ -94,7 +97,8 @@
+   let shrunk = false
+ 
+   if (props.items.length !== itemCounter.current) {
+-    if (props.items.length < itemCounter.current) shrunk = true
++    if (props.items.length < itemCounter.current)
++      shrunk = true
+ 
+     itemCounter.current = props.items.length
+   }
+@@ -111,11 +115,12 @@
+     offset: containerPos.offset,
+     align: typeof props.scrollToIndex === 'object' ? props.scrollToIndex.align : void 0,
+   })
+-  const index =
+-    props.scrollToIndex && (typeof props.scrollToIndex === 'number' ? props.scrollToIndex : props.scrollToIndex.index)
+-
+-  React.useEffect(() => {
+-    if (index !== void 0) scrollToIndex(index)
++  const index
++    = props.scrollToIndex && (typeof props.scrollToIndex === 'number' ? props.scrollToIndex : props.scrollToIndex.index)
++
++  React.useEffect(() => {
++    if (index !== void 0)
++      scrollToIndex(index)
+   }, [index, scrollToIndex])
+ 
+   return <MasonryScroller {...nextProps} />
+@@ -194,7 +199,6 @@
+         })
+       }
+     }
+-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, deps)
+ 
+   React.useEffect(() => {
+@@ -204,7 +208,8 @@
+           ...prev,
+           width: elementRef.current?.offsetWidth || 0,
+         }
+-        if (isEqual(next, prev)) return prev
++        if (isEqual(next, prev))
++          return prev
+         return next
+       })
+     })
+@@ -219,7 +224,7 @@
+ 
+ function useResizeObserver(positioner: Positioner) {
+   const [forceUpdate] = useForceUpdate()
+-  const resizeObserver = createResizeObserver(positioner, throttle(forceUpdate, 1000 / 12))
++  const resizeObserver = React.useMemo(() => createResizeObserver(positioner, throttle(forceUpdate, 1000 / 12)), [positioner, forceUpdate])
+   // Cleans up the resize observers when they change or the
+   // component unmounts
+   React.useEffect(() => () => resizeObserver.disconnect(), [resizeObserver])
+--- apps/web/src/modules/gallery/MasonryView.tsx
++++ packages/app/src/features/afilmory/gallery/MasonryView.tsx
+@@ -1,13 +1,13 @@
+-import { useAtomValue } from 'jotai'
++import type { PhotoManifest } from '../shared/local-gallery'
++
++import type { MasonryRef } from './Masonic'
+ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+ 
+-import { gallerySettingAtom } from '~/atoms/app'
+-import { useMobile } from '~/hooks/useMobile'
+-import type { PhotoManifest } from '~/types/photo'
+-
+-import type { MasonryRef } from './Masonic'
++import { useMobile } from '../shared/local-gallery'
+ import { Masonry } from './Masonic'
+ import { MasonryPhotoItem } from './MasonryPhotoItem'
++
++const MasonryItem = memo(MasonryPhotoItem)
+ 
+ const COLUMN_WIDTH_CONFIG = {
+   auto: {
+@@ -30,8 +30,8 @@
+   onRender?: (startIndex: number, stopIndex: number, items: any[]) => void
+ }
+ 
+-export const MasonryView = ({ photos, onRender }: MasonryViewProps) => {
+-  const { columns } = useAtomValue(gallerySettingAtom)
++export function MasonryView({ photos, onRender }: MasonryViewProps) {
++  const columns: number | 'auto' = 'auto'
+   const [containerWidth, setContainerWidth] = useState(0)
+   const masonryRef = useRef<MasonryRef>(null)
+   const isMobile = useMobile()
+@@ -53,8 +53,8 @@
+   // 动态计算列宽
+   const columnWidth = useMemo(() => {
+     const { auto, min, max } = COLUMN_WIDTH_CONFIG
+-    const gutter = 4 // 列间距
+-    const availableWidth = containerWidth - (isMobile ? 8 : 32) // 移动端和桌面端的 padding 不同
++    const gutter = 8 // 列间距
++    const availableWidth = containerWidth - (isMobile ? 32 : 48) // 移动端和桌面端的 padding 不同
+ 
+     if (columns === 'auto') {
+       const autoWidth = isMobile ? auto.mobile : auto.desktop
+@@ -86,15 +86,15 @@
+       ref={masonryRef}
+       items={photos}
+       render={useCallback(
+-        (props) => (
++        props => (
+           <MasonryItem {...props} />
+         ),
+         [],
+       )}
+       onRender={onRender}
+       columnWidth={columnWidth}
+-      columnGutter={4}
+-      rowGutter={4}
++      columnGutter={8}
++      rowGutter={8}
+       itemHeightEstimate={400}
+       itemKey={useCallback((data, _index) => {
+         return data.id
+@@ -102,5 +102,3 @@
+     />
+   )
+ }
+-
+-const MasonryItem = memo(MasonryPhotoItem)
+--- apps/web/src/modules/gallery/MasonryPhotoItem.tsx
++++ packages/app/src/features/afilmory/gallery/MasonryPhotoItem.tsx
+@@ -1,23 +1,14 @@
+-import { Thumbhash } from '@afilmory/ui'
+-import { getViewerTransitionTriggerProps } from '@afilmory/viewer-motion'
++import type { PhotoManifest } from '../shared/local-gallery'
+ import clsx from 'clsx'
+ import { m } from 'motion/react'
+ import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+ import { useTranslation } from 'react-i18next'
+-
+-import { useContextPhotos, usePhotoViewer } from '~/hooks/usePhotoViewer'
+-import {
+-  CarbonIsoOutline,
+-  MaterialSymbolsShutterSpeed,
+-  StreamlineImageAccessoriesLensesPhotosCameraShutterPicturePhotographyPicturesPhotoLens,
+-  TablerAperture,
+-} from '~/icons'
+-import { isMobileDevice } from '~/lib/device-viewport'
+-import { ImageLoaderManager } from '~/lib/image-loader-manager'
+-import { formatExifData } from '~/modules/metadata'
+-import type { PhotoManifest } from '~/types/photo'
+-
+-export const MasonryPhotoItem = memo(({ data, width }: { data: PhotoManifest; width: number }) => {
++import { Thumbhash } from '@/components/ui/thumbhash'
++
++import { CarbonIsoOutline, formatExifData, ImageLoaderManager, isMobileDevice, MaterialSymbolsShutterSpeed, StreamlineImageAccessoriesLensesPhotosCameraShutterPicturePhotographyPicturesPhotoLens, TablerAperture, useContextPhotos, usePhotoViewer } from '../shared/local-gallery'
++import { getViewerTransitionTriggerProps } from '../shared/viewer/contracts'
++
++export const MasonryPhotoItem = memo(({ data, width }: { data: PhotoManifest, width: number }) => {
+   const photos = useContextPhotos()
+   const photoViewer = usePhotoViewer()
+   const { t } = useTranslation()
+@@ -44,10 +35,10 @@
+   }
+ 
+   const handleClick = () => {
+-    const photoIndex = photos.findIndex((photo) => photo.id === data.id)
++    const photoIndex = photos.findIndex(photo => photo.id === data.id)
+     if (photoIndex !== -1) {
+-      const triggerEl =
+-        imageRef.current?.parentElement instanceof HTMLElement ? imageRef.current.parentElement : imageRef.current
++      const triggerEl
++        = imageRef.current?.parentElement instanceof HTMLElement ? imageRef.current.parentElement : imageRef.current
+ 
+       photoViewer.openViewer(photoIndex, triggerEl ?? undefined)
+     }
+@@ -89,12 +80,14 @@
+             size: video.size,
+             presentationTimestamp: video.presentationTimestamp,
+           }
+-        } else if (video.type === 'live-photo') {
++        }
++        else if (video.type === 'live-photo') {
+           videoSource = {
+             type: 'live-photo',
+             videoUrl: video.videoUrl,
+           }
+-        } else {
++        }
++        else {
+           videoSource = { type: 'none' }
+         }
+ 
+@@ -102,10 +95,13 @@
+           await imageLoaderManager.processVideo(videoSource, videoRef.current!)
+           setLivePhotoVideoLoaded(true)
+         }
+-      } catch (videoError) {
+-        console.error('Failed to process video:', videoError)
++      }
++      catch (videoError) {
++        // Keep media errors device-local
++        // Do not log photo data.
+         setVideoConversionError(videoError)
+-      } finally {
++      }
++      finally {
+         setIsConvertingVideo(false)
+       }
+     }
+@@ -118,7 +114,6 @@
+         imageLoaderManagerRef.current = null
+       }
+     }
+-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [data.video, data.originalUrl, imageLoaded, livePhotoVideoLoaded])
+ 
+   // Live Photo/Motion Photo hover 处理（仅在桌面端）
+@@ -170,6 +165,15 @@
+ 
+   return (
+     <m.div
++      role="button"
++      tabIndex={0}
++      aria-label={data.title}
++      onKeyDown={(event) => {
++        if (event.key === 'Enter' || event.key === ' ') {
++          event.preventDefault()
++          handleClick()
++        }
++      }}
+       className="bg-fill-quaternary group relative w-full cursor-pointer overflow-hidden"
+       style={{
+         width,
+@@ -189,7 +193,7 @@
+           src={data.thumbnailUrl}
+           alt={data.title}
+           loading="lazy"
+-          className={'absolute inset-0 h-full w-full object-cover duration-300 group-hover:scale-105'}
++          className="absolute inset-0 h-full w-full object-cover duration-300 group-hover:scale-105"
+           onLoad={handleImageLoad}
+           onError={handleImageError}
+         />
+@@ -214,7 +218,7 @@
+         <div className="bg-fill-quaternary text-text-tertiary absolute inset-0 flex items-center justify-center">
+           <div className="text-center">
+             <i className="i-mingcute-image-line text-2xl" />
+-            <p className="mt-2 text-sm">{t('photo.error.loading')}</p>
++            <p className="mt-2 text-sm">{t('photo.error.loading', { defaultValue: 'Unable to read this photo' })}</p>
+           </div>
+         </div>
+       )}
+@@ -229,27 +233,31 @@
+           )}
+           title={isMobileDevice ? t('photo.live.tooltip.mobile.main') : t('photo.live.tooltip.desktop.main')}
+         >
+-          {isConvertingVideo ? (
+-            <div className="flex items-center gap-1 px-1">
+-              <i className="i-mingcute-loading-line animate-spin" />
+-              <span>{t('loading.converting')}</span>
+-            </div>
+-          ) : (
+-            <Fragment>
+-              <i className="i-mingcute-live-photo-line size-4 shrink-0" />
+-              <span className="mr-1 shrink-0">{t('photo.live.badge')}</span>
+-              {videoConvertionError ? (
+-                <span className={'bg-warning/20 ml-0.5 rounded px-1 text-xs'}>
+-                  <div
+-                    className="text-yellow w-3 text-center font-bold"
+-                    title={(videoConvertionError as Error).message}
+-                  >
+-                    !
+-                  </div>
+-                </span>
+-              ) : null}
+-            </Fragment>
+-          )}
++          {isConvertingVideo
++            ? (
++                <div className="flex items-center gap-1 px-1">
++                  <i className="i-mingcute-loading-line animate-spin" />
++                  <span>{t('loading.converting')}</span>
++                </div>
++              )
++            : (
++                <Fragment>
++                  <i className="i-mingcute-live-photo-line size-4 shrink-0" />
++                  <span className="mr-1 shrink-0">{t('photo.live.badge')}</span>
++                  {videoConvertionError
++                    ? (
++                        <span className="bg-warning/20 ml-0.5 rounded px-1 text-xs">
++                          <div
++                            className="text-yellow w-3 text-center font-bold"
++                            title={(videoConvertionError as Error).message}
++                          >
++                            !
++                          </div>
++                        </span>
++                      )
++                    : null}
++                </Fragment>
++              )}
+         </div>
+       )}
+ 
+@@ -275,16 +283,22 @@
+                 <span>{data.format}</span>
+                 <span>•</span>
+                 <span>
+-                  {data.width} × {data.height}
++                  {data.width}
++                  {' '}
++                  ×
++                  {data.height}
+                 </span>
+                 <span>•</span>
+-                <span>{(data.size / 1024 / 1024).toFixed(1)}MB</span>
++                <span>
++                  {(data.size / 1024 / 1024).toFixed(1)}
++                  MB
++                </span>
+               </div>
+ 
+               {/* Tags */}
+               {data.tags && data.tags.length > 0 && (
+                 <div className="flex flex-wrap gap-1.5">
+-                  {data.tags.map((tag) => (
++                  {data.tags.map(tag => (
+                     <span
+                       key={tag}
+                       className="rounded-full bg-white/20 px-2 py-0.5 text-xs text-white/90 opacity-0 backdrop-blur-sm group-hover:opacity-100"
+@@ -302,7 +316,10 @@
+                 {exifData.focalLength35mm && (
+                   <div className="flex items-center gap-1.5 rounded-md bg-white/10 px-2 py-1 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+                     <StreamlineImageAccessoriesLensesPhotosCameraShutterPicturePhotographyPicturesPhotoLens className="text-white/70" />
+-                    <span className="text-white/90">{exifData.focalLength35mm}mm</span>
++                    <span className="text-white/90">
++                      {exifData.focalLength35mm}
++                      mm
++                    </span>
+                   </div>
+                 )}
+ 
+@@ -323,7 +340,10 @@
+                 {exifData.iso && (
+                   <div className="flex items-center gap-1.5 rounded-md bg-white/10 px-2 py-1 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+                     <CarbonIsoOutline className="text-white/70" />
+-                    <span className="text-white/90">ISO {exifData.iso}</span>
++                    <span className="text-white/90">
++                      ISO
++                      {exifData.iso}
++                    </span>
+                   </div>
+                 )}
+               </div>
+--- packages/viewer-motion/src/contracts.ts
++++ packages/app/src/features/afilmory/shared/viewer/contracts.ts
+@@ -1,5 +1,7 @@
+ export const VIEWER_TRANSITION_TRIGGER_ATTRIBUTE = 'data-viewer-transition-id'
+ 
+-export const getViewerTransitionTriggerProps = (itemId: string) => ({
+-  [VIEWER_TRANSITION_TRIGGER_ATTRIBUTE]: itemId,
+-})
++export function getViewerTransitionTriggerProps(itemId: string) {
++  return {
++    [VIEWER_TRANSITION_TRIGGER_ATTRIBUTE]: itemId,
++  }
++}
+--- apps/web/src/components/ui/map/shared/PhotoMarkerPin.tsx
++++ packages/app/src/features/afilmory/map/ui/shared/PhotoMarkerPin.tsx
+@@ -1,12 +1,14 @@
+-import { GlassButton, HoverCard, HoverCardContent, HoverCardTrigger, LazyImage } from '@afilmory/ui'
++import type { PhotoMarkerPinProps } from './types'
+ import { m } from 'motion/react'
+ import { Marker } from 'react-map-gl/maplibre'
+-import { Link } from 'react-router'
+-
++import { GlassButton } from '@/components/ui/glass-button'
++import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
++import { LazyImage } from '@/components/ui/lazy-image'
++
++import { LocalPhotoLink } from '../../../shared/local-map-action'
+ import { resolvePhotoMarkerCardBehavior } from './photo-marker-card-behavior'
+-import type { PhotoMarkerPinProps } from './types'
+-
+-export const PhotoMarkerPin = ({ marker, isSelected = false, onClick, onClose }: PhotoMarkerPinProps) => {
++
++export function PhotoMarkerPin({ marker, isSelected = false, onClick, onClose }: PhotoMarkerPinProps) {
+   const cardBehavior = resolvePhotoMarkerCardBehavior({ isSelected })
+ 
+   const handleClick = () => {
+@@ -37,6 +39,13 @@
+             }}
+             whileHover={{ scale: 1.1 }}
+             whileTap={{ scale: 0.9 }}
++            role="button"
++            tabIndex={0}
++            aria-label={marker.photo.title}
++            onKeyDown={(event) => {
++              if (event.key === 'Enter')
++                handleClick()
++            }}
+             onClick={handleClick}
+           >
+             {/* Selection ring - 只有选中时显示 */}
+@@ -97,120 +106,123 @@
+   )
+ }
+ 
+-const AnchoredPhotoMarkerCard = ({
++function AnchoredPhotoMarkerCard({
+   marker,
+   onClose,
+ }: {
+   marker: PhotoMarkerPinProps['marker']
+   onClose: (event: React.MouseEvent) => void
+-}) => (
+-  <div
+-    className="pointer-events-auto absolute bottom-full left-1/2 z-30 mb-3 w-80 -translate-x-1/2"
+-    onClick={event => event.stopPropagation()}
+-    onPointerDown={event => event.stopPropagation()}
+-  >
+-    <m.div
+-      className="origin-bottom overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-[120px] dark:bg-black/95"
+-      initial={{ opacity: 0, scale: 0.96, y: 4 }}
+-      animate={{ opacity: 1, scale: 1, y: 0 }}
+-      transition={{
+-        type: 'spring',
+-        stiffness: 380,
+-        damping: 32,
+-      }}
++}) {
++  return (
++    <div
++      className="pointer-events-auto absolute bottom-full left-1/2 z-30 mb-3 w-[min(20rem,calc(100vw-4rem))] -translate-x-1/2"
++      onClick={event => event.stopPropagation()}
++      onPointerDown={event => event.stopPropagation()}
+     >
+-      <PhotoMarkerCardContent marker={marker} onClose={onClose} />
+-    </m.div>
+-  </div>
+-)
+-
+-const PhotoMarkerCardContent = ({
++      <m.div
++        className="origin-bottom overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-[120px] dark:bg-black/95"
++        initial={{ opacity: 0, scale: 0.96, y: 4 }}
++        animate={{ opacity: 1, scale: 1, y: 0 }}
++        transition={{
++          type: 'spring',
++          stiffness: 380,
++          damping: 32,
++        }}
++      >
++        <PhotoMarkerCardContent marker={marker} onClose={onClose} />
++      </m.div>
++    </div>
++  )
++}
++
++function PhotoMarkerCardContent({
+   marker,
+   onClose,
+ }: {
+   marker: PhotoMarkerPinProps['marker']
+   onClose?: (event: React.MouseEvent) => void
+-}) => (
+-  <div className="relative">
+-    {onClose && (
+-      <GlassButton className="absolute top-3 right-3 z-10 size-8" onClick={onClose}>
+-        <i className="i-mingcute-close-line text-lg" />
+-      </GlassButton>
+-    )}
+-
+-    <div className="relative h-32 overflow-hidden">
+-      <LazyImage
+-        src={marker.photo.thumbnailUrl || marker.photo.originalUrl}
+-        alt={marker.photo.title || marker.photo.id}
+-        thumbHash={marker.photo.thumbHash}
+-        className="h-full w-full object-cover"
+-        rootMargin="200px"
+-        threshold={0.1}
+-      />
+-      <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+-    </div>
+-
+-    <div className="space-y-3 p-4">
+-      <Link
+-        to={`/photos/${marker.photo.id}`}
+-        target="_blank"
+-        className="group/link hover:text-blue flex items-center gap-2 transition-colors"
+-      >
+-        <h3 className="text-text flex-1 truncate text-sm font-semibold" title={marker.photo.title || marker.photo.id}>
+-          {marker.photo.title || marker.photo.id}
+-        </h3>
+-        <i className="i-mingcute-arrow-right-line text-text-secondary transition-transform group-hover/link:translate-x-0.5" />
+-      </Link>
+-
+-      <div className="space-y-2">
+-        {marker.photo.exif?.DateTimeOriginal && (
+-          <div className="text-text-secondary flex items-center gap-2 text-xs">
+-            <i className="i-mingcute-calendar-line text-sm" />
+-            <span>
+-              {new Date(marker.photo.exif.DateTimeOriginal).toLocaleDateString('zh-CN', {
+-                year: 'numeric',
+-                month: 'short',
+-                day: 'numeric',
+-              })}
+-            </span>
++}) {
++  return (
++    <div className="relative">
++      {onClose && (
++        <GlassButton className="absolute top-3 right-3 z-10 size-8" onClick={onClose}>
++          <i className="i-mingcute-close-line text-lg" />
++        </GlassButton>
++      )}
++
++      <div className="relative h-32 overflow-hidden">
++        <LazyImage
++          src={marker.photo.thumbnailUrl || marker.photo.originalUrl}
++          alt={marker.photo.title || marker.photo.id}
++          thumbHash={marker.photo.thumbHash}
++          className="h-full w-full object-cover"
++          rootMargin="200px"
++          threshold={0.1}
++        />
++        <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
++      </div>
++
++      <div className="space-y-3 p-4">
++        <LocalPhotoLink
++          marker={marker}
++          className="group/link hover:text-blue flex items-center gap-2 transition-colors"
++        >
++          <h3 className="text-text flex-1 truncate text-sm font-semibold" title={marker.photo.title || marker.photo.id}>
++            {marker.photo.title || marker.photo.id}
++          </h3>
++          <i className="i-mingcute-arrow-right-line text-text-secondary transition-transform group-hover/link:translate-x-0.5" />
++        </LocalPhotoLink>
++
++        <div className="space-y-2">
++          {marker.photo.exif?.DateTimeOriginal && (
++            <div className="text-text-secondary flex items-center gap-2 text-xs">
++              <i className="i-mingcute-calendar-line text-sm" />
++              <span>
++                {new Date(marker.photo.exif.DateTimeOriginal).toLocaleDateString('zh-CN', {
++                  year: 'numeric',
++                  month: 'short',
++                  day: 'numeric',
++                })}
++              </span>
++            </div>
++          )}
++
++          {marker.photo.exif?.Make && marker.photo.exif?.Model && (
++            <div className="text-text-secondary flex items-center gap-2 text-xs">
++              <i className="i-mingcute-camera-line text-sm" />
++              <span className="truncate">
++                <span>{marker.photo.exif.Make}</span>
++                <span> </span>
++                <span>{marker.photo.exif.Model}</span>
++              </span>
++            </div>
++          )}
++
++          <div className="text-text-secondary space-y-1 text-xs">
++            <div className="flex items-center gap-2">
++              <i className="i-mingcute-location-line text-sm" />
++              <span className="font-mono">
++                <span>{Math.abs(marker.latitude).toFixed(4)}</span>
++                <span>°</span>
++                <span>{marker.latitudeRef || 'N'}</span>
++                <span>, </span>
++                <span>{Math.abs(marker.longitude).toFixed(4)}</span>
++                <span>°</span>
++                <span>{marker.longitudeRef || 'E'}</span>
++              </span>
++            </div>
++            {marker.altitude !== undefined && (
++              <div className="flex items-center gap-2">
++                <i className="i-mingcute-mountain-2-line text-sm" />
++                <span className="font-mono">
++                  <span>{marker.altitude.toFixed(1)}</span>
++                  <span>m</span>
++                </span>
++              </div>
++            )}
+           </div>
+-        )}
+-
+-        {marker.photo.exif?.Make && marker.photo.exif?.Model && (
+-          <div className="text-text-secondary flex items-center gap-2 text-xs">
+-            <i className="i-mingcute-camera-line text-sm" />
+-            <span className="truncate">
+-              <span>{marker.photo.exif.Make}</span>
+-              <span> </span>
+-              <span>{marker.photo.exif.Model}</span>
+-            </span>
+-          </div>
+-        )}
+-
+-        <div className="text-text-secondary space-y-1 text-xs">
+-          <div className="flex items-center gap-2">
+-            <i className="i-mingcute-location-line text-sm" />
+-            <span className="font-mono">
+-              <span>{Math.abs(marker.latitude).toFixed(4)}</span>
+-              <span>°</span>
+-              <span>{marker.latitudeRef || 'N'}</span>
+-              <span>, </span>
+-              <span>{Math.abs(marker.longitude).toFixed(4)}</span>
+-              <span>°</span>
+-              <span>{marker.longitudeRef || 'E'}</span>
+-            </span>
+-          </div>
+-          {marker.altitude !== undefined && (
+-            <div className="flex items-center gap-2">
+-              <i className="i-mingcute-mountain-2-line text-sm" />
+-              <span className="font-mono">
+-                <span>{marker.altitude.toFixed(1)}</span>
+-                <span>m</span>
+-              </span>
+-            </div>
+-          )}
+         </div>
+       </div>
+     </div>
+-  </div>
+-)
++  )
++}
