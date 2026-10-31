@@ -1,29 +1,21 @@
-## LOC-44: scrolling and cross-page navigation
+## LOC-44: concise homepage and real product imagery
 
-Base: `4c83fec43c32003a02a834300d9019a8972c8fb1`. Changes preserve all existing imagery, section heights and animation design.
+The current issue revision supersedes the original keep-all-imagery/restore-iframe scope. The first commit fixed sticky containment and localized links; the final version replaces the long scenes with natural document flow.
 
-### Fixed
+### Final changes
 
-- The home page's `overflow-x-hidden` implicitly creates a vertical scroll container (`overflow-y: auto`). Its GPS, technology and gallery sticky descendants therefore scroll away while their reserved height remains. `overflow-x-clip` clips horizontal animation without creating that scroll container.
-- Header (desktop/mobile) and footer section links now target `/#section` through the existing next-intl Link. Content pages return to the same-language home page; home-page anchors continue to work.
+- Homepage order: product hero, three-step workflow, corresponding sample/results, compact privacy statement, unchanged pricing, FAQ, final CTA/footer.
+- Removed the login iframe, long gallery, six audience cards, six standalone feature cards, statistics, repeated brand imagery and large tutorial section. Removed their component files, sticky code and scroll-height placeholders.
+- Hero/results show actual app screenshots. Import/map/replay/export assets use the same three original synthetic EXIF samples. See `loc-44-assets.md` for source, coordinates, state, dimensions and capture isolation.
+- Header/footer links resolve to retained sections on the same-language homepage. Legacy features/technology/gallery IDs now identify workflow/privacy/results; scenarios maps to the results section. Blog and privacy links remain available.
+- Pricing plans, prices, rights and FAQ promises are unchanged. No authentication/backend code changed. Static screenshots are explicitly labeled; mobile replay is accurately described as landscape.
 
 ### Verification
 
-Local Windows / Edge 156.0.4314.56, Chromium layout emulation, DPR 1. Desktop 1440×900; mobile 390×844 (not real iOS/Safari). Only public imagery and empty anonymous sessions were used.
+Run `python tools/verify/web-layout.py --base http://localhost:3053 --channel msedge` with the existing Python Playwright setup. It checks Chinese/English at 1440x900 and 390x844, the six-section/three-step structure, absence of iframe/sticky placeholders, loaded hero image, overflow and same-/cross-page anchors.
 
-- Before: at section top + 500px, all three sticky tops were approximately -500px, both viewports. Blog Features href was `#features`.
-- After: the same six sticky measurements are 0px. English blog Features href is `/en#features`.
-- Reusable check: `python tools/verify/web-layout.py --base http://localhost:3053 --channel msedge`. Requires Python Playwright as used by the existing verification tools. Covers both languages, three sticky sections, horizontal overflow, same-page anchors, and content-page navigation.
-- Changed-file ESLint, web TypeScript and Next production build passed (81 generated pages).
-- Final screenshots are attached to the Multica issue, with JSON dimension records and HTML index. They show the local production build at localhost:3053; the embedded app still uses the production app origin. Separate guest screenshots use the local Vite app at localhost:1046. Diagnostic/failed development captures are excluded.
+Final screenshot attachments contain page-by-page CSS-scale captures and JSON/HTML indexes from a local production build. They are not production deployment screenshots. Public/synthetic data only. Local build, changed-file lint, TypeScript and browser results are reported in the issue/PR. Independent QA and Release deployment remain separate.
 
-### Guest demo dependency (not fixed)
+### Historical guest finding
 
-There is no guest query handler in the current app source. `packages/web/components/sections/hero-section.tsx` embeds `/?mode=guest`, but `packages/app/src/routers/index.tsx` redirects `/` to a language path without search parameters. Preserving that query alone cannot restore a demo:
-
-- `MapSection.tsx` initializes and reopens LoginDrawer whenever there is no user.
-- LoginDrawer is not dismissible for anonymous users.
-- Map interactions and several controls are gated on the authenticated user.
-- Existing generated demo photos are part of authenticated onboarding, not a separate anonymous route.
-
-No authentication gates, permissions, backend contracts or app routes were changed. Product must specify/confirm an isolated anonymous demo contract and coordinate design/backend as needed. This PR addresses the independent layout/navigation defects; it does not claim the guest acceptance criterion is met. Release and independent QA remain separate handoffs.
+The app root redirect drops query parameters, and direct language guest paths still show mandatory login because the app has no guest handler. Under the updated product scope the homepage iframe was removed; restoring anonymous app permissions is no longer an acceptance condition. No gates were weakened.

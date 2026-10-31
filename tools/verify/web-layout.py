@@ -30,18 +30,24 @@ with sync_playwright() as playwright:
                 page.goto(args.base + home, wait_until='networkidle')
                 assert page.locator('html').get_attribute('lang') == ('zh-CN' if home == '/' else 'en')
                 page.add_style_tag(content='html { scroll-behavior: auto !important; }')
+                assert page.locator('iframe').count() == 0, 'Anonymous homepage must not embed login'
+                assert page.locator('main > section').count() == 6, 'Unexpected homepage structure'
+                assert page.locator('main .sticky').count() == 0, 'Retired sticky scene remains'
                 for section in ['features', 'technology', 'gallery']:
-                    top = page.locator('#' + section).evaluate('(el) => el.getBoundingClientRect().top + scrollY')
-                    page.evaluate('(y) => scrollTo(0, y)', top + 500)
+                    target = page.locator('#' + section)
+                    target.scroll_into_view_if_needed()
                     page.wait_for_timeout(300)
-                    actual = page.locator('#' + section + ' .sticky').evaluate('(el) => el.getBoundingClientRect().top')
-                    assert abs(actual) < 2, (width, home, section, actual)
+                    assert target.is_visible()
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (width, section, 'overflow')
+                assert page.locator('#features article').count() == 3
+                assert page.locator('main picture').count() == 5
+                page.locator('main picture').first.scroll_into_view_if_needed()
+                page.wait_for_function("Array.from(document.querySelectorAll('main picture img')).filter(i => i.getBoundingClientRect().top < innerHeight && i.getBoundingClientRect().bottom > 0).every(i => i.complete && i.naturalWidth > 0)")
                 # Same-page anchors must still resolve and scroll.
                 page.locator('footer a[href$="#features"]').click()
                 page.wait_for_timeout(500)
                 assert page.url.endswith('#features')
-                assert page.locator('#features').evaluate('(el) => Math.abs(el.getBoundingClientRect().top)') < 2
+                assert page.locator('#features').evaluate('(el) => Math.abs(el.getBoundingClientRect().top - 112)') < 2
                 for content in ['blog', 'privacy']:
                     path = home.rstrip('/') + '/' + content
                     page.goto(args.base + path, wait_until='networkidle')

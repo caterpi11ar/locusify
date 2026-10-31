@@ -8,10 +8,10 @@
   "Header": {
     "nav": {
       "home": "Home",
-      "features": "Features",
+      "features": "How it works",
       "faq": "FAQ",
-      "technology": "Technology",
-      "gallery": "Gallery",
+      "technology": "Privacy",
+      "gallery": "Results",
       "scenarios": "Scenarios",
       "pricing": "Pricing",
       "blog": "Blog"
@@ -354,5 +354,31 @@
       "title": "Travel Map Blog | Tutorials, Comparisons, and Alternatives",
       "description": "Learn to build animated travel maps from GPS photos with practical tutorials, route-visualization workflows, privacy guidance, app comparisons, and Locusify updates."
     }
+  },
+  "Showcase": {
+    "title": "Your photos. Your route. Your journey, replayed.",
+    "description": "Place your travel photos on a map, follow the route, and turn the journey into a video — on your device.",
+    "cta": "Try Locusify",
+    "caption": "Actual Locusify interface · synthetic travel sample · static screenshot · Mobile replay uses landscape",
+    "stepsTitle": "From photos to a journey in three steps",
+    "importTitle": "Import your photos",
+    "importDescription": "Choose photos on your device. Read available GPS and capture dates, and review them before creating a route.",
+    "mapTitle": "See your route",
+    "mapDescription": "Locate your photos on the map and connect the stops into a travel route.",
+    "exportTitle": "Replay and export",
+    "exportDescription": "Choose a replay template, record the current tab, and export the video created on your device.",
+    "importAlt": "Locusify photo import with the three synthetic sample images and detected GPS",
+    "mapAlt": "Actual Locusify map showing the three synthetic sample photo markers and route",
+    "exportAlt": "Actual Locusify locally generated video preview and Export button",
+    "resultsTitle": "One sample, from images to a journey",
+    "resultsDescription": "These three original synthetic landscapes carry sample coordinates near Lake Geneva. The same files create the photo markers, route and replay shown here. They are illustrations, not photographs of these locations.",
+    "sampleAlt": "Original synthetic landscape illustration {number}",
+    "sampleLabel": "Sample {number}",
+    "replayAlt": "Actual Locusify route replay with the same three synthetic sample images",
+    "replayCaption": "A frame captured during real in-app replay of this sample. Static image, not an interactive demo or a finished exported video.",
+    "privacyTitle": "Your memories stay on your device",
+    "privacyDescription": "Photo bytes, GPS extraction, route calculation and video generation stay on your device. Your photos and travel routes are not uploaded to our servers.",
+    "privacyLink": "Read our privacy policy",
+    "viewImage": "View full-size screenshot"
   }
 }

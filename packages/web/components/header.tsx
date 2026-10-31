@@ -71,12 +71,6 @@ export function Header({
             {t('nav.gallery')}
           </Link>
           <Link
-            href="/#scenarios"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {t('nav.scenarios')}
-          </Link>
-          <Link
             href="/#pricing"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -91,7 +85,7 @@ export function Header({
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <LanguageSwitcher isScrolled={isScrolled || isContent} />
+          <LanguageSwitcher isScrolled />
           <Link
             href={APP_URL}
             className="whitespace-nowrap rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
@@ -133,13 +127,6 @@ export function Header({
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.gallery')}
-            </Link>
-            <Link
-              href="/#scenarios"
-              className="text-lg text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t('nav.scenarios')}
             </Link>
             <Link
               href="/#pricing"

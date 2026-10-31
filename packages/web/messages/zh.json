@@ -8,10 +8,10 @@
   "Header": {
     "nav": {
       "home": "首页",
-      "features": "功能",
+      "features": "制作流程",
       "faq": "常见问题",
-      "technology": "技术",
-      "gallery": "展示",
+      "technology": "隐私",
+      "gallery": "成果展示",
       "scenarios": "场景",
       "pricing": "定价",
       "blog": "博客"
@@ -354,5 +354,31 @@
       "title": "旅行地图博客 | 教程、对比与替代方案",
       "description": "阅读 GPS 照片地图、旅行路线动画、轨迹可视化、隐私保护与工具对比教程，掌握从照片整理到地图回放和视频导出的完整方法。"
     }
+  },
+  "Showcase": {
+    "title": "让照片串成路线，让旅程再次上演。",
+    "description": "把旅行照片放上地图，沿着路线回看，再制作成视频。处理过程留在你的设备上。",
+    "cta": "立即体验",
+    "caption": "Locusify 真实界面 · 合成旅行样例 · 静态截图 · 移动回放使用横屏",
+    "stepsTitle": "从照片到旅程，只需三步",
+    "importTitle": "导入照片",
+    "importDescription": "选择设备上的照片，读取可用的 GPS 与拍摄时间，确认后生成路线。",
+    "mapTitle": "在地图上串起路线",
+    "mapDescription": "查看照片所在位置，将沿途的停留点连接成一段旅行路线。",
+    "exportTitle": "回放与导出",
+    "exportDescription": "选择回放模板，录制当前标签页，导出在设备上生成的视频。",
+    "importAlt": "Locusify 导入界面：三张合成样例图片及读取出的 GPS 信息",
+    "mapAlt": "Locusify 真实地图界面：三张合成样例的照片标记和路线",
+    "exportAlt": "Locusify 本地生成的真实视频预览与导出按钮",
+    "resultsTitle": "同一组照片，连成一段旅程",
+    "resultsDescription": "这三张原创合成风景插画带有日内瓦湖附近的示例坐标。下方地图标记、路线与回放均来自同一组文件。插画用于演示，并非对应地点的实景照片。",
+    "sampleAlt": "原创合成风景插画 {number}",
+    "sampleLabel": "样例 {number}",
+    "replayAlt": "Locusify 实际路线回放，展示同一组三张合成样例图片",
+    "replayCaption": "从这组样例的实际应用回放中截取的画面。此处为静态图片，不是交互演示或已导出的视频。",
+    "privacyTitle": "你的回忆，留在你的设备",
+    "privacyDescription": "照片字节、GPS 提取、路线计算和视频生成都在设备本地处理。我们不会将你的照片与旅行路线上传到服务器。",
+    "privacyLink": "查看隐私政策",
+    "viewImage": "查看原尺寸截图"
   }
 }
