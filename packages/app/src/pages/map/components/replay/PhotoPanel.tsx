@@ -39,7 +39,7 @@ export function PhotoPanel() {
   }, [displayIndex, waypoints])
 
   return (
-    <div className="pointer-events-auto absolute inset-y-0 left-0 z-20 flex w-[40%] flex-col">
+    <div className="pointer-events-auto absolute inset-y-0 left-0 z-20 isolate flex w-[40%] flex-col overflow-hidden">
       {/* Paper texture background */}
       <PhotoPanelBackground />
 

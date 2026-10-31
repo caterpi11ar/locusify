@@ -7,7 +7,7 @@ interface CurrentLocationMarkerProps {
 
 export function CurrentLocationMarker({ longitude, latitude }: CurrentLocationMarkerProps) {
   return (
-    <Marker longitude={longitude} latitude={latitude} anchor="center" style={{ zIndex: 30 }}>
+    <Marker longitude={longitude} latitude={latitude} anchor="center" style={{ zIndex: 0, pointerEvents: 'none' }}>
       <div className="pointer-events-none relative flex size-12 items-center justify-center">
         <div className="absolute size-12 animate-ping rounded-full bg-[#0A84FF]/20" />
         <div className="absolute size-8 rounded-full bg-[#0A84FF]/10" />

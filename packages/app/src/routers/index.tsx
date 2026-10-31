@@ -31,6 +31,14 @@ export const routes: RouteObject[] = [
     element: <Layout />,
     errorElement: <ErrorElement />,
     children: [
+      ...(['en', 'zh-CN'] as const).map(language => ({
+        path: `/${language}/photos`,
+        element: <Navigate to={`/${language}/`} replace />,
+        loader: () => {
+          void i18n.changeLanguage(language)
+          return null
+        },
+      })),
       {
         path: '/',
         element: <Navigate to={i18n.resolvedLanguage?.toLowerCase().startsWith('zh') ? '/zh-CN/' : '/en/'} replace />,

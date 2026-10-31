@@ -1,5 +1,6 @@
 import type { Photo } from '@/types/photo'
 import { extractExifData } from '@/lib/exif'
+import { readLocalMediaDimensions } from '@/lib/local-media-dimensions'
 import { categorizeFiles, getFilenameStem } from '@/lib/utils'
 import { GPSDirection } from '@/types/map'
 
@@ -19,6 +20,7 @@ export async function buildPhotosForManualPlacement({
 
   for (const file of imageFiles) {
     const preview = URL.createObjectURL(file)
+    const dimensions = await readLocalMediaDimensions(preview)
 
     let dateTaken: string | undefined
     let camera: { make?: string, model?: string } | undefined
@@ -44,6 +46,7 @@ export async function buildPhotosForManualPlacement({
       id: `${file.name}-${file.lastModified}`,
       file,
       preview,
+      ...dimensions,
       name: file.name,
       size: file.size,
       type: file.type,
@@ -66,11 +69,13 @@ export async function buildPhotosForManualPlacement({
 
   for (const videoFile of standaloneVideos) {
     const preview = URL.createObjectURL(videoFile)
+    const dimensions = await readLocalMediaDimensions(preview, true)
 
     photos.push({
       id: `${videoFile.name}-${videoFile.lastModified}`,
       file: videoFile,
       preview,
+      ...dimensions,
       name: videoFile.name,
       size: videoFile.size,
       type: videoFile.type,

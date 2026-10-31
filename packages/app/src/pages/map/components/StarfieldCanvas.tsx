@@ -13,14 +13,19 @@ const STAR_COUNT = 1500
 const BG_COLOR = '#0e0e0e'
 const DOT_COLOR = 'rgb(255,255,255)'
 
-function createStars(): Star[] {
-  const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.2
-  return Array.from<Star>({ length: STAR_COUNT }).fill({
+export function createStars(maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.2): Star[] {
+  return Array.from({ length: STAR_COUNT }, (): Star => ({
     orbitRadius: Math.random() * maxRadius,
     angle: Math.random() * Math.PI * 2,
-    speed: (0.0001 + Math.random() * 0.0003) * (Math.random() < 0.5 ? 1 : -1),
+    // Tangential speed in CSS pixels per second, independent of orbit size/FPS.
+    speed: (0.1 + Math.random() * 0.2) * (Math.random() < 0.5 ? 1 : -1),
     alpha: 0.2 + Math.random() * 0.8,
-  })
+  }))
+}
+
+export function advanceStar(star: Star, elapsedMs: number) {
+  const seconds = Math.min(Math.max(elapsedMs, 0), 100) / 1000
+  star.angle += star.speed * seconds / Math.max(star.orbitRadius, 1)
 }
 
 export function StarfieldCanvas() {
@@ -66,11 +71,14 @@ export function StarfieldCanvas() {
     ro.observe(parent)
 
     let raf = 0
+    let previousTime: number | null = null
 
-    function frame() {
+    function frame(time: number) {
       raf = 0
       if (document.hidden)
         return
+      const elapsedMs = previousTime === null ? 0 : time - previousTime
+      previousTime = time
 
       // Opaque space background
       ctx.globalAlpha = 1
@@ -80,7 +88,7 @@ export function StarfieldCanvas() {
       // 1px star dots
       ctx.fillStyle = DOT_COLOR
       for (const star of stars) {
-        star.angle += star.speed
+        advanceStar(star, elapsedMs)
         const x = Math.sin(star.angle) * star.orbitRadius + cx
         const y = Math.cos(star.angle) * star.orbitRadius + cy
         ctx.globalAlpha = star.alpha
@@ -96,6 +104,7 @@ export function StarfieldCanvas() {
     }
 
     function stop() {
+      previousTime = null
       if (raf) {
         cancelAnimationFrame(raf)
         raf = 0

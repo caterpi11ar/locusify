@@ -136,9 +136,11 @@ export function PolaroidLineCarousel({ waypoints, activeIndex, templateConfig }:
               data-selected={active === index}
               aria-current={active === index ? 'true' : undefined}
               className="relative w-full shrink-0 origin-[50%_-18px] [transform:translateY(var(--hang-y,12px))_rotate(var(--tilt))] motion-reduce:[transform:translateY(var(--hang-y,12px))]"
-              style={{ '--tilt': `${[-2, 1.6, -1, 2][index % 4]}deg` } as CSSProperties}
+              style={{
+                '--tilt': `${[-2, 1.6, -1, 2][index % 4]}deg`,
+              } as CSSProperties}
             >
-              <div className={`relative origin-[50%_-18px] text-neutral-900 transition-opacity duration-300 motion-reduce:transition-none dark:text-[#f5f7fa] ${active === index ? 'opacity-100' : 'opacity-50'}`}>
+              <div className={`relative origin-[50%_-18px] text-neutral-900 transition-[filter] duration-300 motion-reduce:transition-none dark:text-[#f5f7fa] ${active === index ? 'brightness-100' : 'brightness-50'}`}>
                 <span aria-hidden="true" className="pointer-events-none absolute -top-[18px] left-[calc(50%-6px)] z-10 h-[29px] w-3 rounded-[3px] bg-linear-[90deg,#6d8ca7,#b7cce0_48%,#6d8ca7] shadow-sm after:absolute after:left-[5px] after:top-[9px] after:h-[9px] after:w-0.5 after:rounded-[1px] after:bg-[#6d8ca7] dark:bg-linear-[90deg,#3d617e,#799cbb_48%,#3d617e]" />
                 <div style={{ filter: getFilterStyle(templateConfig.filter.type, templateConfig.filter.intensity) }}>
                   <LazyMedia

@@ -8,6 +8,8 @@ export interface Photo {
   size: number
   type: string
   lastModified: number
+  width?: number
+  height?: number
 
   // GPS coordinates in standard format
   gpsInfo?: GPSCoordinates

@@ -128,10 +128,7 @@ interface ExifrResult {
 export async function extractExifData(
   file: File,
 ): Promise<PickedExif | null> {
-  const log = console
-
   try {
-    log.info('开始提取 EXIF 数据:', file.name)
     const { default: exifr } = await import('exifr')
 
     const exifData = (await exifr.parse(file, {
@@ -148,17 +145,14 @@ export async function extractExifData(
     })) as ExifrResult | undefined
 
     if (!exifData) {
-      log.warn('未找到 EXIF 数据:', file.name)
       return null
     }
 
     const result = handleExifData(exifData)
 
-    log.info('EXIF 数据提取完成:', file.name)
     return result
   }
-  catch (error) {
-    log.error('提取 EXIF 数据失败:', file.name, error)
+  catch {
     return null
   }
 }

@@ -44,7 +44,7 @@ export const PhotoMarkerPin: FC<PhotoMarkerPinProps> = ({
       key={marker.id}
       longitude={marker.longitude}
       latitude={marker.latitude}
-      style={{ zIndex: isSelected ? 10 : 0 }}
+      style={{ zIndex: isSelected ? 10 : 1 }}
     >
       <HoverCard
         open={isSelected}

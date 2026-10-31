@@ -1,0 +1,311 @@
+import type { FeatureCollection } from 'geojson'
+
+import type { MapRef } from 'react-map-gl/maplibre'
+import type { PhotoMarker } from '@/types/map'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import Map from 'react-map-gl/maplibre'
+import { cn as clsxm } from '@/lib/utils'
+import { calculateMapBounds } from '@/pages/map/utils'
+import { getMapStyle } from '../../shared/offline-map'
+import {
+  ClusterMarker,
+  clusterMarkers,
+  DEFAULT_MARKERS,
+  DEFAULT_STYLE,
+  DEFAULT_VIEW_STATE,
+  GeoJsonLayer,
+  MapControls,
+  PhotoMarkerPin,
+} from './shared'
+// Styles
+import 'maplibre-gl/dist/maplibre-gl.css'
+
+import '@/lib/maplibre-worker'
+
+const focusRing = 'focus-visible:ring-2 focus-visible:ring-primary'
+
+const siteConfig = { mapProjection: 'mercator' as const }
+
+export interface PureMaplibreProps {
+  onSelectionClose?: () => void
+  id?: string
+  initialViewState?: {
+    longitude: number
+    latitude: number
+    zoom: number
+  }
+  markers?: PhotoMarker[]
+  selectedMarkerId?: string | null
+  geoJsonData?: FeatureCollection
+  onMarkerClick?: (marker: PhotoMarker) => void
+  onGeoJsonClick?: React.ComponentProps<typeof Map>['onClick']
+  onGeolocate?: (longitude: number, latitude: number) => void
+  onClusterClick?: (longitude: number, latitude: number) => void
+  className?: string
+  style?: React.CSSProperties
+  mapRef?: React.RefObject<MapRef | null>
+  autoFitBounds?: boolean
+}
+
+export function Maplibre({
+  onSelectionClose,
+  id,
+  initialViewState = DEFAULT_VIEW_STATE,
+  markers = DEFAULT_MARKERS,
+  selectedMarkerId,
+  geoJsonData,
+  onMarkerClick,
+  onGeoJsonClick,
+  onGeolocate: _onGeolocate,
+  onClusterClick,
+  className = 'w-full h-full',
+  style = DEFAULT_STYLE,
+  mapRef,
+  autoFitBounds = true,
+}: PureMaplibreProps) {
+  const [mapError, setMapError] = useState(false)
+  const [currentZoom, setCurrentZoom] = useState(initialViewState.zoom)
+  const [viewState, setViewState] = useState(initialViewState)
+  const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const [hasInitialFitCompleted, setHasInitialFitCompleted] = useState(false)
+  const projection = useMemo(
+    () => ({
+      type: siteConfig.mapProjection ?? 'mercator',
+    }),
+    [],
+  )
+
+  // Handle marker click - only call the external callback
+  const handleMarkerClick = useCallback(
+    (marker: PhotoMarker) => {
+      onMarkerClick?.(marker)
+    },
+    [onMarkerClick],
+  )
+
+  // Handle marker close - call onMarkerClick with the currently selected marker to toggle it off
+  const handleMarkerClose = useCallback(() => {
+    if (onSelectionClose) {
+      onSelectionClose()
+      return
+    }
+    if (selectedMarkerId && onMarkerClick) {
+      // Find the currently selected marker and call onMarkerClick to deselect it
+      const selectedMarker = markers.find(marker => marker.id === selectedMarkerId)
+      if (selectedMarker) {
+        onMarkerClick(selectedMarker)
+      }
+    }
+  }, [selectedMarkerId, onMarkerClick, markers, onSelectionClose])
+
+  // Clustered markers
+  const clusteredMarkers = useMemo(
+    () => clusterMarkers(markers, currentZoom, { selectedMarkerId }),
+    [markers, currentZoom, selectedMarkerId],
+  )
+
+  // 计算合适的缩放级别
+  const calculateZoomLevel = useCallback((latDiff: number, lngDiff: number) => {
+    const maxDiff = Math.max(latDiff, lngDiff)
+
+    if (maxDiff < 0.001) {
+      return 16
+    }
+    if (maxDiff < 0.01) {
+      return 14
+    }
+    if (maxDiff < 0.1) {
+      return 11
+    }
+    if (maxDiff < 1) {
+      return 8
+    }
+    if (maxDiff < 10) {
+      return 5
+    }
+    return 2 // 跨洲
+  }, [])
+
+  // 自动适配到包含所有照片的区域 - 只在初次加载时执行
+  const fitMapToBounds = useCallback(() => {
+    if (!autoFitBounds || markers.length === 0 || !isMapLoaded || hasInitialFitCompleted) {
+      return
+    }
+
+    const bounds = calculateMapBounds(markers)
+    if (!bounds) {
+      return
+    }
+
+    // 标记初次适配已完成
+    setHasInitialFitCompleted(true)
+
+    // 如果只有一个点，设置默认缩放级别
+    if (markers.length === 1) {
+      const newViewState = {
+        longitude: markers[0].longitude,
+        latitude: markers[0].latitude,
+        zoom: 4, // Fixed low-resolution offline overview, not street detail.
+      }
+      setViewState(newViewState)
+      setCurrentZoom(newViewState.zoom)
+      return
+    }
+
+    // 使用 mapRef 的 fitBounds 方法（推荐方式）
+    if (mapRef?.current?.getMap) {
+      // 计算动态padding，确保照片区域控制在窗口的80%内
+      // 这意味着每边留出10%的空间作为缓冲区
+      const mapContainer = mapRef.current.getContainer()
+      const containerWidth = mapContainer.offsetWidth
+      const containerHeight = mapContainer.offsetHeight
+
+      const paddingPercentage = 0.1 // 每边10%的padding
+      const horizontalPadding = containerWidth * paddingPercentage
+      const verticalPadding = containerHeight * paddingPercentage
+
+      const padding = {
+        top: Math.max(verticalPadding, 40), // 最小40px
+        bottom: Math.max(verticalPadding, 40),
+        left: Math.max(horizontalPadding, 40),
+        right: Math.max(horizontalPadding, 40),
+      }
+
+      try {
+        const map = mapRef.current.getMap()
+        map.fitBounds(
+          [
+            [bounds.minLng, bounds.minLat], // 西南角
+            [bounds.maxLng, bounds.maxLat], // 东北角
+          ],
+          {
+            padding,
+            duration: 800, // 平滑动画
+            maxZoom: 5, // Low-resolution offline basemap.
+          },
+        )
+      }
+      catch (error) {
+        console.warn('使用 fitBounds 失败，使用备用方案:', error)
+        // 备用方案：手动计算视图状态
+        fallbackToViewState(bounds)
+      }
+    }
+    else {
+      // mapRef 不可用时的备用方案
+      fallbackToViewState(bounds)
+    }
+
+    function fallbackToViewState(bounds: ReturnType<typeof calculateMapBounds>) {
+      if (!bounds) {
+        return
+      }
+
+      const latDiff = bounds.maxLat - bounds.minLat
+      const lngDiff = bounds.maxLng - bounds.minLng
+      // 为备用方案也增加一些缓冲，降低一级缩放
+      const zoom = Math.max(calculateZoomLevel(latDiff, lngDiff) - 1, 2)
+
+      const newViewState = {
+        longitude: bounds.centerLng,
+        latitude: bounds.centerLat,
+        zoom,
+      }
+
+      setViewState(newViewState)
+      setCurrentZoom(zoom)
+    }
+  }, [markers, autoFitBounds, isMapLoaded, mapRef, calculateZoomLevel, hasInitialFitCompleted])
+
+  // 当地图加载完成时触发适配
+  const handleMapLoad = useCallback(() => {
+    setIsMapLoaded(true)
+  }, [])
+
+  // 当标记点变化时，重新适配边界
+  useEffect(() => {
+    // 延迟执行，确保地图已渲染
+    const timer = setTimeout(() => {
+      fitMapToBounds()
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [fitMapToBounds])
+
+  return (
+    <div className={className} style={style}>
+      {mapError && <div role="alert" className="absolute top-16 left-4 z-50 bg-background p-4 text-foreground">离线底图不可用 / Offline map unavailable</div>}
+      <Map
+        id={id}
+        ref={mapRef}
+        {...viewState}
+        style={{ width: '100%', height: '100%' }}
+        mapStyle={getMapStyle()}
+        projection={projection}
+        attributionControl={false}
+        maxZoom={6}
+        interactiveLayerIds={geoJsonData ? ['data'] : undefined}
+        onClick={onGeoJsonClick}
+        onLoad={handleMapLoad}
+        onError={() => setMapError(true)}
+        onMove={(evt) => {
+          setCurrentZoom(evt.viewState.zoom)
+          setViewState(evt.viewState)
+        }}
+      >
+        {/* Map Controls */}
+        <MapControls />
+
+        <a
+          href="https://www.naturalearthdata.com/about/terms-of-use/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={clsxm(
+            'bg-material-thick text-text-secondary hover:text-text absolute right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 rounded-lg border border-accent/20 px-2.5 py-1.5 text-xs backdrop-blur-2xl transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent',
+            focusRing,
+          )}
+        >
+          Made with Natural Earth · Offline overview
+        </a>
+
+        {/* Photo Markers */}
+        {clusteredMarkers.map((clusterPoint) => {
+          if (clusterPoint.properties.cluster) {
+            // Render cluster marker
+            return (
+              <ClusterMarker
+                key={`cluster-${clusterPoint.geometry.coordinates[0]}-${clusterPoint.geometry.coordinates[1]}`}
+                longitude={clusterPoint.geometry.coordinates[0]}
+                latitude={clusterPoint.geometry.coordinates[1]}
+                pointCount={clusterPoint.properties.point_count || 0}
+                representativeMarker={clusterPoint.properties.marker}
+                clusteredPhotos={clusterPoint.properties.clusteredPhotos}
+                onClusterClick={onClusterClick}
+              />
+            )
+          }
+          else {
+            // Render individual marker
+            const { marker } = clusterPoint.properties
+            if (!marker) {
+              return null
+            }
+
+            return (
+              <PhotoMarkerPin
+                key={marker.id}
+                marker={marker}
+                isSelected={selectedMarkerId === marker.id}
+                onClick={handleMarkerClick}
+                onClose={handleMarkerClose}
+              />
+            )
+          }
+        })}
+
+        {/* GeoJSON Layer */}
+        {geoJsonData && <GeoJsonLayer data={geoJsonData} />}
+      </Map>
+    </div>
+  )
+}

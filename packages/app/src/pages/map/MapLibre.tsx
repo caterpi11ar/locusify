@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Map from 'react-map-gl/maplibre'
 import { getCurrentPosition, isGeolocationGranted } from '@/lib/geolocation'
-import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
+import { cn as clsxm } from '@/lib/utils'
 import { useMapStore } from '@/stores/mapStore'
 import { useRegionStore } from '@/stores/regionStore'
 
@@ -15,10 +15,8 @@ import { clusterMarkers } from './clustering'
 import { CurrentLocationMarker } from './components/CurrentLocationMarker'
 import { EarthZoomController } from './components/EarthZoomController'
 import { GeoJsonLayer } from './components/GeoJsonLayer'
-import { GlobeOrbitController } from './components/GlobeOrbitController'
 import { MapControls } from './components/MapControls'
 import { PhotoMarkerPin } from './components/PhotoMarkerPin'
-import { RegionFillLayer } from './components/RegionFillLayer'
 import { StarfieldCanvas } from './components/StarfieldCanvas'
 import { TrajectoryController } from './components/TrajectoryController'
 import { TrajectoryLineLayer } from './components/TrajectoryLineLayer'
@@ -83,7 +81,6 @@ export function Maplibre({
 
   const isReplayMode = useReplayStore(s => s.isReplayMode)
   const earthZoomPhase = useReplayStore(s => s.earthZoomPhase)
-  const isOrbiting = useGlobeOrbitStore(s => s.isOrbiting)
   const isFragmentMode = useRegionStore(s => s.isFragmentMode)
   const updateFragmentMode = useRegionStore(s => s.updateFragmentMode)
   const registerMap = useMapStore(s => s.registerMap)
@@ -312,9 +309,8 @@ export function Maplibre({
   }, [fitMapToBounds])
 
   // Background for fragment mode.
-  // The Map instance is remounted when projection changes, so avoid calling
-  // setProjection here; mutating an active MapLibre projection during low-zoom
-  // gestures can leave handlers stuck.
+  // Keep one globe projection and Map instance during normal zoom gestures.
+  // Replay's EarthZoomController still owns its cinematic transitions.
   useEffect(() => {
     const map = mapRef?.current?.getMap()
     if (!map || !isMapLoaded)
@@ -345,19 +341,18 @@ export function Maplibre({
     }
   }, [mapRef, isFragmentMode, isMapLoaded, earthZoomActive])
 
-  const shouldShowCurrentLocation = !!currentLocation && !isReplayMode && !isOrbiting && !earthZoomActive
+  const shouldShowCurrentLocation = !!currentLocation && !isReplayMode && !earthZoomActive
 
   return (
     <div className={`${className} relative`} style={style}>
       <StarfieldCanvas />
       <Map
-        key={isFragmentMode ? 'fragment-globe' : 'street-mercator'}
         id={id}
         ref={mapRef}
         {...viewState}
         style={MAP_STYLE}
         mapStyle={mapStyle}
-        projection={isFragmentMode ? 'globe' : 'mercator'}
+        projection="globe"
         sky={MAP_SKY}
         attributionControl={false}
         canvasContextAttributes={{ preserveDrawingBuffer: true }}
@@ -375,17 +370,28 @@ export function Maplibre({
             syncFragmentModeFromZoom(evt.viewState.zoom)
           }
         }}
-        minZoom={isOrbiting ? 0.5 : 0}
+        minZoom={0}
         maxZoom={22}
       >
         {/* Map Controls — hidden during replay (camera follows automatically) */}
-        {!isReplayMode && !isOrbiting && <MapControls onGeolocate={handleGeolocate} />}
+        {!isReplayMode && <MapControls onGeolocate={handleGeolocate} />}
 
         {/* Region Fill Layer — country photo fills (below markers) */}
-        <RegionFillLayer />
+        {/* Copied from Afilmory c392e065, MapLibre.tsx attribution block. */}
+        <a
+          href="https://www.openstreetmap.org/copyright"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={clsxm(
+            'bg-material-thick text-text-secondary hover:text-text absolute right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 rounded-lg border border-accent/20 px-2.5 py-1.5 text-xs backdrop-blur-2xl transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent',
+            'focus-visible:ring-2 focus-visible:ring-primary',
+          )}
+        >
+          © OpenStreetMap contributors
+        </a>
 
         {/* Photo Markers — hidden in fragment mode */}
-        {!isFragmentMode && clusteredMarkers.map((clusterPoint) => {
+        {clusteredMarkers.map((clusterPoint) => {
           const { marker, clusteredPhotos } = clusterPoint.properties
           if (!marker)
             return null
@@ -428,8 +434,6 @@ export function Maplibre({
           </>
         )}
 
-        {/* Globe Orbit Controller */}
-        {isOrbiting && <GlobeOrbitController />}
       </Map>
     </div>
   )
