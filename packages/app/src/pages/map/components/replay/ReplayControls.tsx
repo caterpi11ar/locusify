@@ -11,11 +11,10 @@ const SPEED_OPTIONS = [0.5, 1, 1.5, 2, 4]
 
 interface ReplayControlsProps {
   onPlayClick?: () => void
-  onTemplateClick?: () => void
   onCustomizeClick?: () => void
 }
 
-export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick }: ReplayControlsProps) {
+export function ReplayControls({ onPlayClick, onCustomizeClick }: ReplayControlsProps) {
   const { t } = useTranslation()
 
   const status = useReplayStore(s => s.status)
@@ -207,34 +206,15 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
         <div className="mx-3 h-px bg-text/8 sm:mx-4" />
 
         {/* Controls row */}
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center px-3 py-1.5 sm:px-4 sm:py-2">
-          <div className="flex items-center gap-1.5">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-text-tertiary text-2xs sm:text-xs">
               {t('workspace.controls.progress', {
                 current: Math.min(currentWaypointIndex + 1, waypoints.length),
                 total: waypoints.length,
               })}
             </span>
-            {onTemplateClick && (
-              <button
-                type="button"
-                onClick={onTemplateClick}
-                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-2xs transition-colors hover:bg-text/5 sm:text-xs"
-                title={t('template.selector.title')}
-              >
-                <i className="i-mingcute-grid-line text-xs" />
-              </button>
-            )}
-            {onCustomizeClick && (
-              <button
-                type="button"
-                onClick={onCustomizeClick}
-                className="text-text-secondary hover:text-text flex items-center gap-0.5 rounded-xl px-1.5 py-1 text-2xs transition-colors hover:bg-text/5 sm:text-xs"
-                title={t('template.customize.title')}
-              >
-                <i className="i-mingcute-settings-3-line text-xs" />
-              </button>
-            )}
+
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -275,7 +255,7 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
           </div>
 
           {/* Speed */}
-          <div className="relative flex justify-end" ref={speedMenuRef}>
+          <div className="relative flex items-center justify-end gap-1" ref={speedMenuRef}>
             <button
               type="button"
               onClick={() => setSpeedMenuOpen(prev => !prev)}
@@ -290,6 +270,18 @@ export function ReplayControls({ onPlayClick, onTemplateClick, onCustomizeClick 
               </span>
               <i className={cn('i-mingcute-down-line text-2xs transition-transform', speedMenuOpen && 'rotate-180')} />
             </button>
+
+            {onCustomizeClick && (
+              <button
+                type="button"
+                onClick={onCustomizeClick}
+                className="text-text-secondary hover:text-text inline-flex h-8 items-center gap-1.5 rounded-full bg-text/5 px-3 text-xs font-medium transition-colors hover:bg-text/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                title={t('template.customize.title')}
+              >
+                <i className="i-mingcute-settings-3-line text-xs" />
+                <span>{t('template.customize.title')}</span>
+              </button>
+            )}
 
             <AnimatePresence>
               {speedMenuOpen && (

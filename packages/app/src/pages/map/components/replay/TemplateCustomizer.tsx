@@ -1,4 +1,5 @@
 import type { FilterType, ReplayTemplateConfig, TextOverlayStyle, TransitionType } from '@/types/template'
+import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -9,18 +10,19 @@ import { cn } from '@/lib/utils'
 interface TemplateCustomizerProps {
   config: ReplayTemplateConfig
   onChange: (config: ReplayTemplateConfig) => void
+  templates?: ReactNode
 }
 
-type Tab = 'music' | 'filter' | 'text' | 'transition' | 'speed' | 'line' | 'camera'
+type Tab = 'templates' | 'music' | 'filter' | 'text' | 'transition' | 'speed' | 'line' | 'camera'
 
 const FILTER_TYPES: FilterType[] = ['none', 'vintage', 'warm', 'cool', 'b&w', 'film', 'cinematic']
 const TRANSITION_TYPES: TransitionType[] = ['cut', 'crossfade', 'slide-left', 'slide-up', 'zoom-in', 'blur']
 const TEXT_STYLES: TextOverlayStyle[] = ['handwritten', 'minimal', 'bold', 'typewriter', 'neon']
 const TEXT_POSITIONS = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'center'] as const
 
-export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps) {
+export function TemplateCustomizer({ config, onChange, templates }: TemplateCustomizerProps) {
   const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<Tab>('music')
+  const [activeTab, setActiveTab] = useState<Tab>(templates ? 'templates' : 'music')
   const [unavailableTracks, setUnavailableTracks] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
   }, [])
 
   const tabs: { id: Tab, icon: string, label: string }[] = [
+    ...(templates ? [{ id: 'templates' as const, icon: 'i-mingcute-grid-line', label: t('template.selector.title') }] : []),
     { id: 'music', icon: 'i-mingcute-music-2-line', label: t('template.customize.music') },
     { id: 'filter', icon: 'i-mingcute-palette-line', label: t('template.customize.filter') },
     { id: 'text', icon: 'i-mingcute-text-line', label: t('template.customize.text') },
@@ -77,13 +80,14 @@ export function TemplateCustomizer({ config, onChange }: TemplateCustomizerProps
             )}
           >
             <i className={cn(tab.icon, 'text-sm')} />
-            <span className="hidden sm:inline">{tab.label}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Tab content */}
       <div className="min-h-[120px]">
+        {activeTab === 'templates' && templates}
         {activeTab === 'music' && (
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">

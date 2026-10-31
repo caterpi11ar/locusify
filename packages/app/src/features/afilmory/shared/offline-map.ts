@@ -12,4 +12,13 @@ const style: StyleSpecification = {
     { id: 'borders', type: 'line', source: 'countries', paint: { 'line-color': '#879b8c', 'line-width': 0.5 } },
   ],
 }
-export const getMapStyle = () => style
+const darkStyle: StyleSpecification = {
+  ...style,
+  layers: [
+    { id: 'background', type: 'background', paint: { 'background-color': '#101820' } },
+    { id: 'land', type: 'fill', source: 'countries', paint: { 'fill-color': '#29352f' } },
+    { id: 'borders', type: 'line', source: 'countries', paint: { 'line-color': '#596b60', 'line-width': 0.5 } },
+  ],
+}
+
+export const getMapStyle = (theme?: string) => theme === 'dark' ? darkStyle : style

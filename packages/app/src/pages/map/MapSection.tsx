@@ -3,7 +3,6 @@ import type { PhotoMarker } from '@/types/map'
 import { AnimatePresence, m } from 'motion/react'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLongPress } from '@/hooks/useLongPress'
 import { useRecordingFlow } from '@/hooks/useRecordingFlow'
@@ -13,12 +12,9 @@ import { createDemoPhotos } from '@/lib/demo-photos'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { useDiscoverySurveyStore } from '@/stores/discoverySurveyStore'
-import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { usePhotoStore } from '@/stores/photoStore'
-import { useRegionStore } from '@/stores/regionStore'
 import { useReplayStore } from '@/stores/replayStore'
 import { useUiStore } from '@/stores/uiStore'
-import { GlobeOrbitOverlay } from './components/GlobeOrbitOverlay'
 import { MapContextMenu } from './components/MapContextMenu'
 import { MapMenuButton } from './components/MapMenuButton'
 import { MapSidebar } from './components/MapSidebar'
@@ -82,22 +78,17 @@ function MapSectionContent() {
   const mapRef = useRef<MapRef>(null)
   const cropRef = useRef<HTMLDivElement>(null)
   const { shareLink } = useWebShare()
-  const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation()
   const isMobile = useIsMobile()
 
   // Region photo mapping — auto GPS→country matching
   useRegionPhotoMapping()
 
-  const isFragmentMode = useRegionStore(s => s.isFragmentMode)
 
   const isReplayMode = useReplayStore(s => s.isReplayMode)
   const prepareReplay = useReplayStore(s => s.prepareReplay)
   const exitReplay = useReplayStore(s => s.exitReplay)
 
-  const isOrbiting = useGlobeOrbitStore(s => s.isOrbiting)
-  const startOrbit = useGlobeOrbitStore(s => s.startOrbit)
-  const exitOrbit = useGlobeOrbitStore(s => s.exitOrbit)
 
   const {
     recordingActive,
@@ -175,17 +166,6 @@ function MapSectionContent() {
     return getInitialViewStateForMarkers(markers)
   }, [markers])
 
-  const handleRoutesClick = useCallback(() => {
-    setRouteReadyPromptOpen(false)
-    if (isFragmentMode) {
-      const center = mapRef.current?.getMap()?.getCenter()
-      startOrbit(center?.lng ?? 0, center?.lat ?? 20)
-    }
-    else {
-      prepareReplay(markers)
-    }
-  }, [isFragmentMode, prepareReplay, markers, startOrbit])
-
   const handleShareClick = useCallback(() => {
     setUploadDrawerOpen(false)
     setSettingsOpen(false)
@@ -201,9 +181,8 @@ function MapSectionContent() {
 
   const handleExitReplay = useCallback(() => {
     exitReplay()
-    exitOrbit()
     exitRecording()
-  }, [exitReplay, exitOrbit, exitRecording])
+  }, [exitReplay, exitRecording])
 
   const handleDismissAnnouncement = useCallback(() => {
     markAnnouncementSeen(ANNOUNCEMENT_VERSION)
@@ -218,6 +197,12 @@ function MapSectionContent() {
     setHelpOpen(false)
     setLoginDrawerOpen(false)
   }, [])
+
+  const handleRoutesClick = useCallback(() => {
+    closeMenuDrawers()
+    setRouteReadyPromptOpen(false)
+    prepareReplay(markers)
+  }, [closeMenuDrawers, prepareReplay, markers])
 
   const handleUploadClick = useCallback(() => {
     closeMenuDrawers()
@@ -268,8 +253,8 @@ function MapSectionContent() {
 
   const handleGalleryClick = useCallback(() => {
     closeMenuDrawers()
-    navigate(i18n.language.startsWith('zh') ? '/zh-CN/photos' : '/en/photos')
-  }, [closeMenuDrawers, navigate, i18n.language])
+    setGalleryOpen(true)
+  }, [closeMenuDrawers])
 
   const handleHelpClick = useCallback(() => {
     closeMenuDrawers()
@@ -356,7 +341,7 @@ function MapSectionContent() {
 
   const hasEnoughPhotos = markers.length >= 2
   const displayMarkers = isReplayMode ? [] : markers
-  const isInAnyReplay = isReplayMode || isOrbiting
+  const isInAnyReplay = isReplayMode
   const captureUiActive = introVisible || recordingActive || isRecording
   const showDesktopSidebar = !captureUiActive && !!user && !isInAnyReplay
   const mapDrawerModal = isMobile ? undefined : false
@@ -375,7 +360,7 @@ function MapSectionContent() {
           onGalleryClick={handleGalleryClick}
           onHelpClick={handleHelpClick}
           showHelpHint={showHelpHint}
-          routesDisabled={!hasEnoughPhotos && !isFragmentMode}
+          routesDisabled={!hasEnoughPhotos}
           isReplayMode={isInAnyReplay}
           onExitReplay={handleExitReplay}
           isRecording={isRecording}
@@ -396,7 +381,7 @@ function MapSectionContent() {
           onShareClick={handleShareClick}
           onHelpClick={handleHelpClick}
           showHelpHint={showHelpHint}
-          routesDisabled={!hasEnoughPhotos && !isFragmentMode}
+          routesDisabled={!hasEnoughPhotos}
         />
       )}
 
@@ -502,15 +487,14 @@ function MapSectionContent() {
           />
         )}
 
-        {isOrbiting && <GlobeOrbitOverlay onBeginRecording={beginRecording} />}
 
         {/* Shared intro overlay — controlled by useRecordingFlow */}
-        {/* Force logo-fade for globe orbit or earth zoom, even if template has intro: 'none' */}
+        {/* Keep the street replay's earth-zoom introduction. */}
         <div className="absolute inset-0">
           <ReplayIntroOverlay
             visible={introVisible}
             onExitComplete={onIntroComplete}
-            introStyle={(isOrbiting || earthZoomActive) ? 'logo-fade' : templateConfig.intro.style}
+            introStyle={earthZoomActive ? 'logo-fade' : templateConfig.intro.style}
             autoHide={!earthZoomActive}
           />
         </div>
@@ -524,7 +508,7 @@ function MapSectionContent() {
                 onUseDemo={handleHelpUseDemo}
                 onStartReplay={handleHelpStartReplay}
                 onClose={handleCloseHelp}
-                canStartReplay={hasEnoughPhotos || isFragmentMode}
+                canStartReplay={hasEnoughPhotos}
               />
             )}
             {routeReadyPromptOpen && hasEnoughPhotos && !uploadDrawerOpen && !isInAnyReplay && !!user && (
@@ -551,7 +535,7 @@ function MapSectionContent() {
             markers={displayMarkers}
             initialViewState={initialViewState}
             // 回放/录制时不要抢镜头，其余情况下让相机跟随新加入的照片
-            autoFitBounds={!isInAnyReplay && !captureUiActive}
+            autoFitBounds={false}
             selectedMarkerId={isInAnyReplay ? null : selectedMarkerId}
             onMarkerClick={handleMarkerClick}
             onContextMenu={isInAnyReplay ? undefined : handleMapContextMenu}

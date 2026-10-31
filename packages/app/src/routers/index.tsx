@@ -6,8 +6,6 @@ import Layout from '@/layout'
 import { ErrorElement } from '@/pages/error/ErrorElement'
 import { Map } from '@/pages/map'
 
-const GalleryPage = lazy(() => import('@/pages/gallery'))
-
 const AuthCallback = lazy(() => import('@/pages/auth/AuthCallback'))
 const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'))
 
@@ -35,7 +33,7 @@ export const routes: RouteObject[] = [
     children: [
       ...(['en', 'zh-CN'] as const).map(language => ({
         path: `/${language}/photos`,
-        element: <GalleryPage />,
+        element: <Navigate to={`/${language}/`} replace />,
         loader: () => {
           void i18n.changeLanguage(language)
           return null
