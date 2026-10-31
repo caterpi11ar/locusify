@@ -12,9 +12,9 @@ export function FooterSection({ variant = 'default' }: { variant?: 'default' | '
 
   const footerLinks = {
     product: [
-      { label: t('links.features'), href: '#features' },
+      { label: t('links.features'), href: '/#features' },
       { label: t('links.privacy'), href: '/privacy' },
-      { label: t('links.faq'), href: '#faq' },
+      { label: t('links.faq'), href: '/#faq' },
       { label: t('links.blog'), href: '/blog' },
     ],
     social: [

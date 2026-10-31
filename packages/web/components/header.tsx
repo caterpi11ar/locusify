@@ -53,31 +53,31 @@ export function Header({
 
         <nav className="hidden items-center gap-6 md:flex">
           <Link
-            href="#features"
+            href="/#features"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {t('nav.features')}
           </Link>
           <Link
-            href="#technology"
+            href="/#technology"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {t('nav.technology')}
           </Link>
           <Link
-            href="#gallery"
+            href="/#gallery"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {t('nav.gallery')}
           </Link>
           <Link
-            href="#scenarios"
+            href="/#scenarios"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {t('nav.scenarios')}
           </Link>
           <Link
-            href="#pricing"
+            href="/#pricing"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {t('nav.pricing')}
@@ -114,35 +114,35 @@ export function Header({
         <div className="rounded-b-2xl border-t border-border bg-background px-6 py-8 md:hidden">
           <nav className="flex flex-col gap-6">
             <Link
-              href="#features"
+              href="/#features"
               className="text-lg text-foreground"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.features')}
             </Link>
             <Link
-              href="#technology"
+              href="/#technology"
               className="text-lg text-foreground"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.technology')}
             </Link>
             <Link
-              href="#gallery"
+              href="/#gallery"
               className="text-lg text-foreground"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.gallery')}
             </Link>
             <Link
-              href="#scenarios"
+              href="/#scenarios"
               className="text-lg text-foreground"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('nav.scenarios')}
             </Link>
             <Link
-              href="#pricing"
+              href="/#pricing"
               className="text-lg text-foreground"
               onClick={() => setIsMenuOpen(false)}
             >
