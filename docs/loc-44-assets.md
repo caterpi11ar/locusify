@@ -40,3 +40,17 @@ Map pixels are rendered by the app's existing CARTO Dark Matter style (`packages
 Capture uses the repository's existing DEV-only `window.__locusify` test bridge and local mocked `/api/v1/` account/subscription responses (free plan). All API requests in the capture browser are intercepted locally; no real login, account mutation or photo upload is performed. Map tiles load through the app's existing public provider. Authentication and authorization source code are unchanged. Synthetic files, GPS, routes and generated recordings remain on the capture device; only the explicitly synthetic marketing screenshots/illustrations are committed and attached.
 
 This manifest documents provenance and actual capture states; product composition acceptance and independent QA remain required. No production deployment is claimed.
+
+### LOC-46 F2 correction: readable details (2026-10-31)
+
+The original 19 assets remain byte-for-byte unchanged. Ten additional PNGs are lossless rectangular crops of the original mobile replay/export captures, produced by `tools/verify/crop-marketing-details.py`. No UI was redrawn, rearranged, composited, or generated. Source capture version and synthetic trip are unchanged. `loc-44-detail-assets.json` records each source hash, crop rectangle (left, top, right, bottom), output dimensions and hash; `loc-44-assets.json` covers all 29 assets.
+
+| Detail suffix (both languages) | Source rectangle | Display use |
+| --- | --- | --- |
+| `landscape-replay-photo` | (0,70)–(338,500), 338×430 | Hero/results on mobile: second photo and native Edit Info control |
+| `landscape-replay-controls` | (440,220)–(830,680), 390×460 | Hero/results on mobile: actual route marker, active timeline waypoint and playback controls |
+| `export-preview` | (79,90)–(469,535), 390×445 | Step 3: actual ready status and left portion of the recorded preview, including photo and playback time |
+| `export-save` | (79,552)–(417,615), 338×63 | Step 3: actual Export action |
+| `export-discard` | (425,552)–(765,615), 340×63 | Step 3: actual Discard action |
+
+Each crop has its own caption and spacing, explicitly identifying it as a detail. They do not depict a newly assembled application screen. At a 390px website viewport, content is 340px wide: details retain 87–101% of native size instead of the former 40%. The full original capture remains available through the existing image link. Desktop hero/results still use full desktop screenshots. Step 3 uses the labeled details at both widths. The app's landscape requirement and authentication are untouched. Product and independent QA must review final composition; this is not a claim of acceptance or deployment.

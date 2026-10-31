@@ -2,7 +2,7 @@
 
 import { ArrowUpRight } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
-import { APP_URL } from '@/lib/app-url'
+import { localizedAppUrl } from '@/lib/app-url'
 import { ProductScreenshot } from './product-screenshot'
 
 export function HeroSection() {
@@ -14,7 +14,7 @@ export function HeroSection() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Locusify</p>
         <h1 className="mt-4 max-w-4xl text-balance text-4xl font-medium leading-tight tracking-tight md:text-5xl lg:text-6xl">{t('title')}</h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">{t('description')}</p>
-        <a href={`${APP_URL}/${locale === 'zh' ? 'zh-CN' : 'en'}/`} className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-sm font-medium text-background">
+        <a href={localizedAppUrl(locale)} className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-sm font-medium text-background">
           {t('cta')}
           <ArrowUpRight size={18} aria-hidden="true" />
         </a>

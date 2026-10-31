@@ -379,6 +379,11 @@
     "privacyTitle": "Your memories stay on your device",
     "privacyDescription": "Photo bytes, GPS extraction, route calculation and video generation stay on your device. Your photos and travel routes are not uploaded to our servers.",
     "privacyLink": "Read our privacy policy",
-    "viewImage": "View full-size screenshot"
+    "viewImage": "View full-size screenshot",
+    "photoDetail": "Replay detail · photo at waypoint 2",
+    "controlsDetail": "Replay detail · route marker, timeline and playback",
+    "previewDetail": "Export detail · ready status and recorded preview (left portion)",
+    "saveDetail": "Export detail · save action",
+    "discardDetail": "Export detail · discard action"
   }
 }

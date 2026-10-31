@@ -25,12 +25,12 @@ export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
     <aside
       aria-label={t('title')}
       data-announcement-banner
-      className="fixed inset-x-0 top-0 z-[60] flex min-h-9 items-center justify-center bg-[#24241f] px-3 py-1.5 text-center text-xs text-white sm:text-sm"
+      className="fixed inset-x-0 top-0 z-[60] flex min-h-9 items-center justify-center gap-2 bg-[#24241f] px-3 py-1.5 text-center text-xs text-white sm:text-sm"
     >
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex min-w-0 flex-wrap items-center justify-center gap-x-2 gap-y-1">
         <Gift className="hidden size-4 shrink-0 text-amber-300 sm:block" aria-hidden="true" />
-        <span className="whitespace-nowrap">{t('title')}</span>
-        <span className="text-white/35" aria-hidden="true">·</span>
+        <span className="w-full sm:w-auto">{t('title')}</span>
+        <span className="hidden text-white/35 sm:inline" aria-hidden="true">·</span>
         <code className="whitespace-nowrap font-mono font-semibold tracking-wide text-amber-300">
           {t('code')}
         </code>
@@ -47,7 +47,7 @@ export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-2 inline-flex size-7 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/10 hover:text-white sm:right-3"
+        className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/10 hover:text-white"
         aria-label={t('close')}
       >
         <X className="size-4" aria-hidden="true" />

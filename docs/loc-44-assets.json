@@ -24,6 +24,36 @@
     "sha256": "9dc85b8fe9148cb81251b843b4df4c865831cdf2dee464b32bbb867f42f94196"
   },
   {
+    "file": "en-detail-export-discard.png",
+    "width": 340,
+    "height": 63,
+    "sha256": "b30159f21d35e408f00da6f671cff3db0cf49d1ef3eac04fd07dd52f66e557fe"
+  },
+  {
+    "file": "en-detail-export-preview.png",
+    "width": 390,
+    "height": 445,
+    "sha256": "d323ad534628f9a2b6ccf74ccefdd81dccc3104a168a43c1b8d9001ec842473f"
+  },
+  {
+    "file": "en-detail-export-save.png",
+    "width": 338,
+    "height": 63,
+    "sha256": "f7816e7b5a2ef68ede7a7eda56a1fc78a738c4e74b9d4d55e8c222ce6bc439a1"
+  },
+  {
+    "file": "en-detail-landscape-replay-controls.png",
+    "width": 390,
+    "height": 460,
+    "sha256": "21104437911a11e305a6d738f4630232c47f9bbc450fe5d1685350a08bb4efb5"
+  },
+  {
+    "file": "en-detail-landscape-replay-photo.png",
+    "width": 338,
+    "height": 430,
+    "sha256": "1373f950696d1b3ca69ea9d165a5e5c13dce562b0d501a44c0e7d84795615de3"
+  },
+  {
     "file": "en-mobile-export.png",
     "width": 844,
     "height": 700,
@@ -88,6 +118,36 @@
     "width": 1440,
     "height": 900,
     "sha256": "df21dcf86ebd4df0f52c3a5540020364fc24d53cf9e2db2dbb6d314e8542b0b5"
+  },
+  {
+    "file": "zh-detail-export-discard.png",
+    "width": 340,
+    "height": 63,
+    "sha256": "3b3b070c8c51451f046e282068cc4899572e0f8b25f4cbe3b2fb25bc634db648"
+  },
+  {
+    "file": "zh-detail-export-preview.png",
+    "width": 390,
+    "height": 445,
+    "sha256": "e181aaa3dce56876f2995c4ebb3c373fc452d9fb62470ae2162a72725fc4bc9d"
+  },
+  {
+    "file": "zh-detail-export-save.png",
+    "width": 338,
+    "height": 63,
+    "sha256": "c370d31b5d0419202e35706f055a7b6841550b5f23d8fde3d3ce5e4922931712"
+  },
+  {
+    "file": "zh-detail-landscape-replay-controls.png",
+    "width": 390,
+    "height": 460,
+    "sha256": "d16530159c27441244472cfe4fbab8634193341d5a7e23648dc7c6d6a5e717d9"
+  },
+  {
+    "file": "zh-detail-landscape-replay-photo.png",
+    "width": 338,
+    "height": 430,
+    "sha256": "b6fa9c0c2d53eb278511933d1e5308b7b66c311c568a7ab6ac24576cf7674aa0"
   },
   {
     "file": "zh-mobile-export.png",

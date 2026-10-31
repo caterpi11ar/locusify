@@ -1,12 +1,12 @@
 'use client'
 
 import { Menu, X } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { Link } from '@/i18n/navigation'
-import { APP_URL } from '@/lib/app-url'
+import { localizedAppUrl } from '@/lib/app-url'
 
 export function Header({
   hasAnnouncement = false,
@@ -17,6 +17,7 @@ export function Header({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const locale = useLocale()
   const t = useTranslations('Header')
   const isContent = mode === 'content'
 
@@ -32,7 +33,7 @@ export function Header({
   return (
     <header
       data-site-header
-      className={`fixed left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${isContent ? 'dark' : ''} ${hasAnnouncement ? 'top-12' : 'top-3'} ${isScrolled ? isContent ? 'border border-white/10 bg-zinc-950/85 backdrop-blur-md' : 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
+      className={`fixed left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${isContent ? 'dark' : ''} ${hasAnnouncement ? 'top-20 sm:top-12' : 'top-3'} ${isScrolled ? isContent ? 'border border-white/10 bg-zinc-950/85 backdrop-blur-md' : 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
       style={{
         boxShadow: isScrolled ? 'rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px' : 'none',
       }}
@@ -87,7 +88,7 @@ export function Header({
         <div className="hidden items-center gap-3 md:flex">
           <LanguageSwitcher isScrolled />
           <Link
-            href={APP_URL}
+            href={localizedAppUrl(locale)}
             className="whitespace-nowrap rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
           >
             {t('action.cta')}
@@ -146,7 +147,7 @@ export function Header({
               <LanguageSwitcher variant="mobile" />
             </div>
             <Link
-              href={APP_URL}
+              href={localizedAppUrl(locale)}
               className="mt-2 bg-foreground px-5 py-3 text-center text-sm font-medium text-background rounded-full"
               onClick={() => setIsMenuOpen(false)}
             >

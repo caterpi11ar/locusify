@@ -379,6 +379,11 @@
     "privacyTitle": "你的回忆，留在你的设备",
     "privacyDescription": "照片字节、GPS 提取、路线计算和视频生成都在设备本地处理。我们不会将你的照片与旅行路线上传到服务器。",
     "privacyLink": "查看隐私政策",
-    "viewImage": "查看原尺寸截图"
+    "viewImage": "查看原尺寸截图",
+    "photoDetail": "回放局部 · 第二站照片",
+    "controlsDetail": "回放局部 · 路线标记、时间线与播放",
+    "previewDetail": "导出局部 · 就绪状态与实际录制预览（左侧）",
+    "saveDetail": "导出局部 · 导出操作",
+    "discardDetail": "导出局部 · 丢弃操作"
   }
 }
