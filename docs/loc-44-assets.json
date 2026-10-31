@@ -1,0 +1,176 @@
+[
+  {
+    "file": "en-desktop-export.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "717e7f2e70b954c242d30f1b9297cf8def0db10ab61f7911f96fda5dfef0c5e9"
+  },
+  {
+    "file": "en-desktop-import.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "9c78c7dceff558f85d6a97460996f3b0522656b1bc9b0358f14107ae62c04bd8"
+  },
+  {
+    "file": "en-desktop-map.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "e7d2d1c6aa1ff5782c70ef1fa1f8f8217a4fce0f4d9cab580bc36537dad0dfe9"
+  },
+  {
+    "file": "en-desktop-replay.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "9dc85b8fe9148cb81251b843b4df4c865831cdf2dee464b32bbb867f42f94196"
+  },
+  {
+    "file": "en-detail-export-discard.png",
+    "width": 340,
+    "height": 63,
+    "sha256": "b30159f21d35e408f00da6f671cff3db0cf49d1ef3eac04fd07dd52f66e557fe"
+  },
+  {
+    "file": "en-detail-export-preview.png",
+    "width": 390,
+    "height": 445,
+    "sha256": "d323ad534628f9a2b6ccf74ccefdd81dccc3104a168a43c1b8d9001ec842473f"
+  },
+  {
+    "file": "en-detail-export-save.png",
+    "width": 338,
+    "height": 63,
+    "sha256": "f7816e7b5a2ef68ede7a7eda56a1fc78a738c4e74b9d4d55e8c222ce6bc439a1"
+  },
+  {
+    "file": "en-detail-landscape-replay-controls.png",
+    "width": 390,
+    "height": 460,
+    "sha256": "21104437911a11e305a6d738f4630232c47f9bbc450fe5d1685350a08bb4efb5"
+  },
+  {
+    "file": "en-detail-landscape-replay-photo.png",
+    "width": 338,
+    "height": 430,
+    "sha256": "1373f950696d1b3ca69ea9d165a5e5c13dce562b0d501a44c0e7d84795615de3"
+  },
+  {
+    "file": "en-mobile-export.png",
+    "width": 844,
+    "height": 700,
+    "sha256": "2696ee07f537aa34585af4f8804a668c0b0c682a3cbb6be7b494796c89907013"
+  },
+  {
+    "file": "en-mobile-import.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "646cf9f201253d6f4314e145ac1cc5671a8bfce3a51ff4f2b395d56ba8e74a68"
+  },
+  {
+    "file": "en-mobile-landscape-replay.png",
+    "width": 844,
+    "height": 700,
+    "sha256": "5da5a0c8bb59898e3704df8fbc46b279e203ab48e083c9a00bd1ae9e1a7d9917"
+  },
+  {
+    "file": "en-mobile-map.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "350562b263195cd6c3976ea8b6e6891e61454dc66497efdd205eac853fd9494e"
+  },
+  {
+    "file": "sample-lake.jpg",
+    "width": 1200,
+    "height": 800,
+    "sha256": "c56c328adbf063cc6f15f6df8db67720b119fe10a44d7ab9976c67abc40ca610"
+  },
+  {
+    "file": "sample-ridge.jpg",
+    "width": 1200,
+    "height": 800,
+    "sha256": "601c9077c629a9d20031aac56eb218c3656712c932a3cdc671b79c03f309af69"
+  },
+  {
+    "file": "sample-sunset.jpg",
+    "width": 1200,
+    "height": 800,
+    "sha256": "5b4dd8bba34cb0207b644d8ef4d1d3185ee46c7c267eb4f1c4d9e15d703c532c"
+  },
+  {
+    "file": "zh-desktop-export.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "5a6a499f69d1f50eb128d956978280423d97f837bdf8f73c0340491b9f7b598e"
+  },
+  {
+    "file": "zh-desktop-import.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "03d3c88179fa642ed22f44c20166335a3d5f3928b1b55395f36dea32f2c9975e"
+  },
+  {
+    "file": "zh-desktop-map.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "97cbe70d0f345adc8fda97b6325bf192f80837adbdbd5239534b79f59f503019"
+  },
+  {
+    "file": "zh-desktop-replay.png",
+    "width": 1440,
+    "height": 900,
+    "sha256": "df21dcf86ebd4df0f52c3a5540020364fc24d53cf9e2db2dbb6d314e8542b0b5"
+  },
+  {
+    "file": "zh-detail-export-discard.png",
+    "width": 340,
+    "height": 63,
+    "sha256": "3b3b070c8c51451f046e282068cc4899572e0f8b25f4cbe3b2fb25bc634db648"
+  },
+  {
+    "file": "zh-detail-export-preview.png",
+    "width": 390,
+    "height": 445,
+    "sha256": "e181aaa3dce56876f2995c4ebb3c373fc452d9fb62470ae2162a72725fc4bc9d"
+  },
+  {
+    "file": "zh-detail-export-save.png",
+    "width": 338,
+    "height": 63,
+    "sha256": "c370d31b5d0419202e35706f055a7b6841550b5f23d8fde3d3ce5e4922931712"
+  },
+  {
+    "file": "zh-detail-landscape-replay-controls.png",
+    "width": 390,
+    "height": 460,
+    "sha256": "d16530159c27441244472cfe4fbab8634193341d5a7e23648dc7c6d6a5e717d9"
+  },
+  {
+    "file": "zh-detail-landscape-replay-photo.png",
+    "width": 338,
+    "height": 430,
+    "sha256": "b6fa9c0c2d53eb278511933d1e5308b7b66c311c568a7ab6ac24576cf7674aa0"
+  },
+  {
+    "file": "zh-mobile-export.png",
+    "width": 844,
+    "height": 700,
+    "sha256": "316f00dff56838bdb1b30ab3f60c302f4f77e40726b962e98b088eefeb4e7ccd"
+  },
+  {
+    "file": "zh-mobile-import.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "eb40747b2e3653686c37efc83e500c92a403341af81841d9dbf65c8d8669d2b4"
+  },
+  {
+    "file": "zh-mobile-landscape-replay.png",
+    "width": 844,
+    "height": 700,
+    "sha256": "0b936041e470846b0d055190a337235b077f1edcb111c5268966c1c1859c1c07"
+  },
+  {
+    "file": "zh-mobile-map.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "7da478fc3a5ebf4916cb3891992c1c20924da3faee50b8973a2ec90cd2ab7857"
+  }
+]

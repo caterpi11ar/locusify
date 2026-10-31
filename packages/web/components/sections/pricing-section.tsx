@@ -1,10 +1,11 @@
 'use client'
 
 import { Check } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-import { APP_URL } from '@/lib/app-url'
+import { useLocale, useTranslations } from 'next-intl'
+import { localizedAppUrl } from '@/lib/app-url'
 
 export function PricingSection() {
+  const locale = useLocale()
   const t = useTranslations('Pricing')
 
   const tiers = [
@@ -124,7 +125,7 @@ export function PricingSection() {
             </p>
 
             <a
-              href={APP_URL}
+              href={localizedAppUrl(locale)}
               target="_blank"
               rel="noopener noreferrer"
               className={
