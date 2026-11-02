@@ -1,57 +1,74 @@
 'use client'
 
-import { Check, Copy, Gift, X } from 'lucide-react'
+import { Check, Copy, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
   const t = useTranslations('Hero.promotion')
-  const [isCopied, setIsCopied] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle')
+  const active = useRef(true)
+  const pending = useRef(false)
 
   useEffect(() => {
-    if (!isCopied)
-      return
+    active.current = true
+    return () => {
+      active.current = false
+    }
+  }, [])
 
-    const timeout = window.setTimeout(setIsCopied, 2000, false)
+  useEffect(() => {
+    if (status !== 'success')
+      return
+    const timeout = window.setTimeout(setStatus, 2000, 'idle')
     return () => window.clearTimeout(timeout)
-  }, [isCopied])
+  }, [status])
 
   const copyCode = async () => {
-    await navigator.clipboard.writeText(t('code'))
-    setIsCopied(true)
+    if (pending.current)
+      return
+    pending.current = true
+    setStatus('pending')
+    try {
+      await navigator.clipboard.writeText(t('code'))
+      if (active.current)
+        setStatus('success')
+    }
+    catch {
+      if (active.current)
+        setStatus('error')
+    }
+    finally {
+      pending.current = false
+    }
   }
 
   return (
-    <aside
-      aria-label={t('title')}
-      data-announcement-banner
-      className="fixed inset-x-0 top-0 z-[60] flex min-h-9 items-center justify-center bg-[#24241f] px-3 py-1.5 text-center text-xs text-white sm:text-sm"
-    >
-      <div className="flex items-center justify-center gap-2">
-        <Gift className="hidden size-4 shrink-0 text-amber-300 sm:block" aria-hidden="true" />
-        <span className="whitespace-nowrap">{t('title')}</span>
-        <span className="text-white/35" aria-hidden="true">·</span>
-        <code className="whitespace-nowrap font-mono font-semibold tracking-wide text-amber-300">
-          {t('code')}
-        </code>
+    <aside aria-label={t('title')} data-announcement-banner className="bg-[#24241f] py-3 pl-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-area-inset-right))] text-sm leading-5 text-white sm:pl-[max(24px,env(safe-area-inset-left))] sm:pr-[max(24px,env(safe-area-inset-right))]">
+      <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_44px] items-start gap-3">
+        <div className="min-w-0 space-y-2">
+          <p>{t('title')}</p>
+          <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+            <code className="min-w-0 select-text whitespace-normal font-mono font-semibold text-amber-300 [overflow-wrap:anywhere]">{t('code')}</code>
+            <button type="button" onClick={copyCode} aria-disabled={status === 'pending'} className="inline-flex min-h-11 min-w-22 items-center justify-center gap-2 justify-self-start rounded-full border border-white/30 bg-white/10 px-4 py-2 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              {status === 'success' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+              {status === 'pending' ? t('copying') : status === 'success' ? t('copied') : t('copy')}
+            </button>
+          </div>
+          <p role="status" aria-live="polite" className="empty:hidden">{status === 'success' ? t('success') : status === 'error' ? t('error') : ''}</p>
+        </div>
         <button
           type="button"
-          onClick={copyCode}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[11px] font-medium text-white/80 transition-colors hover:bg-white/20 hover:text-white"
-          aria-label={isCopied ? t('copied') : t('copy')}
+          onClick={() => {
+            active.current = false
+            onClose()
+          }}
+          aria-label={t('close')}
+          className="inline-flex size-11 items-center justify-center rounded-full text-white/80 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
-          {isCopied ? <Check className="size-3" aria-hidden="true" /> : <Copy className="size-3" aria-hidden="true" />}
-          <span className="hidden sm:inline">{isCopied ? t('copied') : t('copy')}</span>
+          <X className="size-4" aria-hidden="true" />
         </button>
       </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-2 inline-flex size-7 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/10 hover:text-white sm:right-3"
-        aria-label={t('close')}
-      >
-        <X className="size-4" aria-hidden="true" />
-      </button>
     </aside>
   )
 }

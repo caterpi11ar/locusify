@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { JsonLd } from '@/components/json-ld'
 import { CollectionSection } from '@/components/sections/collection-section'
@@ -14,6 +15,68 @@ import { PricingSection } from '@/components/sections/pricing-section'
 import { TechnologySection } from '@/components/sections/technology-section'
 import { TestimonialsSection } from '@/components/sections/testimonials-section'
 import { SiteHeader } from '@/components/site-header'
+import { SITE_URL } from '@/lib/site'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'Metadata' })
+
+  const title = t('site.title')
+  const description = t('site.description')
+  const canonicalUrl = locale === 'zh' ? SITE_URL : `${SITE_URL}/en`
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    icons: {
+      icon: [
+        { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+        { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
+      ],
+      apple: '/apple-icon.png',
+    },
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'zh': SITE_URL,
+        'en': `${SITE_URL}/en`,
+        'x-default': SITE_URL,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'Locusify',
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
+      alternateLocale: locale === 'zh' ? 'en_US' : 'zh_CN',
+      type: 'website',
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+    verification: {
+      google: 'by9hGLiRBrIQCeNmcjRon0Q3q8uJP7mxau9oh1seY3w',
+    },
+  }
+}
 
 export default async function Home({
   params,
@@ -37,7 +100,7 @@ export default async function Home({
   }
 
   return (
-    <main className="min-h-screen bg-background overflow-x-hidden">
+    <main className="min-h-screen bg-background overflow-x-clip">
       <JsonLd data={faqJsonLd} />
       <SiteHeader />
       <HeroSection />

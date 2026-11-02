@@ -1,0 +1,13 @@
+{
+  "name": "locusify-viewport",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "node acceptance.mjs && node extra.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.56.1",
+    "pngjs": "7.0.0"
+  }
+}

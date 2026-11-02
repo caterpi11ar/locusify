@@ -75,7 +75,7 @@ export function HeroSection() {
   return (
     <section
       aria-label="Locusify hero"
-      className="relative overflow-hidden bg-[#f7f7f4] pb-14 pt-36 text-[#24241f] sm:pt-44 lg:pb-24 lg:pt-[14.5rem]"
+      className="relative overflow-hidden bg-[#f7f7f4] pb-14 pt-12 text-[#24241f] sm:pt-16 lg:pb-24 lg:pt-24"
     >
       <div className="relative mx-auto w-11/12 md:w-10/12 2xl:w-9/12">
         <h1 className="w-full text-pretty text-3xl font-normal leading-tight tracking-tight lg:w-3/4 sm:text-4xl">

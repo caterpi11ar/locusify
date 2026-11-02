@@ -25,6 +25,7 @@ coverage/
 packages/app/lobehub/
 
 # E2E artifacts
+output/playwright/
 packages/app/e2e/shots/
 artifacts/
 

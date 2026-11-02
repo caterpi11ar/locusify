@@ -15,6 +15,7 @@ const siteOrigin = new URL(NEXT_PUBLIC_SITE_URL).origin
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: { globalNotFound: true },
   // Keep the validated value identical in server and browser bundles.
   env: {
     NEXT_PUBLIC_APP_URL,

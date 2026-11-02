@@ -10,11 +10,27 @@ export function SiteHeader() {
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true)
 
   useEffect(() => {
-    setIsAnnouncementVisible(sessionStorage.getItem(DISMISSED_KEY) !== 'true')
+    try {
+      setIsAnnouncementVisible(sessionStorage.getItem(DISMISSED_KEY) !== 'true')
+    }
+    catch { /* Storage is optional for dismissal. */ }
   }, [])
 
   const closeAnnouncement = () => {
-    sessionStorage.setItem(DISMISSED_KEY, 'true')
+    if (document.querySelector('[data-announcement-banner]')?.contains(document.activeElement)) {
+      const target = document.querySelector<HTMLElement>('[data-home-link]') ?? document.querySelector<HTMLElement>('main')
+      if (target) {
+        if (target.tagName === 'MAIN')
+          target.tabIndex = -1
+        target.focus({ preventScroll: true })
+        if (target.tagName === 'MAIN')
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true })
+      }
+    }
+    try {
+      sessionStorage.setItem(DISMISSED_KEY, 'true')
+    }
+    catch { /* Keep the current page usable when storage is unavailable. */ }
     document.documentElement.dataset.announcementDismissed = 'true'
     setIsAnnouncementVisible(false)
   }
@@ -22,7 +38,7 @@ export function SiteHeader() {
   return (
     <>
       {isAnnouncementVisible && <AnnouncementBanner onClose={closeAnnouncement} />}
-      <Header hasAnnouncement={isAnnouncementVisible} />
+      <Header mode="home" />
     </>
   )
 }
