@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/caterpi11ar/assets/main/logo/locusify.png" alt="Locusify" width="120" />
+  <img src="packages/app/src/assets/locusify.png" alt="Locusify" width="120" />
 </p>
 
 <h1 align="center">Locusify</h1>

@@ -44,7 +44,7 @@ export function Header({
             alt="Locusify"
             width={32}
             height={32}
-            className="rounded-full"
+            className="size-8 shrink-0 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]"
           />
           <span className="text-lg font-medium tracking-tight text-foreground">
             Locusify

@@ -124,7 +124,7 @@ export function HeroSection() {
             <div className="relative h-[72svh] min-h-[520px] bg-neutral-950 sm:h-[78svh] sm:min-h-[620px] lg:h-[82svh]">
               {!isLoaded && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-neutral-950 text-white">
-                  <Image src="/logo.png" alt="" width={80} height={80} className="size-16 rounded-2xl sm:size-20" />
+                  <Image src="/logo.png" alt="" width={80} height={80} className="size-16 shrink-0 sm:size-20 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]" />
                   <span className="mt-4 text-2xl font-semibold tracking-tight">Locusify</span>
                   <span className="mt-2 text-sm text-white/40">{t('preview.loading')}</span>
                   <span className="mt-6 h-1 w-24 overflow-hidden rounded-full bg-white/10">

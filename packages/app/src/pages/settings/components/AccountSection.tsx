@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { Spinner } from '@/components/ui/spinner'
 import { useCooldown } from '@/hooks/useCooldown'
 import { forgotPassword } from '@/lib/api/auth'
@@ -50,7 +51,7 @@ export const AccountSection: FC<AccountSectionProps> = ({ onLogout }) => {
 
   return (
     <div className="flex flex-col items-center gap-4 p-4">
-      <img
+      <ProfileAvatar
         src={user.avatarUrl}
         alt={user.name}
         className="size-16 rounded-full object-cover"

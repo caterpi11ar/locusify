@@ -1,5 +1,6 @@
 import { m } from 'motion/react'
 import { Marker } from 'react-map-gl/maplibre'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { presetAvatars } from '@/data/presetAvatars'
 import { transportModeIcons } from '@/data/transportModes'
 import { cn } from '@/lib/utils'
@@ -75,7 +76,7 @@ function AvatarContent({
   // Profile avatar with image
   if (avatarSource.type === 'profile' && avatarUrl) {
     return (
-      <img
+      <ProfileAvatar
         src={avatarUrl}
         alt=""
         className="relative size-9 rounded-full border-2 object-cover"
