@@ -276,7 +276,7 @@
   "template.nightMode.name": "Night Mode",
   "template.nightMode.description": "Cool tones with ambient music and neon accents",
   "template.customize.title": "Settings",
-  "template.customize.collapse": "Collapse settings",
+  "template.customize.close": "Close settings",
   "template.customize.music": "Music",
   "template.customize.filter": "Filter",
   "template.customize.text": "Text",

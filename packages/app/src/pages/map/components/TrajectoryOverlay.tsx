@@ -114,19 +114,18 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                 transition={{ duration: reducedMotion ? 0 : 0.2 }}
                 className="pointer-events-auto min-h-0 overflow-y-auto rounded-2xl border border-fill-tertiary bg-white/95 p-4 shadow-2xl backdrop-blur-[120px] dark:bg-black/85"
               >
-                <div className="mb-3 flex items-center gap-2">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h2 id="replay-settings-title" className="text-sm font-semibold text-text">{t('template.customize.title')}</h2>
                   <button
                     type="button"
                     onClick={() => {
                       setShowCustomizePanel(false)
                     }}
-                    aria-label={t('template.customize.collapse')}
-                    className="flex min-h-8 shrink-0 items-center justify-center gap-1 rounded-full px-2 text-xs text-text/60 transition-colors hover:bg-text/5 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    aria-label={t('template.customize.close')}
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full text-text/60 transition-colors hover:bg-text/5 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
-                    <i aria-hidden className="i-mingcute-down-line text-sm" />
-                    <span>{t('template.customize.collapse')}</span>
+                    <i aria-hidden className="i-mingcute-close-line text-sm" />
                   </button>
-                  <h2 id="replay-settings-title" className="text-sm font-semibold text-text">{t('template.customize.title')}</h2>
                 </div>
                 <TemplateCustomizer
                   config={templateConfig}
