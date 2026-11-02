@@ -276,11 +276,15 @@ export function ReplayControls({ onPlayClick, onCustomizeClick, settingsOpen = f
               <button
                 type="button"
                 onClick={onCustomizeClick}
-                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-sky-400/70 bg-sky-400/10 px-3 text-xs font-medium text-cyan-700 shadow-[0_0_8px_rgba(56,189,248,0.2)] transition-colors hover:bg-sky-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-sky-400"
+                className={cn(
+                  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                  settingsOpen
+                    ? 'border-sky-400/70 bg-sky-400/10 text-cyan-700 shadow-[0_0_8px_rgba(56,189,248,0.2)] hover:bg-sky-400/20 dark:text-sky-400'
+                    : 'border-transparent bg-text/5 text-text-secondary hover:bg-text/10 hover:text-text',
+                )}
                 title={t('template.customize.title')}
                 aria-expanded={settingsOpen}
                 aria-controls={settingsOpen ? 'replay-settings-panel' : undefined}
-                aria-describedby="replay-settings-hint"
               >
                 <i className="i-mingcute-settings-3-line text-xs" />
                 <span>{t('template.customize.title')}</span>
@@ -321,11 +325,6 @@ export function ReplayControls({ onPlayClick, onCustomizeClick, settingsOpen = f
             </AnimatePresence>
           </div>
         </div>
-        {onCustomizeClick && (
-          <p id="replay-settings-hint" className="px-3 pb-2 text-right text-2xs text-text-secondary sm:px-4 sm:text-xs">
-            {t('template.customize.hint')}
-          </p>
-        )}
       </div>
 
       {/* Transport mode popover — portal to body */}
