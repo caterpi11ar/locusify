@@ -30,7 +30,10 @@
       "close": "Close banner",
       "copying": "Copying…",
       "success": "Code copied",
-      "error": "Couldn’t copy. Touch and hold or select the code to copy it manually."
+      "error": "Couldn’t copy. Touch and hold or select the code to copy it manually.",
+      "compactTitle": "10-year MAX membership code",
+      "errorCompact": "Copy failed. Select the code to copy.",
+      "codeLabel": "Redemption code"
     },
     "alt": {
       "side1": "Traveler taking photos",

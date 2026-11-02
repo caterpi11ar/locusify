@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Copy, X } from 'lucide-react'
+import { Check, Copy, LoaderCircle, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 
@@ -44,18 +44,24 @@ export function AnnouncementBanner({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <aside aria-label={t('title')} data-announcement-banner className="bg-[#24241f] py-3 pl-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-area-inset-right))] text-sm leading-5 text-white sm:pl-[max(24px,env(safe-area-inset-left))] sm:pr-[max(24px,env(safe-area-inset-right))]">
-      <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_44px] items-start gap-3">
-        <div className="min-w-0 space-y-2">
-          <p>{t('title')}</p>
-          <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
-            <code className="min-w-0 select-text whitespace-normal font-mono font-semibold text-amber-300 [overflow-wrap:anywhere]">{t('code')}</code>
-            <button type="button" onClick={copyCode} aria-disabled={status === 'pending'} className="inline-flex min-h-11 min-w-22 items-center justify-center gap-2 justify-self-start rounded-full border border-white/30 bg-white/10 px-4 py-2 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-              {status === 'success' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
-              {status === 'pending' ? t('copying') : status === 'success' ? t('copied') : t('copy')}
+    <aside aria-label={t('title')} data-announcement-banner className="bg-[#24241f] py-2 pl-[max(16px,env(safe-area-inset-left))] pr-[max(8px,env(safe-area-inset-right))] text-white sm:px-[max(24px,env(safe-area-inset-left))]">
+      <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
+        <div className="grid min-w-0 gap-1 sm:flex sm:items-center sm:justify-center sm:gap-4">
+          <p className="text-xs leading-4 text-white/80" data-promotion-caption>{status === 'error' ? t('errorCompact') : t('compactTitle')}</p>
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_44px] items-center rounded-full border border-white/15 bg-white/[0.06] sm:w-72">
+            <input
+              data-promotion-code
+              aria-label={t('codeLabel')}
+              readOnly
+              value={t('code')}
+              onFocus={event => event.currentTarget.select()}
+              className="h-10 min-w-0 rounded-full bg-transparent pl-4 pr-1 font-mono text-[13px] font-medium tracking-wide text-amber-200 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-200"
+            />
+            <button type="button" onClick={copyCode} aria-disabled={status === 'pending'} aria-label={status === 'pending' ? t('copying') : status === 'success' ? t('copied') : t('copy')} title={status === 'pending' ? t('copying') : status === 'success' ? t('copied') : t('copy')} className="inline-flex size-11 items-center justify-center rounded-full text-amber-200 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              {status === 'success' ? <Check className="size-4 text-emerald-300" aria-hidden="true" /> : status === 'pending' ? <LoaderCircle className="size-4 motion-safe:animate-spin" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
             </button>
           </div>
-          <p role="status" aria-live="polite" className="empty:hidden">{status === 'success' ? t('success') : status === 'error' ? t('error') : ''}</p>
+          <span role="status" aria-live="polite" className="sr-only">{status === 'success' ? t('success') : status === 'error' ? t('error') : ''}</span>
         </div>
         <button
           type="button"
