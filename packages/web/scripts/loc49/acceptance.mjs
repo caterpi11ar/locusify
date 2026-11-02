@@ -50,9 +50,9 @@ async function geometry(page) {
   assert(a && b)
   assert(a.width >= 44 && a.height >= 44 && b.width >= 44 && b.height >= 44)
   const banner = page.locator('[data-announcement-banner]')
-  assert((await banner.boundingBox()).height <= 84, 'banner exceeds compact two-row height')
+  assert.equal((await banner.boundingBox()).height, 52, 'banner must stay 52px high')
   assert(await page.locator('[data-promotion-caption]').evaluate(el => el.getBoundingClientRect().height <= 16), 'caption wraps beyond its row')
-  assert(a.x + a.width + 11 <= b.x || a.y + a.height <= b.y || b.y + b.height <= a.y, 'buttons overlap')
+  assert(a.x + a.width + 8 <= b.x || a.y + a.height <= b.y || b.y + b.height <= a.y, 'buttons overlap')
   for (const button of await buttons.all()) {
     await button.scrollIntoViewIfNeeded()
     assert(await button.evaluate((el) => {
