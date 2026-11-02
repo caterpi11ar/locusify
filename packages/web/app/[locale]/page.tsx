@@ -100,7 +100,7 @@ export default async function Home({
   }
 
   return (
-    <main className="min-h-screen bg-background overflow-x-clip">
+    <main className="min-h-screen bg-background overflow-x-hidden">
       <JsonLd data={faqJsonLd} />
       <SiteHeader />
       <HeroSection />

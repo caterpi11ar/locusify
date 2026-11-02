@@ -25,15 +25,9 @@
     "promotion": {
       "title": "You found a hidden surprise: 10-year MAX membership code",
       "code": "LOCUSIFY-MAX-BETA",
-      "copy": "Copy code",
+      "copy": "Copy",
       "copied": "Copied",
-      "close": "Close banner",
-      "copying": "Copying…",
-      "success": "Code copied",
-      "error": "Couldn’t copy. Touch and hold or select the code to copy it manually.",
-      "compactTitle": "10-year MAX membership code",
-      "errorCompact": "Copy failed. Select the code to copy.",
-      "codeLabel": "Redemption code"
+      "close": "Close banner"
     },
     "alt": {
       "side1": "Traveler taking photos",

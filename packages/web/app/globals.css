@@ -143,6 +143,20 @@ html[data-announcement-dismissed='true'] [data-announcement-banner] {
   display: none;
 }
 
+html[data-announcement-dismissed='true'] [data-site-header] {
+  top: 0.75rem;
+}
+
+/* Hide the promotion on narrow screens, including phone landscape. */
+@media (width < 1024px) {
+  [data-announcement-banner] {
+    display: none;
+  }
+
+  [data-site-header] {
+    top: 0.75rem;
+  }
+}
 
 @layer components {
   [data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"] {

@@ -9,9 +9,11 @@ import { Link } from '@/i18n/navigation'
 import { APP_URL } from '@/lib/app-url'
 
 export function Header({
+  hasAnnouncement = false,
   mode = 'default',
 }: {
-  mode?: 'default' | 'content' | 'home'
+  hasAnnouncement?: boolean
+  mode?: 'default' | 'content'
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -30,13 +32,13 @@ export function Header({
   return (
     <header
       data-site-header
-      className={`${mode === 'home' ? 'sticky mx-auto mt-3' : 'fixed left-1/2 -translate-x-1/2'} top-3 z-50 w-[94%] max-w-5xl rounded-full transition-all duration-300 ${isContent ? 'dark' : ''} ${isScrolled ? isContent ? 'border border-white/10 bg-zinc-950/85 backdrop-blur-md' : 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
+      className={`fixed left-1/2 z-50 w-[94%] max-w-5xl -translate-x-1/2 rounded-full transition-all duration-300 ${isContent ? 'dark' : ''} ${hasAnnouncement ? 'top-12' : 'top-3'} ${isScrolled ? isContent ? 'border border-white/10 bg-zinc-950/85 backdrop-blur-md' : 'border border-black/5 bg-white/85 backdrop-blur-md' : 'bg-transparent'}`}
       style={{
         boxShadow: isScrolled ? 'rgba(14, 63, 126, 0.04) 0px 0px 0px 1px, rgba(42, 51, 69, 0.04) 0px 1px 1px -0.5px, rgba(42, 51, 70, 0.04) 0px 3px 3px -1.5px, rgba(42, 51, 70, 0.04) 0px 6px 6px -3px, rgba(14, 63, 126, 0.04) 0px 12px 12px -6px, rgba(14, 63, 126, 0.04) 0px 24px 24px -12px' : 'none',
       }}
     >
       <div className="flex items-center justify-between px-2 py-2 pl-5 transition-all duration-300">
-        <Link href="/" data-home-link className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
             alt="Locusify"
@@ -49,7 +51,7 @@ export function Header({
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           <Link
             href="#features"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -88,8 +90,8 @@ export function Header({
           </Link>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <LanguageSwitcher isScrolled={isScrolled || isContent || mode === 'home'} />
+        <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher isScrolled={isScrolled || isContent} />
           <Link
             href={APP_URL}
             className="whitespace-nowrap rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-80"
@@ -101,8 +103,7 @@ export function Header({
         <button
           type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-expanded={isMenuOpen}
-          className="inline-flex size-11 items-center justify-center text-foreground transition-colors lg:hidden"
+          className="text-foreground transition-colors md:hidden"
           aria-label="Toggle menu"
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -110,7 +111,7 @@ export function Header({
       </div>
 
       {isMenuOpen && (
-        <div className="max-h-[calc(100svh-88px)] overflow-y-auto rounded-b-2xl border-t border-border bg-background px-6 py-8 lg:hidden">
+        <div className="rounded-b-2xl border-t border-border bg-background px-6 py-8 md:hidden">
           <nav className="flex flex-col gap-6">
             <Link
               href="#features"
