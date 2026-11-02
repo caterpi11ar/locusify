@@ -354,5 +354,10 @@
       "title": "Travel Map Blog | Tutorials, Comparisons, and Alternatives",
       "description": "Learn to build animated travel maps from GPS photos with practical tutorials, route-visualization workflows, privacy guidance, app comparisons, and Locusify updates."
     }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "This page doesn’t exist, or the link is no longer valid. Return to the homepage to continue.",
+    "home": "Go home"
   }
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { Inter } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import Script from 'next/script'
@@ -29,71 +29,21 @@ const inter = Inter({
   display: 'swap',
 })
 
-const BASE_URL = SITE_URL
-
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}): Promise<Metadata> {
-  const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'Metadata' })
-
-  const title = t('site.title')
-  const description = t('site.description')
-  const canonicalUrl = locale === 'zh' ? BASE_URL : `${BASE_URL}/en`
-
-  return {
-    metadataBase: new URL(BASE_URL),
-    title,
-    description,
-    icons: {
-      icon: [
-        { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
-        { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
-        { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
-      ],
-      apple: '/apple-icon.png',
-    },
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'zh': BASE_URL,
-        'en': `${BASE_URL}/en`,
-        'x-default': BASE_URL,
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: 'Locusify',
-      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
-      alternateLocale: locale === 'zh' ? 'en_US' : 'zh_CN',
-      type: 'website',
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['/og-image.png'],
-    },
-    verification: {
-      google: 'by9hGLiRBrIQCeNmcjRon0Q3q8uJP7mxau9oh1seY3w',
-    },
-  }
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: [
+      { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-48.png', sizes: '48x48', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+  },
+  verification: { google: 'by9hGLiRBrIQCeNmcjRon0Q3q8uJP7mxau9oh1seY3w' },
 }
 
 export default async function LocaleLayout({
