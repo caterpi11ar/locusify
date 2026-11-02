@@ -12,9 +12,10 @@ const SPEED_OPTIONS = [0.5, 1, 1.5, 2, 4]
 interface ReplayControlsProps {
   onPlayClick?: () => void
   onCustomizeClick?: () => void
+  settingsOpen?: boolean
 }
 
-export function ReplayControls({ onPlayClick, onCustomizeClick }: ReplayControlsProps) {
+export function ReplayControls({ onPlayClick, onCustomizeClick, settingsOpen = false }: ReplayControlsProps) {
   const { t } = useTranslation()
 
   const status = useReplayStore(s => s.status)
@@ -206,7 +207,7 @@ export function ReplayControls({ onPlayClick, onCustomizeClick }: ReplayControls
         <div className="mx-3 h-px bg-text/8 sm:mx-4" />
 
         {/* Controls row */}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 px-3 py-1.5 sm:px-4 sm:py-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 sm:px-4 sm:py-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-text-tertiary text-2xs sm:text-xs">
               {t('workspace.controls.progress', {
@@ -275,8 +276,11 @@ export function ReplayControls({ onPlayClick, onCustomizeClick }: ReplayControls
               <button
                 type="button"
                 onClick={onCustomizeClick}
-                className="text-text-secondary hover:text-text inline-flex h-8 items-center gap-1.5 rounded-full bg-text/5 px-3 text-xs font-medium transition-colors hover:bg-text/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-sky-400/70 bg-sky-400/10 px-3 text-xs font-medium text-cyan-700 shadow-[0_0_8px_rgba(56,189,248,0.2)] transition-colors hover:bg-sky-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-sky-400"
                 title={t('template.customize.title')}
+                aria-expanded={settingsOpen}
+                aria-controls={settingsOpen ? 'replay-settings-panel' : undefined}
+                aria-describedby="replay-settings-hint"
               >
                 <i className="i-mingcute-settings-3-line text-xs" />
                 <span>{t('template.customize.title')}</span>
@@ -317,6 +321,11 @@ export function ReplayControls({ onPlayClick, onCustomizeClick }: ReplayControls
             </AnimatePresence>
           </div>
         </div>
+        {onCustomizeClick && (
+          <p id="replay-settings-hint" className="px-3 pb-2 text-right text-2xs text-text-secondary sm:px-4 sm:text-xs">
+            {t('template.customize.hint')}
+          </p>
+        )}
       </div>
 
       {/* Transport mode popover — portal to body */}

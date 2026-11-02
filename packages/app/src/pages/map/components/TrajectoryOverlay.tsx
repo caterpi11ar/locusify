@@ -1,5 +1,5 @@
 import type { ReplayTemplate, ReplayTemplateConfig } from '@/types/template'
-import { AnimatePresence, m } from 'motion/react'
+import { AnimatePresence, m, useReducedMotion } from 'motion/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getTemplateById } from '@/data/templates'
@@ -24,6 +24,7 @@ interface TrajectoryOverlayProps {
  */
 export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClick }: TrajectoryOverlayProps) {
   const { t } = useTranslation()
+  const reducedMotion = useReducedMotion()
 
   const status = useReplayStore(s => s.status)
   const recordingActive = useReplayStore(s => s.recordingActive)
@@ -37,7 +38,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
 
   const isConfiguring = status === 'configuring'
 
-  const [showCustomizePanel, setShowCustomizePanel] = useState(false)
+  const [showCustomizePanel, setShowCustomizePanel] = useState(true)
 
   // Actual start logic — called from template panel's "Start" button
   const handleStartReplay = useCallback(async () => {
@@ -49,12 +50,12 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
   }, [confirmConfig, onBeginRecording, startEarthZoom])
 
   // Play button click:
-  // - configuring: open template panel
+  // - configuring: start with the current settings
   // - completed: restart (goes back to configuring → same flow)
   // - paused: resume via intro
   const handlePlayClick = useCallback(async () => {
     if (status === 'configuring') {
-      setShowCustomizePanel(prev => !prev)
+      await handleStartReplay()
     }
     else if (status === 'completed') {
       restartReplay()
@@ -64,7 +65,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
       onShowIntro?.(() => {})
       startEarthZoom()
     }
-  }, [status, onShowIntro, restartReplay, startEarthZoom])
+  }, [status, handleStartReplay, onShowIntro, restartReplay, startEarthZoom])
 
   const handleTemplateSelect = useCallback((template: ReplayTemplate) => {
     setTemplate(template.id, template.config)
@@ -104,10 +105,13 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
             {showCustomizePanel && (
               <m.div
                 key="customize"
-                initial={{ opacity: 0, y: 20 }}
+                id="replay-settings-panel"
+                role="region"
+                aria-labelledby="replay-settings-title"
+                initial={{ opacity: 0, y: reducedMotion ? 0 : 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 12 }}
-                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, y: reducedMotion ? 0 : 12 }}
+                transition={{ duration: reducedMotion ? 0 : 0.2 }}
                 className="pointer-events-auto min-h-0 overflow-y-auto rounded-2xl border border-fill-tertiary bg-white/95 p-4 shadow-2xl backdrop-blur-[120px] dark:bg-black/85"
               >
                 <div className="mb-3 flex items-center gap-2">
@@ -116,11 +120,13 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
                     onClick={() => {
                       setShowCustomizePanel(false)
                     }}
-                    className="flex size-7 items-center justify-center rounded-full text-text/60 transition-colors hover:bg-text/5 hover:text-text"
+                    aria-label={t('template.customize.collapse')}
+                    className="flex min-h-8 shrink-0 items-center justify-center gap-1 rounded-full px-2 text-xs text-text/60 transition-colors hover:bg-text/5 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
-                    <i className="i-mingcute-arrow-left-line text-sm" />
+                    <i aria-hidden className="i-mingcute-down-line text-sm" />
+                    <span>{t('template.customize.collapse')}</span>
                   </button>
-                  <h2 className="text-sm font-semibold text-text">{t('template.customize.title')}</h2>
+                  <h2 id="replay-settings-title" className="text-sm font-semibold text-text">{t('template.customize.title')}</h2>
                 </div>
                 <TemplateCustomizer
                   config={templateConfig}
@@ -142,6 +148,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
 
           <div className="pointer-events-auto shrink-0">
             <ReplayControls
+              settingsOpen={showCustomizePanel}
               onPlayClick={handlePlayClick}
               onCustomizeClick={() => {
                 setShowCustomizePanel(prev => !prev)
