@@ -78,6 +78,8 @@ export default async function LocaleLayout({
         'logo': {
           '@type': 'ImageObject',
           'url': `${SITE_URL}/logo.png`,
+          'width': 256,
+          'height': 256,
         },
       },
       {

@@ -7,7 +7,7 @@ export function SplashScreen() {
           alt="Locusify"
           width="96"
           height="96"
-          className="locusify-splash-logo size-20 rounded-2xl sm:size-24"
+          className="locusify-splash-logo size-20 shrink-0 sm:size-24 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]"
         />
         <div className="flex flex-col items-center gap-2">
           <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl">

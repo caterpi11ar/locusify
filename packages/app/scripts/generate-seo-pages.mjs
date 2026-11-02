@@ -70,7 +70,7 @@ for (const data of Object.values(locales)) {
         '@id': 'https://app.locusify.cn/#organization',
         'name': 'Locusify',
         'url': 'https://app.locusify.cn/',
-        'logo': { '@type': 'ImageObject', 'url': 'https://app.locusify.cn/logo.png', 'width': 1024, 'height': 1024 },
+        'logo': { '@type': 'ImageObject', 'url': 'https://app.locusify.cn/logo.png', 'width': 256, 'height': 256 },
         'sameAs': ['https://www.producthunt.com/products/locusify'],
       },
       {

@@ -15,6 +15,7 @@ import { useTheme } from 'next-themes'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { cn } from '@/lib/utils'
 import { logout, useAuthStore } from '@/stores/authStore'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -405,7 +406,7 @@ function UserAvatar({
 }) {
   if (avatarUrl) {
     return (
-      <img
+      <ProfileAvatar
         src={avatarUrl}
         alt={name}
         className={cn('shrink-0 object-cover', className)}

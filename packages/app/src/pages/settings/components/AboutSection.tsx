@@ -15,7 +15,7 @@ export const AboutSection: FC = () => {
     <div>
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <img src={locusifyLogo} alt="Locusify" className="size-4 rounded" />
+          <img src={locusifyLogo} alt="Locusify" className="size-4 shrink-0 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]" />
           <span className="text-sm font-medium text-text">{t('settings.about.appName')}</span>
         </div>
         <span className="text-xs text-text/50">

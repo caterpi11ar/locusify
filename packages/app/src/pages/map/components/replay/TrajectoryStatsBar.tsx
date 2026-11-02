@@ -45,7 +45,7 @@ export function TrajectoryStatsBar() {
         >
           {/* Left: Logo + brand — stacked on mobile, inline on desktop */}
           <div className="flex flex-col items-center gap-1 pr-4 sm:flex-row sm:gap-2">
-            <img src={locusifyLogo} alt="" className="size-12 rounded sm:size-16" />
+            <img src={locusifyLogo} alt="" className="size-12 shrink-0 sm:size-16 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]" />
             <span className="text-2xs font-semibold text-white sm:text-sm">Locusify</span>
           </div>
 

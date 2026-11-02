@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { m } from 'motion/react'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { cn, glassPanel } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -26,7 +27,7 @@ export const LoginButton: FC<LoginButtonProps> = ({ onClick }) => {
         >
           {user
             ? (
-                <img
+                <ProfileAvatar
                   src={user.avatarUrl}
                   alt={user.name}
                   className="size-9 rounded-full object-cover"

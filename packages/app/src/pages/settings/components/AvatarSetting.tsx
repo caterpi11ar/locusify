@@ -1,7 +1,9 @@
 import type { FC } from 'react'
 import type { AvatarSource } from '@/types/replay'
 import { useTranslation } from 'react-i18next'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { presetAvatars } from '@/data/presetAvatars'
+import { brandImageClasses, isBrandAvatar } from '@/lib/brand'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -35,14 +37,15 @@ export const AvatarSetting: FC = () => {
           >
             <div
               className={cn(
-                'size-12 rounded-full overflow-hidden border-2 transition-all',
+                'size-12 overflow-hidden border-2 transition-all',
+                isBrandAvatar(user.avatarUrl) ? brandImageClasses : 'rounded-full',
                 isSelected({ type: 'profile' })
                   ? 'border-sky-400 ring-2 ring-sky-400/40'
                   : 'border-fill-tertiary',
               )}
             >
               {user.avatarUrl
-                ? <img src={user.avatarUrl} alt="" className="size-full object-cover" />
+                ? <ProfileAvatar src={user.avatarUrl} alt="" className="size-full object-cover" />
                 : <div className="flex size-full items-center justify-center bg-sky-400 text-lg font-bold text-white">{user.name?.[0] ?? '?'}</div>}
             </div>
             <span className="text-2xs text-text/60">{t('settings.avatarProfile')}</span>
