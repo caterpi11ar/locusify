@@ -22,8 +22,8 @@
     "audit:ui": "python3 tools/verify/audit-ui.py --base http://localhost:1052"
   },
   "dependencies": {
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "~9.5.1",
