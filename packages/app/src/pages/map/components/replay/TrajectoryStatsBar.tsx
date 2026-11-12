@@ -8,7 +8,7 @@ import { AnimatedNumber } from './AnimatedNumber'
 
 /**
  * Bottom stats bar shown during trajectory playback.
- * Left: logo + brand name. Middle: 2 animated stats. Right: QR code.
+ * Left: logo. Middle: 2 animated stats. Right: QR code.
  * Visible only when recording is active.
  */
 export function TrajectoryStatsBar() {
@@ -37,16 +37,16 @@ export function TrajectoryStatsBar() {
     <AnimatePresence>
       {isVisible && (
         <m.div
+          data-testid="trajectory-stats"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="pointer-events-auto relative mx-2 mb-1 flex items-center gap-4 rounded-xl bg-black/60 px-4 py-3 backdrop-blur-sm"
         >
-          {/* Left: Logo + brand — stacked on mobile, inline on desktop */}
-          <div className="flex flex-col items-center gap-1 pr-4 sm:flex-row sm:gap-2">
+          {/* Left: Logo */}
+          <div className="flex items-center pr-4">
             <img src={locusifyLogo} alt="" className="size-12 shrink-0 sm:size-16 object-cover overflow-hidden rounded-[30%] [corner-shape:superellipse(1.45)]" />
-            <span className="text-2xs font-semibold text-white sm:text-sm">Locusify</span>
           </div>
 
           {/* Middle: 2 stat items */}

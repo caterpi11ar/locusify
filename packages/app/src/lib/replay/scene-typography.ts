@@ -1,4 +1,5 @@
 import type { TextStyleOptions } from 'pixi.js'
+import { brandLoading } from '@/lib/brand-loading'
 
 // Resolve the same CSS utilities/inherited font as the original replay UI.
 // Read once during scene preparation, never during the frame loop.
@@ -46,6 +47,13 @@ export async function prepareSceneTypography(signal: AbortSignal, text = 'Locusi
   const entries = Object.entries(replayTextClasses).map(([role, className]) => {
     const element = document.createElement('span')
     element.className = className
+    if (role === 'introSubtitle') {
+      Object.assign(element.style, {
+        fontSize: `${brandLoading.fontSize}px`,
+        lineHeight: `${brandLoading.lineHeight}px`,
+        fontWeight: String(brandLoading.fontWeight),
+      })
+    }
     probe.append(element)
     return { role, element }
   })

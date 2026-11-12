@@ -1,7 +1,7 @@
 import { useTheme } from 'next-themes'
 import { useEffect, useRef, useState } from 'react'
-import { SCENE_HEIGHT, SCENE_WIDTH } from '@/lib/replay/scene-motion'
 import { registerReplaySurface } from '@/lib/replay/scene-registry'
+import { getSceneViewport } from '@/lib/replay/scene-viewport'
 import { useAuthStore } from '@/stores/authStore'
 import { useMapStore } from '@/stores/mapStore'
 import { useReplayStore } from '@/stores/replayStore'
@@ -32,9 +32,10 @@ export function ReplaySurfaceView({ onIntroComplete }: { onIntroComplete: () => 
     const previousRatio = map.getPixelRatio()
     const resize = () => {
       const container = map.getContainer()
-      const scale = Math.min(container.clientWidth / SCENE_WIDTH, container.clientHeight / SCENE_HEIGHT)
+      if (!container.clientWidth || !container.clientHeight)
+        return
+      const { scale, mapPixelRatio: ratio } = getSceneViewport(container.clientWidth, container.clientHeight, window.devicePixelRatio, useReplayStore.getState().recordingActive)
       capture.style.setProperty('--replay-unit', `${scale}px`)
-      const ratio = 1920 / Math.max(1, container.clientWidth)
       if (Math.abs(map.getPixelRatio() - ratio) > 0.001)
         map.setPixelRatio(ratio)
       else
@@ -43,6 +44,11 @@ export function ReplaySurfaceView({ onIntroComplete }: { onIntroComplete: () => 
     resize()
     const observer = new ResizeObserver(resize)
     observer.observe(map.getContainer())
+    window.addEventListener('resize', resize)
+    const unsubscribe = useReplayStore.subscribe((state, previous) => {
+      if (state.recordingActive !== previous.recordingActive)
+        resize()
+    })
     const scene = import('@/lib/replay/replay-surface').then(({ ReplaySurface }) => ReplaySurface.create(map, element, controller.signal, () => callback.current()))
     const unregister = registerReplaySurface(capture, scene)
     void scene.then(() => {
@@ -55,6 +61,8 @@ export function ReplaySurfaceView({ onIntroComplete }: { onIntroComplete: () => 
     return () => {
       controller.abort()
       observer.disconnect()
+      window.removeEventListener('resize', resize)
+      unsubscribe()
       capture.style.removeProperty('--replay-unit')
       unregister()
       void scene.then(surface => surface.dispose()).catch(() => {})

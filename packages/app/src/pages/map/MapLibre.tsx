@@ -379,17 +379,19 @@ export function Maplibre({
 
         {/* Region Fill Layer — country photo fills (below markers) */}
         {/* Copied from Afilmory c392e065, MapLibre.tsx attribution block. */}
-        <a
-          href="https://www.openstreetmap.org/copyright"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={clsxm(
-            'bg-material-thick text-text-secondary hover:text-text absolute right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 rounded-lg border border-accent/20 px-2.5 py-1.5 text-xs backdrop-blur-2xl transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent',
-            'focus-visible:ring-2 focus-visible:ring-primary',
-          )}
-        >
-          © OpenStreetMap contributors
-        </a>
+        {!isReplayMode && (
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={clsxm(
+              'bg-material-thick text-text-secondary hover:text-text absolute right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 rounded-lg border border-accent/20 px-2.5 py-1.5 text-xs backdrop-blur-2xl transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent',
+              'focus-visible:ring-2 focus-visible:ring-primary',
+            )}
+          >
+            © OpenStreetMap contributors
+          </a>
+        )}
 
         {/* Photo Markers — hidden in fragment mode */}
         {clusteredMarkers.map((clusterPoint) => {

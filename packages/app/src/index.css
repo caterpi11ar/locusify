@@ -118,29 +118,6 @@
   }
 }
 
-@keyframes locusify-splash-in {
-  from { opacity: 0; transform: scale(0.88); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes locusify-splash-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.locusify-splash {
-  animation: locusify-splash-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.locusify-splash-logo {
-  animation: locusify-splash-pulse 2s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .locusify-splash,
-  .locusify-splash-logo { animation: none; }
-}
-
 /* Keep Ant Design Drawer slide motion without fading the panel itself. */
 .ant-drawer-panel-motion-left-enter,
 .ant-drawer-panel-motion-left-appear,

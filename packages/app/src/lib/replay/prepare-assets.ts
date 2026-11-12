@@ -1,6 +1,5 @@
 import type { ReplayWaypoint } from '@/stores/replay/types'
 import { Map as MapLibreMap } from 'maplibre-gl'
-import logo from '@/assets/locusify.png'
 import { computeOrbitZoom } from '@/stores/globeOrbitStore'
 import { getReplayLandingZoom, waitForMapReady } from './map-ready'
 
@@ -37,15 +36,10 @@ export async function prepareReplayAssets(map: MapLibreMap, waypoints: ReplayWay
       warmMap!.flyTo({ center: waypoints[0].position, zoom: getReplayLandingZoom(map, waypoints), duration: 1000, essential: true })
       await waitForMapReady(warmMap!, signal)
     }
-    const urls = [...new Set([logo, ...waypoints.map(wp => wp.marker.photo.thumbnailUrl)].filter(Boolean))]
-    let next = 0
-    const loadImages = async () => {
-      while (next < urls.length) {
-        signal.throwIfAborted()
-        await decodeImage(urls[next++], signal)
-      }
-    }
-    await Promise.all([loadMap(), document.fonts.ready, ...Array.from({ length: 3 }, loadImages)])
+    // The visible scene owns image/font preparation and retains decoded assets.
+    // Warming them here as well doubled decode work and could block valid originals
+    // on an unavailable thumbnail.
+    await loadMap()
   }
   finally {
     controller.abort()
@@ -53,32 +47,4 @@ export async function prepareReplayAssets(map: MapLibreMap, waypoints: ReplayWay
     warmMap?.remove()
     container.remove()
   }
-}
-
-function decodeImage(url: string, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    const timer = setTimeout(() => finish(new Error('asset-unavailable')), 30000)
-    function finish(error?: Error) {
-      clearTimeout(timer)
-      signal.removeEventListener('abort', aborted)
-      if (error) {
-        image.src = ''
-        reject(error)
-      }
-      else {
-        resolve()
-      }
-    }
-    function aborted() {
-      finish(new DOMException('Replay preparation cancelled', 'AbortError'))
-    }
-    signal.addEventListener('abort', aborted, { once: true })
-    if (signal.aborted) {
-      aborted()
-      return
-    }
-    image.src = url
-    void image.decode().then(() => finish(), () => finish(new Error('asset-unavailable')))
-  })
 }
