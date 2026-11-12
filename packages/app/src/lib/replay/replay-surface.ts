@@ -8,6 +8,7 @@ import { presetAvatars } from '@/data/presetAvatars'
 import { transportModeIcons } from '@/data/transportModes'
 import { i18n } from '@/i18n'
 import AudioManager from '@/lib/audio/AudioManager'
+import { brandLoading, getBrandLoadingLayout } from '@/lib/brand-loading'
 import { useAuthStore } from '@/stores/authStore'
 import { claimReplayClock } from '@/stores/replay/loop'
 import { useReplayStore } from '@/stores/replayStore'
@@ -17,10 +18,11 @@ import { LiveEncoder } from './live-encoder'
 import { waitForReplayTiles } from './map-ready'
 import { prepareReplayAvatar } from './prepare-avatar'
 import { encodeRecordingAudio, prepareRecordingAudio } from './recording-audio'
-import { captionTexture, iconTexture, loadSceneBrand, loadSceneImage, loadScenePhoto, metadataTexture, paintTexture, photoTexture } from './scene-assets'
+import { captionTexture, iconTexture, loadSceneBrand, loadSceneImage, metadataTexture, paintTexture, photoTexture, prepareScenePhotos } from './scene-assets'
 import { easePhoto, easeScroll, FRAME_MS, FRAME_SECONDS, SCENE_HEIGHT as H, swing, SCENE_WIDTH as W } from './scene-motion'
 import { SceneText } from './scene-text'
 import { prepareSceneTypography } from './scene-typography'
+import { getSceneViewport } from './scene-viewport'
 
 interface Card {
   root: Container
@@ -71,7 +73,6 @@ export class ReplaySurface {
   private distanceUnit!: SceneText
   private statsHeight = 106
   private layoutStats = () => {}
-  private layoutAttribution = () => {}
   private tick = 0
   private lastPaint = 0
   private raf = 0
@@ -79,6 +80,9 @@ export class ReplaySurface {
   private awaitingMedia = false
   private tileWait?: AbortController
   private disposed = false
+  private lifetime = new AbortController()
+  private detachAbort = () => {}
+  private assetsReady: Promise<unknown> = Promise.resolve()
   private time = 0
   private introExit = -1
   private active = 0
@@ -91,6 +95,7 @@ export class ReplaySurface {
   private recording?: Recording
   private finishing?: Recording
   private releaseClock = () => {}
+  private unsubscribeStore = () => {}
   private signal: AbortSignal
   private onIntroComplete: () => void
 
@@ -99,13 +104,18 @@ export class ReplaySurface {
     try {
       await scene.initialize()
       signal.throwIfAborted()
+      scene.resize()
       scene.pending = true
       scene.paint()
       host.append(scene.canvas)
-      scene.resize()
       scene.resizeObserver = new ResizeObserver(scene.resize)
       scene.resizeObserver.observe(host)
+      window.addEventListener('resize', scene.resize)
       scene.releaseClock = claimReplayClock()
+      scene.unsubscribeStore = useReplayStore.subscribe((state, previous) => {
+        if (state.recordingActive !== previous.recordingActive)
+          scene.resize()
+      })
       map.on('render', scene.paint)
       scene.raf = requestAnimationFrame(scene.schedule)
       return scene
@@ -117,7 +127,12 @@ export class ReplaySurface {
   }
 
   private constructor(private map: LibreMap, signal: AbortSignal, onIntroComplete: () => void) {
-    this.signal = signal
+    this.signal = this.lifetime.signal
+    const abort = () => this.lifetime.abort(signal.reason)
+    signal.addEventListener('abort', abort, { once: true })
+    this.detachAbort = () => signal.removeEventListener('abort', abort)
+    if (signal.aborted)
+      this.lifetime.abort(signal.reason)
     this.onIntroComplete = onIntroComplete
     this.canvas.dataset.testid = 'replay-surface'
     this.canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none'
@@ -161,12 +176,10 @@ export class ReplaySurface {
       return
     // Browse at the workspace aspect ratio. Only the recording frame is 16:9.
     // Extend the scene instead of stretching photos, text, or circular avatars.
-    const scale = Math.min(rect.width / W, rect.height / H)
     const recording = useReplayStore.getState().recordingActive
-    const width = recording ? W : rect.width / scale
-    const height = recording ? H : rect.height / scale
+    const { width, height, resolution } = getSceneViewport(rect.width, rect.height, window.devicePixelRatio, recording)
     this.viewport = { width, height }
-    this.renderer.resize(width, height, 1920 / width)
+    this.renderer.resize(width, height, resolution)
     for (const layout of this.layouts) layout(width, height)
     this.needsResizePaint = true
   }
@@ -176,16 +189,15 @@ export class ReplaySurface {
     const light = document.documentElement.dataset.theme === 'light'
     const user = useAuthStore.getState().user
     const avatar = useSettingsStore.getState().avatarSource
-    const [brand, images, avatarUrl, typography] = await Promise.all([
+    const [brand, typography] = await Promise.all([
       loadSceneBrand(this.signal),
-      Promise.all(state.waypoints.map(w => loadScenePhoto(w.marker, this.signal))),
-      avatar.type === 'profile' ? prepareReplayAvatar(user?.avatarUrl ?? '') : Promise.resolve(''),
       prepareSceneTypography(this.signal, `Locusify 0123456789 城市漫游 ${state.waypoints.map(w => `${w.marker.photo.title ?? ''} ${w.marker.photo.description ?? ''}`).join(' ')}`),
     ])
     this.typography = typography
     // The same surface is presented by the browser and read by VideoFrame.
     // Retain the last complete frame between paints, including encoder backpressure.
     await this.renderer.init({ canvas: this.canvas, width: W, height: H, resolution: 1.5, backgroundColor: '#050509', antialias: true, preserveDrawingBuffer: true })
+    this.signal.throwIfAborted()
     const mapBackground = this.sprite(this.mapTexture, W, H)
     this.stage.addChild(mapBackground)
     this.layouts.push((width, height) => {
@@ -219,14 +231,18 @@ export class ReplaySurface {
       railMask.clear().rect(0, 0, W * 0.4, height - 105).fill(0xFFFFFF)
     })
     photoRail.addChild(new Graphics().moveTo(0, 110).quadraticCurveTo(256, 142, 512, 110).stroke({ color: light ? '#8fa8be' : '#65809a', width: 1.5 }))
-    for (let index = 0; index < images.length; index++) {
+    const placeholder = this.own(paintTexture(348, 261, (ctx) => {
+      ctx.fillStyle = light ? '#e5e7eb' : '#20232a'
+      ctx.fillRect(0, 0, 348, 261)
+    }))
+    for (let index = 0; index < state.waypoints.length; index++) {
       const marker = state.waypoints[index].marker
       const root = new Container()
       const body = new Container()
       body.pivot.set(174, -18)
-      const photo = this.sprite(this.own(photoTexture(images[index], state.templateConfig.filter)), 348, 261)
+      const photo = this.sprite(placeholder, 348, 261)
       const blur = new BlurFilter({ strength: 0, quality: 3 })
-      body.addChild(photo, this.sprite(this.own(metadataTexture(marker, index, images.length, light, typography)), 348, 36, 0, 267))
+      body.addChild(photo, this.sprite(this.own(metadataTexture(marker, index, state.waypoints.length, light, typography)), 348, 36, 0, 267))
       const clip = this.own(paintTexture(12, 29, (ctx) => {
         const gradient = ctx.createLinearGradient(0, 0, 12, 0)
         gradient.addColorStop(0, light ? '#6d8ca7' : '#3d617e')
@@ -244,25 +260,23 @@ export class ReplaySurface {
       photoRail.addChild(caption)
       const card: Card = { root, body, photo, still: photo.texture, caption, blur }
       this.cards.push(card)
-      const source = marker.photo.video
-      if (source && source.type !== 'none') {
-        const { SceneVideo } = await import('./scene-video')
-        const decoder = await SceneVideo.create(source, this.signal)
-        const canvas = document.createElement('canvas')
-        canvas.width = 696
-        canvas.height = 522
-        card.video = { decoder, canvas, texture: this.own(Texture.from(canvas)), timestamp: -1 }
-        await this.prepareVideo(index, 0)
-      }
     }
     const lineColor = state.templateConfig.lineStyle.color
     this.pulse.circle(0, 0, 20).fill(lineColor)
     this.avatar.addChild(this.pulse)
-    const profile = avatarUrl ? await loadSceneImage(avatarUrl, this.signal) : undefined
     const preset = avatar.type === 'preset' ? presetAvatars.find(p => p.id === avatar.presetId) : undefined
     const color = preset?.color ?? lineColor
     this.avatar.addChild(new Graphics().circle(0, 0, avatar.type === 'none' ? 6 : 19).fill(color))
-    if (profile) {
+    const faceLayer = new Container()
+    this.avatar.addChild(faceLayer)
+    const loadAvatar = async () => {
+      if (avatar.type !== 'profile' || !user?.avatarUrl)
+        return
+      const avatarUrl = await prepareReplayAvatar(user.avatarUrl)
+      this.signal.throwIfAborted()
+      if (!avatarUrl)
+        return
+      const profile = await loadSceneImage(avatarUrl, this.signal)
       const face = this.sprite(this.own(paintTexture(36, 36, (ctx) => {
         ctx.beginPath()
         ctx.arc(18, 18, 17, 0, Math.PI * 2)
@@ -270,14 +284,14 @@ export class ReplaySurface {
         const size = Math.min(profile.naturalWidth, profile.naturalHeight)
         ctx.drawImage(profile, (profile.naturalWidth - size) / 2, (profile.naturalHeight - size) / 2, size, size, 0, 0, 36, 36)
       })), 36, 36, -18, -18)
-      this.avatar.addChild(face)
+      faceLayer.addChild(face)
     }
-    else if (preset) {
+    if (preset) {
       const icon = this.own(await iconTexture(preset.icon, '#fff', this.signal))
-      this.avatar.addChild(this.sprite(icon, 20, 20, -10, -10))
+      faceLayer.addChild(this.sprite(icon, 20, 20, -10, -10))
     }
     else if (avatar.type === 'profile') {
-      this.avatar.addChild(this.label(user?.name?.[0]?.toUpperCase() ?? '?', -7, -12, 'avatar'))
+      faceLayer.addChild(this.label(user?.name?.[0]?.toUpperCase() ?? '?', -7, -12, 'avatar'))
     }
     for (const [mode, className] of Object.entries(transportModeIcons))
       this.icons.set(mode, this.own(await iconTexture(className, light ? '#171717' : '#fff', this.signal)))
@@ -302,8 +316,7 @@ export class ReplaySurface {
       ctx.clip()
       ctx.drawImage(brand.logo, 0, 0, 64, 64)
     })), 64, 64)
-    const brandLabel = this.footerLabel('Locusify', 'brand')
-    this.stats.addChild(logo, brandLabel)
+    this.stats.addChild(logo)
     this.days = this.footerLabel('0', 'statValue')
     this.distance = this.footerLabel('0.00', 'statValue')
     this.daysUnit = this.footerLabel(i18n.t('stats.bar.durationUnit'), 'statUnit', 0.6)
@@ -319,7 +332,6 @@ export class ReplaySurface {
     this.statsHeight = contentHeight + 24
     const centerY = 12 + contentHeight / 2
     logo.position.set(24, centerY - 32)
-    brandLabel.position.set(96, centerY - typography.brand.lineHeight / 2)
     const rowTop = centerY - (typography.statValue.lineHeight + typography.statLabel.lineHeight) / 2
     this.days.y = this.distance.y = rowTop
     this.daysUnit.y = this.distanceUnit.y = rowTop + this.days.baseline - this.daysUnit.baseline
@@ -331,8 +343,8 @@ export class ReplaySurface {
       qr.position.set(qrLeft + (qrWidth - 64) / 2, 12)
       qrLabel.position.set(qrLeft + (qrWidth - qrLabel.advanceWidth) / 2, 80)
       divider.clear().moveTo(qrLeft - 17, 12).lineTo(qrLeft - 17, 12 + contentHeight).stroke({ color: 0xFFFFFF, alpha: 0.15, width: 1 })
-      // Match the original flex row: brand padding, two 16px gaps, space-around.
-      const left = 96 + brandLabel.advanceWidth + 16 + 16
+      // Logo width, group padding and flex gap match the DOM card.
+      const left = 24 + 64 + 16 + 16
       const available = qrLeft - 17 - 16 - left
       const rows = [[this.days, this.daysUnit, durationLabel], [this.distance, this.distanceUnit, distanceLabel]]
       const widths = rows.map(([value, unit, label]) => Math.max(value.advanceWidth + 2 + unit.advanceWidth, label.advanceWidth))
@@ -356,36 +368,71 @@ export class ReplaySurface {
       this.layoutStats()
     })
     this.stage.addChild(this.stats)
-    const attribution = new Container()
-    const copyright = this.footerLabel('© OpenStreetMap contributors', 'attribution', 0.85)
-    const copyrightWidth = copyright.advanceWidth + 16
-    const copyrightHeight = copyright.style.lineHeight + 12
-    attribution.addChild(new Graphics().roundRect(0, 0, copyrightWidth, copyrightHeight, 6).fill({ color: 0, alpha: 0.6 }))
-    copyright.position.set(8, 6)
-    attribution.addChild(copyright)
-    this.stage.addChild(attribution)
-    this.layoutAttribution = () => {
-      const bottom = this.stats.visible ? this.stats.y - 8 : this.viewport.height - 16
-      attribution.position.set(this.viewport.width - 16 - copyrightWidth, bottom - copyrightHeight)
-    }
-    this.layouts.push(this.layoutAttribution)
-
-    const introBackground = new Graphics().rect(0, 0, W, H).fill('#0a0a0a')
-    const introLogo = this.sprite(this.own(Texture.from(brand.logo)), 96, 96, W / 2 - 48, H / 2 - 105)
+    const introBackground = new Graphics().rect(0, 0, W, H).fill(brandLoading.background)
+    const size = brandLoading.logoSize
+    const introLogo = this.sprite(this.own(paintTexture(size, size, (ctx) => {
+      ctx.beginPath()
+      ctx.roundRect(0, 0, size, size, brandLoading.logoRadius)
+      ctx.clip()
+      ctx.drawImage(brand.logo, 0, 0, size, size)
+    })), size, size)
     this.intro.addChild(introBackground, introLogo)
-    const title = this.label('Locusify', W / 2, H / 2 + 12, 'introTitle')
-    title.anchor.set(0.5, 0)
-    const subtitle = this.label('Your Journey, Mapped', W / 2, H / 2 + 62, 'introSubtitle', 0.4)
-    subtitle.anchor.set(0.5, 0)
-    this.intro.addChild(title, subtitle)
+    const subtitle = this.footerLabel(brandLoading.message, 'introSubtitle', brandLoading.textOpacity)
+    this.intro.addChild(subtitle)
     this.layouts.push((width, height) => {
-      introBackground.clear().rect(0, 0, width, height).fill('#0a0a0a')
-      introLogo.position.set(width / 2 - 48, height / 2 - 105)
-      title.position.set(width / 2, height / 2 + 12)
-      subtitle.position.set(width / 2, height / 2 + 62)
+      introBackground.clear().rect(0, 0, width, height).fill(brandLoading.background)
+      const layout = getBrandLoadingLayout(width, height)
+      introLogo.position.set(layout.logoX, layout.logoY)
+      subtitle.position.set(layout.textCenterX - subtitle.advanceWidth / 2, layout.textY)
     })
     this.intro.visible = false
     this.stage.addChild(this.intro)
+    const photos = prepareScenePhotos(state.waypoints.map(w => w.marker.photo), this.signal, (index, image) => {
+      const card = this.cards[index]
+      const previous = card.still
+      const texture = this.own(photoTexture(image, state.templateConfig.filter))
+      if (card.photo.texture === previous)
+        card.photo.texture = texture
+      card.still = texture
+      if (previous !== placeholder) {
+        this.textures.splice(this.textures.indexOf(previous), 1)
+        previous.destroy(true)
+      }
+    })
+    // Video fetch/decode starts during configuration but does not hold up photos.
+    const videos = async () => {
+      for (let index = 0; index < state.waypoints.length; index++) {
+        this.signal.throwIfAborted()
+        const source = state.waypoints[index].marker.photo.video
+        if (!source || source.type === 'none')
+          continue
+        const { SceneVideo } = await import('./scene-video')
+        this.signal.throwIfAborted()
+        const decoder = await SceneVideo.create(source, this.signal)
+        if (this.signal.aborted) {
+          decoder.dispose()
+          this.signal.throwIfAborted()
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = 696
+        canvas.height = 522
+        const video = { decoder, canvas, texture: this.own(Texture.from(canvas)), timestamp: -1 }
+        try {
+          // Publish only after the first decode, so the frame loop cannot enter
+          // the same sequential decoder while preparation still owns it.
+          await this.prepareVideo(index, 0, video)
+          this.signal.throwIfAborted()
+          this.cards[index].video = video
+        }
+        catch (error) {
+          decoder.dispose()
+          throw error
+        }
+      }
+    }
+    this.assetsReady = Promise.all([photos, loadAvatar(), videos()])
+    // Keep failures for Start to report without discarding usable preview photos.
+    void this.assetsReady.catch(() => {})
   }
 
   private schedule = (now: number) => {
@@ -560,7 +607,6 @@ export class ReplaySurface {
     const days = Math.max(0, Math.round((state.waypoints[index].timestamp.getTime() - state.waypoints[0].timestamp.getTime()) / 86400000))
     this.days.text = String(days)
     this.layoutStats()
-    this.layoutAttribution()
     if (state.recordingActive && state.earthZoomPhase !== 'done') {
       this.intro.visible = true
       this.intro.alpha = 1
@@ -577,8 +623,7 @@ export class ReplaySurface {
     }
   }
 
-  private async prepareVideo(index: number, time: number) {
-    const video = this.cards[index].video!
+  private async prepareVideo(index: number, time: number, video = this.cards[index].video!) {
     const sample = await video.decoder.at(time)
     if (!sample || sample.timestamp === video.timestamp || this.disposed)
       return
@@ -594,6 +639,9 @@ export class ReplaySurface {
   async start(request: RecordingOptions, signal: AbortSignal, progress: (value: number) => void) {
     if (this.recording || this.finishing)
       throw new Error('busy')
+    await this.assetsReady
+    signal.throwIfAborted()
+    this.signal.throwIfAborted()
     this.resize()
     const encoder = new LiveEncoder(request.width, request.height, request.music.trackId !== 'none')
     const cancelStart = () => encoder.dispose()
@@ -667,12 +715,16 @@ export class ReplaySurface {
     if (this.disposed)
       return
     this.disposed = true
+    this.lifetime.abort()
+    this.detachAbort()
     this.tileWait?.abort()
     this.fail(new DOMException('Recording cancelled', 'AbortError'))
     cancelAnimationFrame(this.raf)
     this.resizeObserver?.disconnect()
+    window.removeEventListener('resize', this.resize)
     this.map.off('render', this.paint)
     this.releaseClock()
+    this.unsubscribeStore()
     AudioManager.getInstance().stop()
     this.canvas.remove()
     this.stage.destroy({ children: true })

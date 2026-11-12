@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import { lazy, Suspense } from 'react'
 import { Outlet } from 'react-router'
-import { Spinner } from '@/components/ui/spinner'
 import { SplashScreen } from '@/components/ui/splash-screen'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -16,7 +15,7 @@ const Layout: FC = () => {
 
   return (
     <div className="h-dvh flex flex-col">
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<SplashScreen />}>
         <Outlet />
       </Suspense>
       <Suspense fallback={null}>

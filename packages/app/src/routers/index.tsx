@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router'
+import { SplashScreen } from '@/components/ui/splash-screen'
 import { i18n } from '@/i18n'
 import Layout from '@/layout'
 import { ErrorElement } from '@/pages/error/ErrorElement'
@@ -14,7 +15,7 @@ export const routes: RouteObject[] = [
   {
     path: '/auth/callback',
     element: (
-      <Suspense fallback={<div className="flex min-h-dvh items-center justify-center"><p className="text-sm text-text/50">Signing in...</p></div>}>
+      <Suspense fallback={<SplashScreen />}>
         <AuthCallback />
       </Suspense>
     ),
@@ -22,7 +23,7 @@ export const routes: RouteObject[] = [
   {
     path: '/reset-password',
     element: (
-      <Suspense fallback={<div className="flex min-h-dvh items-center justify-center"><p className="text-sm text-text/50">Loading...</p></div>}>
+      <Suspense fallback={<SplashScreen />}>
         <ResetPassword />
       </Suspense>
     ),
