@@ -23,3 +23,11 @@ export function getRandomQuote(previous?: string): string {
 
   return quote
 }
+
+/** The same photo must show the same caption in preview and background export. */
+export function getQuoteForPhoto(id: string): string {
+  let hash = 0
+  for (const char of id)
+    hash = (Math.imul(hash, 31) + char.charCodeAt(0)) >>> 0
+  return JOURNAL_QUOTES[hash % JOURNAL_QUOTES.length]
+}

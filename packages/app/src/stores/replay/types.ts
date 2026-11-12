@@ -3,7 +3,7 @@ import type { SegmentMeta, TransportMode } from '@/types/replay'
 import type { ReplayTemplateConfig } from '@/types/template'
 import type { PlaybackState } from '@/types/workspace'
 
-export type EarthZoomPhase = 'idle' | 'setup' | 'revealing' | 'flying' | 'done'
+export type EarthZoomPhase = 'idle' | 'setup' | 'revealing' | 'flying' | 'done' | 'failed'
 
 export interface ReplayWaypoint {
   id: string

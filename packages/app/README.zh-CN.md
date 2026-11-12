@@ -196,11 +196,21 @@ pnpm dev
 
 | 命令 | 说明 |
 |------|------|
-| `pnpm dev` | 启动 Vite 开发服务器 |
+| `pnpm dev` | 启动 Vite |
 | `pnpm build` | 生产环境构建（tsc + vite build） |
 | `pnpm preview` | 预览生产构建 |
 | `pnpm lint` | 运行 ESLint 并自动修复 |
 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
+| `pnpm exec vitest run` | 单次运行回归测试 |
+| `pnpm budget` | 生产构建后检查产物体积 |
+
+MP4 导出完全在用户浏览器中执行，无需 Node 导出进程、Chromium 安装、导出 API 或屏幕共享权限。部署普通 Vite 构建及其 Worker 资源，使用 HTTPS（或 localhost）及支持 WebCodecs H.264 编码的浏览器。关闭或刷新页面会停止任务；丢弃视频会终止编码 Worker。
+
+MapLibre 地图与固定版本 `pixi.js@8.13.0`（2025-09-05 发布）合成为一个可见的 WebGL 画布。照片、圆形用户头像、字幕、模糊背景和动画在这个共同场景内绘制。播放时将同一画布直接转换为 VideoFrame，转移给 Dedicated Worker 中的 WebCodecs / Mediabunny，输出 1920×1080、60 FPS MP4。无隐藏回放页、无逐帧 DOM/SVG/PNG 转换，也不使用 Chrome 157 的 HTML-in-Canvas API。编码队列最多保留三个未确认帧，满时暂停时间轴推进；视频素材顺序解码并与场景同步。
+
+输出保持 60 FPS；实际速度仍受地图、设备编码能力、素材解码和后台标签页调度影响。资源在配置阶段准备，地图未就绪时保持 loading。视频上限两分钟，素材和 MP4 保存在内存中。远程图片（包括头像）必须允许 CORS 读取，或使用同源、本地素材；WASM 无法绕过这一限制。无法读取的用户头像会明确报错，不会换成产品 logo。地图仍在主线程渲染，Worker 负责媒体编码和封装。
+
+`test/` 中的回归测试应随代码提交；`output/playwright/` 和 `.playwright-cli/` 中的本地录制、截图和诊断产物已被 Git 忽略。
 
 ### 项目结构
 

@@ -1,39 +1,18 @@
 import type { ReplayTemplateConfig } from '@/types/template'
 import { AnimatePresence, m } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import locusifyLogo from '@/assets/locusify.png'
 
-// Must match INTRO_MS in useVideoRecorder.ts
 const FADE_IN_S = 0.7
-const HOLD_MS = 1400
 const FADE_OUT_S = 0.7
 
 interface ReplayIntroOverlayProps {
   visible: boolean
   onExitComplete: () => void
   introStyle?: ReplayTemplateConfig['intro']['style']
-  autoHide?: boolean // false → don't auto-dismiss, wait for visible=false from parent
 }
 
-export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo-fade', autoHide = true }: ReplayIntroOverlayProps) {
-  const [show, setShow] = useState(false)
-
-  // Sync visible → show (including external close when autoHide=false)
-  useEffect(() => {
-    if (visible)
-      setShow(true)
-    else
-      setShow(false)
-  }, [visible])
-
-  // Auto-dismiss after fade-in + hold — only when autoHide is enabled
-  useEffect(() => {
-    if (!show || !autoHide)
-      return
-    const t = setTimeout(setShow, FADE_IN_S * 1000 + HOLD_MS, false)
-    return () => clearTimeout(t)
-  }, [show, autoHide])
-
+export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo-fade' }: ReplayIntroOverlayProps) {
   // Skip intro entirely — fire callback in an effect to avoid side effects during render
   useEffect(() => {
     if (introStyle === 'none' && visible)
@@ -45,10 +24,11 @@ export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo
 
   return (
     <AnimatePresence onExitComplete={onExitComplete}>
-      {show && (
+      {visible && (
         <m.div
+          data-testid="replay-intro"
           className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-neutral-950"
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: FADE_IN_S, ease: 'easeInOut' }}
@@ -56,7 +36,7 @@ export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo
           {introStyle === 'logo-fade' && (
             <m.div
               className="flex flex-col items-center gap-5"
-              initial={{ scale: 0.88, opacity: 0 }}
+              initial={false}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.96, opacity: 0 }}
               transition={{ duration: FADE_OUT_S, ease: [0.16, 1, 0.3, 1] }}
@@ -80,7 +60,7 @@ export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo
           {introStyle === 'title-card' && (
             <m.div
               className="flex flex-col items-center gap-3"
-              initial={{ y: 30, opacity: 0 }}
+              initial={false}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
               transition={{ duration: FADE_OUT_S, ease: [0.16, 1, 0.3, 1] }}
@@ -96,7 +76,7 @@ export function ReplayIntroOverlay({ visible, onExitComplete, introStyle = 'logo
           {introStyle === 'map-zoom' && (
             <m.div
               className="flex flex-col items-center gap-4"
-              initial={{ scale: 2, opacity: 0 }}
+              initial={false}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: FADE_OUT_S * 1.5, ease: [0.16, 1, 0.3, 1] }}

@@ -36,6 +36,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 1046,
       host: true,
+      watch: {
+        // Downloaded recordings can be locked by Windows while being written.
+        ignored: ['**/.playwright-cli/**', '**/output/playwright/**'],
+      },
       proxy: {
         '/api': {
           target: apiOrigin,

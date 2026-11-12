@@ -3,8 +3,20 @@ import AudioManager from '@/lib/audio/AudioManager'
 
 let rafId = 0
 let lastTime = 0
+let managed = 0
+
+/** The visible scene owns playback while it is mounted; never run two clocks. */
+export function claimReplayClock() {
+  managed++
+  stopLoop()
+  return () => {
+    managed--
+  }
+}
 
 function startLoop(getState: () => ReplayState) {
+  if (managed)
+    return
   lastTime = 0
   const animate = (time: number) => {
     if (lastTime === 0) {
@@ -14,7 +26,8 @@ function startLoop(getState: () => ReplayState) {
     }
     const delta = time - lastTime
     lastTime = time
-    getState()._tick(delta)
+    if (delta > 0)
+      getState()._tick(delta)
     rafId = requestAnimationFrame(animate)
   }
   rafId = requestAnimationFrame(animate)
@@ -49,7 +62,7 @@ export function setupReplayLoop(
       stopLoop()
     }
 
-    if (state.status !== prevState.status) {
+    if (state.status !== prevState.status && (!managed || !state.recordingActive)) {
       AudioManager.getInstance().syncWithReplayStatus(state.status)
     }
   })

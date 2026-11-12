@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useGlobeOrbitStore } from '@/stores/globeOrbitStore'
 import { useReplayStore } from '@/stores/replayStore'
+import { useReplayPreparation } from './useReplayPreparation'
 import { useVideoRecorder } from './useVideoRecorder'
 
 /** How long to keep recording after playback completes before stopping. */
@@ -12,13 +13,14 @@ const STOP_DELAY_MS = 2000
 /**
  * Unified recording flow hook.
  *
- * Encapsulates screen-capture recording, logo intro state, auto-stop on
+ * Encapsulates Worker encoding, logo intro state, auto-stop on
  * playback completion (both trajectory replay and globe orbit), and the
  * save-video dialog — so every recording mode shares the same lifecycle:
  *
+ *   configure replay → preload map, images and encoder module
  *   beginRecording(onPlaybackStart)
- *     → screen capture prompt (best-effort) → recordingActive
- *     → logo intro → onPlaybackStart callback
+ *     → show opaque intro → await preparation → encode the visible canvas
+ *     → wait for painted destination → intro exit → onPlaybackStart callback
  *     → playback … → auto-stop → save dialog
  */
 interface RecordingFlowOptions {
@@ -27,6 +29,8 @@ interface RecordingFlowOptions {
 
 export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   const { cropRef } = options
+  const attempt = useRef(0)
+  const preparation = useReplayPreparation()
   const {
     startRecording,
     stopRecording,
@@ -35,7 +39,8 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     isRecording,
     isProcessing,
     pendingVideo,
-    conversionProgress,
+    progress,
+    error: recorderError,
   } = useVideoRecorder()
 
   // Intro state
@@ -58,31 +63,45 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   // ── Actions ─────────────────────────────────────────────────────────────────
 
   /**
-   * Start a full recording session: screen capture (best-effort) → show intro.
+   * Start a full recording session with the intro present in its first frame.
    * When the intro animation finishes, `onPlaybackStart` is called so the
    * consumer can begin actual playback.
    *
-   * Recording is best-effort — if screen capture is denied or unsupported,
-   * the intro and playback still proceed normally.
+   * Playback begins once the visible scene's encoder is ready.
    */
   const beginRecording = useCallback(async (onPlaybackStart: () => void) => {
+    const id = ++attempt.current
     recorderDiscard()
     setRecordingError(null)
     onPlaybackStartRef.current = onPlaybackStart
-    // Commit the 16:9 capture layout before CropTarget is created. The intro is
-    // started only after MediaRecorder is active, so the logo is part of the
-    // exported video instead of finishing behind the browser share prompt.
-    flushSync(() => useReplayStore.getState().setRecordingActive(true))
-    const result = await startRecording(cropRef?.current)
-    if (result.ok) {
+    // Show the loading state before starting either preview or background work.
+    flushSync(() => {
+      useReplayStore.getState().setRecordingActive(true)
       setIntroVisible(true)
-    }
-    else {
+    })
+    const result = await startRecording(cropRef?.current, preparation.current ?? Promise.reject(new Error('map-unavailable')))
+    if (id !== attempt.current || (!result.ok && result.reason === 'cancelled'))
+      return
+    if (!result.ok) {
+      setIntroVisible(false)
       useReplayStore.getState().setRecordingActive(false)
       setRecordingError(result.reason)
       onPlaybackStartRef.current = null
     }
-  }, [startRecording, recorderDiscard, cropRef])
+    return result.ok
+  }, [startRecording, recorderDiscard, cropRef, preparation])
+
+  useEffect(() => {
+    if (recorderError) {
+      setIntroVisible(false)
+      setVideoDialogOpen(false)
+      onPlaybackStartRef.current = null
+    }
+  }, [recorderError])
+
+  useEffect(() => () => {
+    attempt.current++
+  }, [])
 
   /**
    * Show only the intro (no new recording session).
@@ -100,33 +119,23 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     onPlaybackStartRef.current = null
   }, [])
 
-  // ── Hide cursor during intro & recording ─────────────────────────────────
-  // MapLibre sets inline cursor styles (grab, pointer) on the canvas, which
-  // override `document.documentElement.style.cursor`. Use a <style> with
-  // !important to force-hide the cursor during the entire recording experience.
-  useEffect(() => {
-    if (!recordingActive && !introVisible)
-      return
-    const style = document.createElement('style')
-    style.textContent = '* { cursor: none !important; }'
-    document.head.appendChild(style)
-    return () => {
-      document.head.removeChild(style)
-    }
-  }, [recordingActive, introVisible])
-
-  // ── Earth zoom revealing → close intro overlay ─────────────────────────────
-  // When the controller advances to "revealing", fade-out the intro overlay so
-  // it overlaps with the flyTo for a smooth visual transition.
+  // Keep the intro opaque through camera movement and tile loading. Only a
+  // painted destination may reveal the map; elapsed time is not readiness.
   useEffect(() => {
     const unsub = useReplayStore.subscribe((state, prev) => {
-      if (state.earthZoomPhase === 'revealing' && prev.earthZoomPhase !== 'revealing') {
+      if (state.earthZoomPhase === 'done' && prev.earthZoomPhase !== 'done') {
         setIntroVisible(false)
+      }
+      else if (state.earthZoomPhase === 'failed' && prev.earthZoomPhase !== 'failed') {
         onPlaybackStartRef.current = null
+        setIntroVisible(false)
+        recorderDiscard()
+        setRecordingError('map-unavailable')
+        state.setEarthZoomPhase('idle')
       }
     })
     return unsub
-  }, [])
+  }, [recorderDiscard])
 
   // ── Auto-stop: globe orbit completed ────────────────────────────────────────
 
@@ -138,6 +147,10 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
           stopRecordingRef.current()
           tid = null
         }, STOP_DELAY_MS)
+      }
+      else if (state.status !== 'completed' && tid) {
+        clearTimeout(tid)
+        tid = null
       }
     })
     return () => {
@@ -153,6 +166,10 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   const orbitStatus = useGlobeOrbitStore(s => s.status)
 
   useEffect(() => {
+    if (pendingVideo) {
+      setVideoDialogOpen(true)
+      return
+    }
     const anyCompleted = replayStatus === 'completed' || orbitStatus === 'completed'
     if (!anyCompleted)
       return
@@ -175,6 +192,9 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   }, [recorderDiscard])
 
   const exitRecording = useCallback(() => {
+    attempt.current++
+    setIntroVisible(false)
+    onPlaybackStartRef.current = null
     recorderDiscard()
     setVideoDialogOpen(false)
     setRecordingError(null)
@@ -188,8 +208,8 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     isRecording,
     isProcessing,
     pendingVideo,
-    conversionProgress,
-    recordingError,
+    progress,
+    recordingError: recordingError ?? recorderError,
     // Actions
     beginRecording,
     showIntro,
@@ -197,6 +217,9 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
     saveVideo,
     discardVideo,
     exitRecording,
-    dismissRecordingError: () => setRecordingError(null),
+    dismissRecordingError: () => {
+      setRecordingError(null)
+      recorderDiscard()
+    },
   }
 }

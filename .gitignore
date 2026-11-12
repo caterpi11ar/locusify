@@ -26,6 +26,8 @@ packages/app/lobehub/
 
 # E2E artifacts
 output/playwright/
+packages/app/output/playwright/
+packages/app/.playwright-cli/
 packages/app/e2e/shots/
 artifacts/
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-map-gl/maplibre'
 import { computeCameraTarget, smoothBearing } from '@/lib/replay/camera'
+import { SCENE_HEIGHT, SCENE_WIDTH } from '@/lib/replay/scene-motion'
 import { useReplayStore } from '@/stores/replayStore'
 
 /**
@@ -28,10 +29,17 @@ export function TrajectoryController() {
     if (!map)
       return
 
-    // Set left padding so all camera ops center on the right 60% (unoccluded by photo panel)
+    // Keep the camera clear of the uniformly scaled photo panel after resizing.
     const mapInstance = map.getMap()
-    const panelWidth = Math.round(mapInstance.getContainer().offsetWidth * 0.4)
-    mapInstance.setPadding({ left: panelWidth, top: 0, right: 0, bottom: 0 })
+    const resizePadding = () => {
+      const container = mapInstance.getContainer()
+      const scale = Math.min(container.clientWidth / SCENE_WIDTH, container.clientHeight / SCENE_HEIGHT)
+      const panelWidth = Math.round(SCENE_WIDTH * 0.4 * scale)
+      mapInstance.setPadding({ left: panelWidth, top: 0, right: 0, bottom: 0 })
+    }
+    resizePadding()
+    const observer = new ResizeObserver(resizePadding)
+    observer.observe(mapInstance.getContainer())
 
     const cam = cameraRef.current
     cam.initialised = false
@@ -74,6 +82,15 @@ export function TrajectoryController() {
 
       // When earth zoom finishes, mark that it already positioned the camera
       if (earthZoomPhase === 'done' && prevState.earthZoomPhase !== 'done') {
+        // Start following from the camera that actually finished loading.
+        // Mounting an export scene after entering paused mode must not leave
+        // the damping origin at [0, 0] or zoom 12 and jump to an unloaded view.
+        const center = map!.getCenter()
+        cam.centerLng = center.lng
+        cam.centerLat = center.lat
+        cam.zoom = map!.getZoom()
+        cam.bearing = map!.getBearing()
+        cam.pitch = map!.getPitch()
         cam.earthZoomHandled = true
         cam.initialised = true
         return
@@ -188,6 +205,7 @@ export function TrajectoryController() {
 
     return () => {
       unsub()
+      observer.disconnect()
       mapInstance.setPadding({ left: 0, top: 0, right: 0, bottom: 0 })
     }
   }, [map])

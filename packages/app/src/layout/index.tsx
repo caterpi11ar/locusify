@@ -1,10 +1,11 @@
 import type { FC } from 'react'
-import { Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { Outlet } from 'react-router'
-import { DiscoverySurvey } from '@/components/auth/DiscoverySurvey'
 import { Spinner } from '@/components/ui/spinner'
 import { SplashScreen } from '@/components/ui/splash-screen'
 import { useAuthStore } from '@/stores/authStore'
+
+const DiscoverySurvey = lazy(() => import('@/components/auth/DiscoverySurvey').then(module => ({ default: module.DiscoverySurvey })))
 
 const Layout: FC = () => {
   const authReady = useAuthStore(s => s.authReady)
@@ -18,7 +19,9 @@ const Layout: FC = () => {
       <Suspense fallback={<Spinner />}>
         <Outlet />
       </Suspense>
-      <DiscoverySurvey />
+      <Suspense fallback={null}>
+        <DiscoverySurvey />
+      </Suspense>
     </div>
   )
 }

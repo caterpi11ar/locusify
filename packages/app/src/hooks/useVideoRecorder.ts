@@ -1,261 +1,121 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createRecordingOptions } from '@/lib/replay/recording-options'
+import { getReplaySurface } from '@/lib/replay/scene-registry'
 import { useReplayStore } from '@/stores/replayStore'
 
-export type RecordingStatus = 'idle' | 'recording' | 'processing' | 'unsupported'
-export type RecordingFailureReason = 'busy' | 'permission-denied' | 'region-capture-unsupported' | 'crop-failed'
+export type RecordingStatus = 'idle' | 'starting' | 'recording' | 'processing'
+export type RecordingFailureReason = 'busy' | 'encoder-unsupported' | 'asset-unavailable' | 'avatar-unavailable' | 'map-unavailable' | 'render-failed' | 'encoding-failed' | 'cancelled' | 'export-unavailable'
 export type StartRecordingResult = { ok: true } | { ok: false, reason: RecordingFailureReason }
+export interface PendingVideo { blob: Blob, mimeType: 'video/mp4', width: number, height: number }
 
-// ─── Capability detection ──────────────────────────────────────────────────────
-
-function detectCapability(): 'screen-capture' | 'unsupported' {
-  if (typeof navigator.mediaDevices?.getDisplayMedia === 'function') {
-    return 'screen-capture'
-  }
-  return 'unsupported'
+function failureReason(cause: unknown): RecordingFailureReason {
+  const reasons: RecordingFailureReason[] = ['busy', 'encoder-unsupported', 'asset-unavailable', 'avatar-unavailable', 'map-unavailable', 'export-unavailable']
+  return reasons.find(reason => cause instanceof Error && cause.message === reason) ?? 'render-failed'
 }
-
-// ─── Timing constants ──────────────────────────────────────────────────────────
-
-/** How long to keep recording after replay completes before stopping. */
-const WAIT_MS = 2000
-
-// ─── Session callbacks ─────────────────────────────────────────────────────────
-
-interface SessionCallbacks {
-  /** Called the moment the session decides to stop (transition to 'processing'). */
-  onStopping: () => void
-  /** Called once the encoded blob is ready (transition to 'idle'). */
-  onComplete: (blob: Blob) => void | Promise<void>
-}
-
-// ─── ScreenRecordingSession ────────────────────────────────────────────────────
-
-class ScreenRecordingSession {
-  private recorder: MediaRecorder
-  private stream: MediaStream
-  private chunks: Blob[] = []
-  private callbacks: SessionCallbacks
-  private mimeType: string
-
-  static async create(
-    callbacks: SessionCallbacks,
-    cropElement?: HTMLElement,
-  ): Promise<{ session: ScreenRecordingSession } | { reason: RecordingFailureReason }> {
-    if (!cropElement || typeof CropTarget === 'undefined')
-      return { reason: 'region-capture-unsupported' }
-
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: {
-          displaySurface: 'browser',
-          suppressLocalAudioPlayback: true,
-        },
-        audio: true,
-        preferCurrentTab: true,
-        selfBrowserSurface: 'include',
-        surfaceSwitching: 'exclude',
-      } as DisplayMediaStreamOptions)
-
-      // Create the CropTarget only after the user has selected the current tab.
-      // Chrome resolves its exact bounds at this point, after the 16:9 layout is
-      // committed, which avoids stale dimensions and stretched output.
-      try {
-        const cropTarget = await CropTarget.fromElement(cropElement)
-        const videoTrack = stream.getVideoTracks()[0] as BrowserCaptureMediaStreamTrack
-        if (typeof videoTrack.cropTo !== 'function') {
-          stream.getTracks().forEach(track => track.stop())
-          return { reason: 'region-capture-unsupported' }
-        }
-        await videoTrack.cropTo(cropTarget)
-      }
-      catch {
-        stream.getTracks().forEach(track => track.stop())
-        return { reason: 'crop-failed' }
-      }
-
-      return { session: new ScreenRecordingSession(stream, callbacks) }
-    }
-    catch {
-      return { reason: 'permission-denied' }
-    }
-  }
-
-  private constructor(stream: MediaStream, callbacks: SessionCallbacks) {
-    this.stream = stream
-    this.callbacks = callbacks
-
-    // MIME type priority — prefer WebM (VP9/VP8) for screen capture streams;
-    // H.264 via MediaRecorder + getDisplayMedia produces green frames on Chrome.
-    this.mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
-      .find(t => MediaRecorder.isTypeSupported(t)) ?? 'video/webm'
-
-    this.recorder = new MediaRecorder(stream, { mimeType: this.mimeType })
-    this.recorder.ondataavailable = (e) => {
-      if (e.data?.size > 0)
-        this.chunks.push(e.data)
-    }
-    this.recorder.onstop = () => {
-      const blob = new Blob(this.chunks, { type: this.mimeType })
-      callbacks.onComplete(blob)
-    }
-
-    // User stops sharing via browser UI
-    stream.getVideoTracks()[0].onended = () => {
-      this.stop()
-    }
-  }
-
-  start() {
-    // Timeslice of 1s ensures periodic data output and avoids green-frame issues
-    this.recorder.start(1000)
-  }
-
-  stop() {
-    if (this.recorder.state !== 'inactive') {
-      this.callbacks.onStopping()
-      try {
-        this.recorder.requestData()
-      }
-      catch { /* no-op */ }
-      this.recorder.stop()
-    }
-    this.stream.getTracks().forEach(t => t.stop())
-  }
-
-  dispose() {
-    if (this.recorder.state !== 'inactive') {
-      try {
-        this.recorder.stop()
-      }
-      catch { /* no-op */ }
-    }
-    this.stream.getTracks().forEach(t => t.stop())
-  }
-}
-
-// ─── Public types ──────────────────────────────────────────────────────────────
-
-export interface PendingVideo {
-  blob: Blob
-  mimeType: string
-}
-
-// ─── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useVideoRecorder() {
-  const [status, setStatus] = useState<RecordingStatus>(() => {
-    return detectCapability() === 'unsupported' ? 'unsupported' : 'idle'
-  })
+  const [status, setStatus] = useState<RecordingStatus>('idle')
   const [pendingVideo, setPendingVideo] = useState<PendingVideo | null>(null)
-  const [conversionProgress, setConversionProgress] = useState<number | null>(null)
+  const [error, setError] = useState<RecordingFailureReason | null>(null)
+  const [progress, setProgress] = useState(0)
+  const active = useRef<{ controller: AbortController } | null>(null)
 
-  const sessionRef = useRef<ScreenRecordingSession | null>(null)
-
-  /**
-   * Starts recording using Screen Capture API.
-   * Returns a typed failure reason so the UI can explain how to recover.
-   */
-  const startRecording = useCallback(async (cropElement?: HTMLElement | null): Promise<StartRecordingResult> => {
-    if (status !== 'idle')
+  const startRecording = useCallback(async (element?: HTMLElement | null, preparation: Promise<void> = Promise.resolve()): Promise<StartRecordingResult> => {
+    void preparation.catch(() => {})
+    if (active.current)
       return { ok: false, reason: 'busy' }
-
-    const callbacks: SessionCallbacks = {
-      onStopping: () => {
-        setStatus('processing')
-        useReplayStore.getState().setRecordingActive(false)
-      },
-      onComplete: async (blob) => {
-        setConversionProgress(0)
-        try {
-          const { convertWebmToMp4 } = await import('@/lib/webm-to-mp4')
-          const mp4Blob = await convertWebmToMp4(blob, setConversionProgress)
-          setPendingVideo({ blob: mp4Blob, mimeType: 'video/mp4' })
-        }
-        catch {
-          // Conversion failed — fall back to original WebM
-          setPendingVideo({ blob, mimeType: 'video/webm' })
-        }
-        setConversionProgress(null)
+    if (!element)
+      return { ok: false, reason: 'render-failed' }
+    const job = { controller: new AbortController() }
+    const { signal } = job.controller
+    active.current = job
+    setStatus('starting')
+    setError(null)
+    setPendingVideo(null)
+    setProgress(0)
+    try {
+      // The job belongs to this page and never leaves the browser.
+      await preparation
+      signal.throwIfAborted()
+      const request = createRecordingOptions()
+      signal.throwIfAborted()
+      const surface = await getReplaySurface(element)
+      signal.throwIfAborted()
+      const { done } = await surface.start(request, signal, setProgress)
+      setStatus('recording')
+      void done.then((video) => {
+        if (active.current !== job)
+          return
+        setPendingVideo(video)
+        setProgress(100)
         setStatus('idle')
-        sessionRef.current = null
-      },
+        active.current = null
+      }).catch((cause) => {
+        if (signal.aborted || active.current !== job)
+          return
+        console.error('[export] Background render failed', cause)
+        setError(failureReason(cause))
+        setStatus('idle')
+        active.current = null
+        useReplayStore.getState().setRecordingActive(false)
+      })
+      return { ok: true }
     }
-
-    const result = await ScreenRecordingSession.create(callbacks, cropElement ?? undefined)
-    if ('reason' in result)
-      return { ok: false, reason: result.reason }
-
-    const { session } = result
-    sessionRef.current = session
-    session.start()
-    setStatus('recording')
-    useReplayStore.getState().setRecordingActive(true)
-    return { ok: true }
-  }, [status])
-
-  // Auto-stop recording when replay completes
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    const unsubscribe = useReplayStore.subscribe((state) => {
-      if (state.status === 'completed' && sessionRef.current) {
-        timeoutId = setTimeout(() => {
-          sessionRef.current?.stop()
-          timeoutId = null
-        }, WAIT_MS)
-      }
-    })
-    return () => {
-      unsubscribe()
-      if (timeoutId)
-        clearTimeout(timeoutId)
+    catch (cause) {
+      if (signal.aborted)
+        return { ok: false, reason: 'cancelled' }
+      if (active.current === job)
+        active.current = null
+      setStatus('idle')
+      console.error('[export] Could not submit replay', cause)
+      return { ok: false, reason: failureReason(cause) }
     }
   }, [])
+
+  const stopRecording = useCallback(() => {
+    if (active.current)
+      setStatus('processing')
+  }, [])
+
+  useEffect(() => useReplayStore.subscribe((state, previous) => {
+    if (state.status === 'completed' && previous.status !== 'completed')
+      stopRecording()
+  }), [stopRecording])
+
+  const dispose = useCallback(() => {
+    const job = active.current
+    active.current = null
+    job?.controller.abort()
+    useReplayStore.getState().setRecordingActive(false)
+  }, [])
+
+  const discardVideo = useCallback(() => {
+    dispose()
+    setPendingVideo(null)
+    setError(null)
+    setStatus('idle')
+    setProgress(0)
+  }, [dispose])
 
   const saveVideo = useCallback(() => {
     if (!pendingVideo)
       return
-    const { blob, mimeType } = pendingVideo
-    const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm'
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `locusify-${Date.now()}.${ext}`
-    a.click()
+    const url = URL.createObjectURL(pendingVideo.blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `locusify-${Date.now()}.mp4`
+    link.click()
     setTimeout(() => URL.revokeObjectURL(url), 10000)
     setPendingVideo(null)
+    useReplayStore.getState().setRecordingActive(false)
   }, [pendingVideo])
 
-  /** Stop the active recording session (triggers processing → pendingVideo). */
-  const stopRecording = useCallback(() => {
-    sessionRef.current?.stop()
-  }, [])
-
-  const discardVideo = useCallback(() => {
-    sessionRef.current?.dispose()
-    sessionRef.current = null
-    useReplayStore.getState().setRecordingActive(false)
-    setPendingVideo(null)
-    setStatus(prev => (prev === 'recording' || prev === 'processing') ? 'idle' : prev)
-  }, [])
-
-  // Cleanup on unmount
   useEffect(() => {
+    window.addEventListener('pagehide', discardVideo)
     return () => {
-      sessionRef.current?.dispose()
-      useReplayStore.getState().setRecordingActive(false)
+      window.removeEventListener('pagehide', discardVideo)
+      dispose()
     }
-  }, [])
-
-  return {
-    status,
-    pendingVideo,
-    conversionProgress,
-    startRecording,
-    stopRecording,
-    saveVideo,
-    discardVideo,
-    isSupported: status !== 'unsupported',
-    isRecording: status === 'recording',
-    isProcessing: status === 'processing',
-  }
+  }, [dispose, discardVideo])
+  return { status, pendingVideo, progress, error, startRecording, stopRecording, saveVideo, discardVideo, isRecording: status === 'recording', isProcessing: status === 'starting' || status === 'processing' }
 }

@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
     <MotionConfig reducedMotion="always">
       <div className="relative min-h-dvh bg-neutral-950">
         {state === 'splash' && <SplashScreen />}
-        {state === 'intro' && <ReplayIntroOverlay visible autoHide={false} onExitComplete={() => {}} />}
+        {state === 'intro' && <ReplayIntroOverlay visible onExitComplete={() => {}} />}
         {state === 'stats' && <div className="absolute inset-x-0 bottom-0"><TrajectoryStatsBar /></div>}
         {state === 'login-button' && <LoginButton onClick={() => {}} />}
         {state === 'waypoint' && (

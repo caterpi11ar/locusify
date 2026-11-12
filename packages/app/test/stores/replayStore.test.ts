@@ -61,6 +61,24 @@ describe('replayStore', () => {
     expect(useReplayStore.getState().status).toBe('idle')
   })
 
+  it.each(['', 'not-a-date'])('keeps all GPS photos when capture time is %j', (dateTaken) => {
+    const uploaded = markers.map(marker => ({ ...marker, photo: { ...marker.photo, dateTaken } })).reverse()
+    useReplayStore.getState().prepareReplay(uploaded)
+    const preview = useReplayStore.getState()
+    expect(preview.status).toBe('configuring')
+    expect(preview.waypoints.map(wp => wp.id)).toEqual(['a', 'b', 'c'])
+    expect(preview.segments).toHaveLength(2)
+    expect(preview.segments.every(segment => Number.isFinite(segment.timeDeltaMs))).toBe(true)
+    expect(uploaded[0].photo.dateTaken).toBe(dateTaken)
+
+    // Background export reconstructs the same route through startReplay.
+    useReplayStore.getState().exitReplay()
+    useReplayStore.getState().startReplay(uploaded, true)
+    const exported = useReplayStore.getState()
+    expect(exported.waypoints.map(wp => wp.id)).toEqual(['a', 'b', 'c'])
+    expect(exported.waypoints.map(wp => wp.timestamp.toISOString())).toEqual(markers.map(marker => new Date(marker.photo.lastModified).toISOString()))
+  })
+
   it('confirmConfig transitions from configuring to paused', () => {
     useReplayStore.getState().prepareReplay(markers)
     useReplayStore.getState().confirmConfig()

@@ -9,14 +9,21 @@ function easeInOut(t: number): number {
 }
 
 export function markersToWaypoints(markers: PhotoMarker[]): ReplayWaypoint[] {
+  // GPS photos remain usable without EXIF capture time. File modification
+  // time is available for uploads and gives preview/export the same ordering.
   return markers
-    .filter(m => m.photo.dateTaken)
-    .sort((a, b) => new Date(a.photo.dateTaken).getTime() - new Date(b.photo.dateTaken).getTime())
-    .map((marker, index) => ({
+    .map((marker) => {
+      const captured = Date.parse(marker.photo.dateTaken)
+      const modified = Date.parse(marker.photo.lastModified)
+      const time = Number.isFinite(captured) ? captured : Number.isFinite(modified) ? modified : 0
+      return { marker, timestamp: new Date(time) }
+    })
+    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+    .map(({ marker, timestamp }, index) => ({
       id: marker.id,
       position: [marker.longitude, marker.latitude] as [number, number],
       marker,
-      timestamp: new Date(marker.photo.dateTaken),
+      timestamp,
       index,
     }))
 }

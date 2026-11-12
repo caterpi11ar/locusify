@@ -49,10 +49,14 @@ console.log(`MapSection core chunk: ${(mapRaw / 1024).toFixed(1)} KiB raw (${map
 if (mapRaw > 500 * 1024)
   throw new Error(`MapSection core budget exceeded: ${(mapRaw / 1024).toFixed(1)} KiB > 500 KiB`)
 
-const mapLibreKey = 'src/pages/map/MapLibre.tsx'
-const mapLibreEntry = manifest[mapLibreKey]
-if (!mapLibreEntry)
+// Vite may promote MapLibre to a shared chunk. Resolve it from the map route's
+// actual dynamic imports when the source-path manifest key is absent.
+const mapLibreKey = manifest['src/pages/map/MapLibre.tsx']
+  ? 'src/pages/map/MapLibre.tsx'
+  : mapEntry.dynamicImports?.find(key => manifest[key]?.name === 'MapLibre')
+if (!mapLibreKey)
   throw new Error('Vite manifest is missing MapLibre')
+const mapLibreEntry = manifest[mapLibreKey]
 
 // The default route renders MapSection and MapLibre immediately. Include that
 // runtime chain as well as the pre-route shell so code splitting cannot hide
@@ -61,6 +65,7 @@ const defaultMapStartup = collectStatic([
   'index.html',
   ...(entry.dynamicImports ?? []),
   'src/pages/map/MapSection.tsx',
+  'src/components/auth/DiscoverySurvey.tsx',
   mapLibreKey,
   ...(mapLibreEntry.dynamicImports ?? []),
 ])

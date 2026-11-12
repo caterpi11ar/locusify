@@ -197,11 +197,21 @@ pnpm dev
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start Vite development server |
+| `pnpm dev` | Start Vite |
 | `pnpm build` | Build for production (tsc + vite build) |
 | `pnpm preview` | Preview production build |
 | `pnpm lint` | Run ESLint with auto-fix |
 | `pnpm typecheck` | Run TypeScript type checking |
+| `pnpm exec vitest run` | Run the regression suite once |
+| `pnpm budget` | Check bundle sizes after a production build |
+
+MP4 export runs entirely in the user's browser. Deploy the ordinary Vite build and its Worker assets; no Node export process, Chromium installation, export API, or screen-sharing permission is required. Use HTTPS (or localhost) and a browser with WebCodecs H.264 encoding support. Closing or refreshing the page cancels its work; discarding an export terminates the encoding Worker.
+
+MapLibre and pinned `pixi.js@8.13.0` (released 2025-09-05) compose one visible WebGL canvas containing the map, photographs, circular profile avatar, text, blurred backgrounds, and animations. During playback, that same canvas supplies VideoFrames transferred to a Dedicated Worker running WebCodecs / Mediabunny, producing 1920×1080, 60 FPS MP4. There is no hidden replay page, per-frame DOM/SVG/PNG conversion, or Chrome 157 HTML-in-Canvas dependency. A maximum of three unacknowledged frames applies backpressure to the common timeline. Video assets decode sequentially on that timeline.
+
+Output maintains 60 FPS; throughput still depends on map rendering, device encoding capability, media decoding, and background-tab scheduling. Assets prepare while configuring, and loading remains visible until the map is ready. Videos are limited to two minutes; assets and the MP4 currently reside in memory. External images, including avatars, must permit CORS reads or be same-origin/local assets. WASM cannot bypass this restriction, and an unreadable avatar is reported rather than replaced with a product logo. Map rendering remains on the main thread; media encoding and muxing run in the Worker.
+
+Regression tests in `test/` belong in source control. Local recordings, screenshots, and diagnostic output in `output/playwright/` and `.playwright-cli/` are ignored.
 
 ### Project Structure
 
