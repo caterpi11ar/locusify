@@ -4,29 +4,28 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getTemplateById } from '@/data/templates'
 import { useReplayStore } from '@/stores/replayStore'
-import { PhotoPanel } from './replay/PhotoPanel'
+import { MetadataEditor } from './replay/MetadataEditor'
 import { ReplayControls } from './replay/ReplayControls'
 import { TemplateCustomizer } from './replay/TemplateCustomizer'
 import { TemplateSelector } from './replay/TemplateSelector'
-import { TrajectoryStatsBar } from './replay/TrajectoryStatsBar'
 
 interface TrajectoryOverlayProps {
-  onBeginRecording?: (onPlaybackStart: () => void) => Promise<void>
+  onBeginRecording?: (onPlaybackStart: () => void) => Promise<boolean | undefined>
   onShowIntro?: (onComplete: () => void) => void
   onUpgradeClick?: () => void
 }
 
 /**
  * Overlay container for replay mode.
- * Contains the template config UI, text overlay, stats, and bottom controls.
- * Intro animation is rendered at the MapSection level.
- * Photo panel is rendered as a split layout alongside the map.
+ * Contains editor controls outside the encoded surface. Photos, intro,
+ * statistics and animations belong to the shared WebGL replay scene.
  */
 export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClick }: TrajectoryOverlayProps) {
   const { t } = useTranslation()
   const reducedMotion = useReducedMotion()
 
   const status = useReplayStore(s => s.status)
+  const waypoint = useReplayStore(s => s.waypoints[Math.min(s.currentWaypointIndex, s.waypoints.length - 1)])
   const recordingActive = useReplayStore(s => s.recordingActive)
   const templateId = useReplayStore(s => s.templateId)
   const templateConfig = useReplayStore(s => s.templateConfig)
@@ -45,7 +44,12 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
     setShowCustomizePanel(false)
     confirmConfig()
     // Use the street replay flow at every map zoom level.
-    await onBeginRecording?.(() => {})
+    const started = await onBeginRecording?.(() => {
+      if (useReplayStore.getState().status === 'paused')
+        useReplayStore.getState().togglePlayPause()
+    })
+    if (onBeginRecording && !started)
+      return
     startEarthZoom()
   }, [confirmConfig, onBeginRecording, startEarthZoom])
 
@@ -54,7 +58,7 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
   // - completed: restart (goes back to configuring → same flow)
   // - paused: resume via intro
   const handlePlayClick = useCallback(async () => {
-    if (status === 'configuring') {
+    if (status === 'configuring' || (status === 'paused' && !recordingActive)) {
       await handleStartReplay()
     }
     else if (status === 'completed') {
@@ -62,10 +66,13 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
     }
     else {
       // Pause-resume
-      onShowIntro?.(() => {})
+      onShowIntro?.(() => {
+        if (useReplayStore.getState().status === 'paused')
+          useReplayStore.getState().togglePlayPause()
+      })
       startEarthZoom()
     }
-  }, [status, handleStartReplay, onShowIntro, restartReplay, startEarthZoom])
+  }, [status, recordingActive, handleStartReplay, onShowIntro, restartReplay, startEarthZoom])
 
   const handleTemplateSelect = useCallback((template: ReplayTemplate) => {
     setTemplate(template.id, template.config)
@@ -90,17 +97,18 @@ export function TrajectoryOverlay({ onBeginRecording, onShowIntro, onUpgradeClic
 
   return (
     <div className="pointer-events-none absolute inset-0 z-30 flex flex-col justify-end">
-      {/* Split layout — photo panel */}
-      <PhotoPanel />
-
-      {/* Stats bar — visible only during recording */}
-      <div className="relative z-30">
-        <TrajectoryStatsBar />
-      </div>
+      {isConfiguring && waypoint && (
+        <div
+          className="pointer-events-auto absolute"
+          style={{ left: 'calc(var(--replay-unit, 1px) * 82)', width: 'calc(var(--replay-unit, 1px) * 348)', top: 'calc(50% + var(--replay-unit, 1px) * 187)' }}
+        >
+          <MetadataEditor key={waypoint.id} photoId={waypoint.id} currentTitle={waypoint.marker.photo.title} currentDateTaken={waypoint.marker.photo.dateTaken} />
+        </div>
+      )}
 
       {/* Right workspace — panels and controls share normal document flow so they never overlap. */}
       {!recordingActive && (
-        <div className="pointer-events-none relative z-40 flex min-h-0 w-3/5 flex-1 self-end flex-col justify-end gap-2 px-2 pb-2 sm:gap-3 sm:pb-4">
+        <div className="pointer-events-none relative z-40 flex min-h-0 flex-1 self-end flex-col justify-end gap-2 px-2 pb-2 sm:gap-3 sm:pb-4" style={{ width: 'calc(100% - var(--replay-unit, 1px) * 512)' }}>
           <AnimatePresence mode="wait">
             {showCustomizePanel && (
               <m.div

@@ -1,8 +1,9 @@
 import { m } from 'motion/react'
+import { useState } from 'react'
 import { Marker } from 'react-map-gl/maplibre'
-import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { presetAvatars } from '@/data/presetAvatars'
 import { transportModeIcons } from '@/data/transportModes'
+import { isBrandAvatar } from '@/lib/brand'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { useReplayStore } from '@/stores/replayStore'
@@ -73,15 +74,16 @@ function AvatarContent({
   userName?: string
   lineColor: string
 }) {
+  const [failedAvatar, setFailedAvatar] = useState<string>()
   // Profile avatar with image
-  if (avatarSource.type === 'profile' && avatarUrl) {
+  if (avatarSource.type === 'profile' && avatarUrl && !isBrandAvatar(avatarUrl) && avatarUrl !== failedAvatar) {
     return (
-      <ProfileAvatar
-        src={avatarUrl}
-        alt=""
-        className="relative size-9 rounded-full border-2 object-cover"
+      <div
+        className="relative size-9 overflow-hidden rounded-full border-2"
         style={{ borderColor: lineColor, boxShadow: `0 0 8px ${lineColor}66` }}
-      />
+      >
+        <img src={avatarUrl} alt={userName ?? ''} referrerPolicy="no-referrer" className="size-full rounded-full object-cover" onError={() => setFailedAvatar(avatarUrl)} />
+      </div>
     )
   }
 

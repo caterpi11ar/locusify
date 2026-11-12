@@ -17,7 +17,7 @@ export function RecordingErrorDialog({ reason, onClose }: RecordingErrorDialogPr
       footer={null}
       centered
       width={420}
-      maskClosable={false}
+      mask={{ closable: false }}
       title={t('recording.error.title')}
       styles={{
         container: {
@@ -26,6 +26,8 @@ export function RecordingErrorDialog({ reason, onClose }: RecordingErrorDialogPr
           borderRadius: 16,
         },
         header: { background: 'transparent' },
+        title: { color: 'rgb(var(--color-text))' },
+        close: { color: 'rgb(var(--color-text-secondary))' },
       }}
     >
       <div className="pt-2">
@@ -33,7 +35,7 @@ export function RecordingErrorDialog({ reason, onClose }: RecordingErrorDialogPr
           <i className="i-mingcute-alert-line text-xl" />
         </div>
         <p className="text-text-secondary text-sm leading-relaxed">
-          {t(`recording.error.${reason ?? 'permission-denied'}`)}
+          {t(`recording.error.${reason ?? 'render-failed'}`)}
         </p>
         <button
           type="button"

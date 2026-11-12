@@ -15,6 +15,7 @@ class AudioManager {
   private fadeInDuration = 1
   private fadeOutDuration = 2
   private isPlaying = false
+  private timelineAnchor: { contextTime: number, mediaTime: number } | null = null
 
   static getInstance(): AudioManager {
     if (!AudioManager.instance) {
@@ -92,6 +93,29 @@ class AudioManager {
     this.fadeOutDuration = fadeOut
   }
 
+  /** Keep audible preview music on the same clock as the displayed/encoded frame. */
+  syncTimeline(seconds: number, gain: number) {
+    if (!this.buffer || this.currentTrackId === 'none')
+      return
+    const ctx = this.getContext()
+    if (ctx.state === 'suspended')
+      void ctx.resume()
+    const anchor = this.timelineAnchor
+    const drift = anchor ? Math.abs(anchor.mediaTime + ctx.currentTime - anchor.contextTime - seconds) : Infinity
+    if (!this.isPlaying || drift > 0.08) {
+      this.source?.stop()
+      this.source = ctx.createBufferSource()
+      this.source.buffer = this.buffer
+      this.source.loop = true
+      this.source.connect(this.gainNode!)
+      this.source.start(0, seconds % this.buffer.duration)
+      this.timelineAnchor = { contextTime: ctx.currentTime, mediaTime: seconds }
+      this.isPlaying = true
+    }
+    this.gainNode!.gain.cancelScheduledValues(ctx.currentTime)
+    this.gainNode!.gain.setTargetAtTime(Math.max(0, gain), ctx.currentTime, 0.01)
+  }
+
   play() {
     if (this.isPlaying || !this.buffer || this.currentTrackId === 'none')
       return
@@ -149,6 +173,7 @@ class AudioManager {
   }
 
   stop() {
+    this.timelineAnchor = null
     if (!this.isPlaying)
       return
     if (this.gainNode && this.context) {

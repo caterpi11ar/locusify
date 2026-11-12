@@ -31,6 +31,7 @@ import { getInitialViewStateForMarkers } from './utils'
 const Maplibre = lazy(() =>
   import('./MapLibre').then(m => ({ default: m.Maplibre })),
 )
+const ReplaySurfaceView = lazy(() => import('./components/replay/ReplaySurfaceView').then(m => ({ default: m.ReplaySurfaceView })))
 
 // Keep secondary dialogs and drawers out of the map's core chunk. Most of
 // these surfaces are closed on first paint, and some pull in sizeable feature
@@ -84,11 +85,9 @@ function MapSectionContent() {
   // Region photo mapping — auto GPS→country matching
   useRegionPhotoMapping()
 
-
   const isReplayMode = useReplayStore(s => s.isReplayMode)
   const prepareReplay = useReplayStore(s => s.prepareReplay)
   const exitReplay = useReplayStore(s => s.exitReplay)
-
 
   const {
     recordingActive,
@@ -97,7 +96,7 @@ function MapSectionContent() {
     isRecording,
     isProcessing,
     pendingVideo,
-    conversionProgress,
+    progress,
     recordingError,
     beginRecording,
     showIntro,
@@ -349,6 +348,16 @@ function MapSectionContent() {
 
   return (
     <div className={cn('absolute size-full', captureUiActive && 'flex items-center justify-center overflow-hidden bg-black')}>
+      {(isRecording || isProcessing) && !videoDialogOpen && (
+        <button
+          type="button"
+          aria-label={t('workspace.controls.exit')}
+          onClick={handleExitReplay}
+          className="absolute top-4 left-4 z-60 flex size-10 cursor-pointer items-center justify-center rounded-xl bg-black/60 text-white backdrop-blur-sm hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <i aria-hidden className="i-mingcute-close-line text-xl" />
+        </button>
+      )}
       {/* Hide menu button during active recording (intro + playback) */}
       {!captureUiActive && !!user && (
         <MapMenuButton
@@ -434,7 +443,7 @@ function MapSectionContent() {
             <SaveVideoDialog
               pendingVideo={pendingVideo}
               isProcessing={isProcessing}
-              conversionProgress={conversionProgress}
+              progress={progress}
               onSave={saveVideo}
               onDiscard={discardVideo}
             />
@@ -462,11 +471,12 @@ function MapSectionContent() {
         />
       )}
 
-      {/* Export canvas: a real 16:9 box whose exact bounds are Region Captured. */}
+      {/* One visible canvas supplies both playback and video encoding. */}
       <div
         ref={cropRef}
+        data-testid="replay-capture"
         className={cn(
-          'relative overflow-hidden',
+          'relative isolate overflow-hidden',
           captureUiActive
             ? 'aspect-video h-auto w-full max-h-full max-w-full bg-black'
             : 'size-full',
@@ -486,18 +496,23 @@ function MapSectionContent() {
             onUpgradeClick={() => setSettingsOpen(true)}
           />
         )}
-
+        {isReplayMode && (
+          <Suspense fallback={null}>
+            <ReplaySurfaceView onIntroComplete={onIntroComplete} />
+          </Suspense>
+        )}
 
         {/* Shared intro overlay — controlled by useRecordingFlow */}
         {/* Keep the street replay's earth-zoom introduction. */}
-        <div className="absolute inset-0">
-          <ReplayIntroOverlay
-            visible={introVisible}
-            onExitComplete={onIntroComplete}
-            introStyle={earthZoomActive ? 'logo-fade' : templateConfig.intro.style}
-            autoHide={!earthZoomActive}
-          />
-        </div>
+        {!isReplayMode && (
+          <div className="absolute inset-0">
+            <ReplayIntroOverlay
+              visible={introVisible}
+              onExitComplete={onIntroComplete}
+              introStyle={recordingActive || earthZoomActive ? 'logo-fade' : templateConfig.intro.style}
+            />
+          </div>
+        )}
 
         <Suspense fallback={null}>
           <AnimatePresence>

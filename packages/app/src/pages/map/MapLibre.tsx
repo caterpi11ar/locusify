@@ -20,7 +20,6 @@ import { PhotoMarkerPin } from './components/PhotoMarkerPin'
 import { StarfieldCanvas } from './components/StarfieldCanvas'
 import { TrajectoryController } from './components/TrajectoryController'
 import { TrajectoryLineLayer } from './components/TrajectoryLineLayer'
-import { WaypointDot } from './components/WaypointDot'
 import MapStyleDark from './MapLibreStyleDark.json'
 import MapStyleLight from './MapLibreStyleLight.json'
 import { calculateMapBounds, calculateZoomFromBounds, getFragmentModeForZoom } from './utils'
@@ -105,6 +104,8 @@ export function Maplibre({
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      if (useReplayStore.getState().isReplayMode)
+        return
       if (!(await isGeolocationGranted()))
         return
       try {
@@ -113,7 +114,7 @@ export function Maplibre({
           timeout: 10000,
           maximumAge: 60000,
         })
-        if (cancelled)
+        if (cancelled || useReplayStore.getState().isReplayMode)
           return
         const { longitude, latitude } = position.coords
         setCurrentLocation({ longitude, latitude })
@@ -422,13 +423,8 @@ export function Maplibre({
         {/* Trajectory Replay Layers */}
         {isReplayMode && (
           <>
-            {/* Hide visual layers during earth zoom animation */}
-            {!earthZoomActive && (
-              <>
-                <TrajectoryLineLayer />
-                <WaypointDot />
-              </>
-            )}
+            {/* Load replay sources behind the intro, before readiness is checked. */}
+            <TrajectoryLineLayer />
             <TrajectoryController />
             <EarthZoomController />
           </>

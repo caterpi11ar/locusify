@@ -29,6 +29,8 @@ export interface LazyMediaProps {
   showBadge?: boolean
   /** Enable hover-to-play on desktop */
   hoverToPlay?: boolean
+  /** Replay prepares every image before advancing its timeline. */
+  eager?: boolean
 }
 
 export function LazyMedia({
@@ -46,6 +48,7 @@ export function LazyMedia({
   imageFile,
   showBadge = true,
   hoverToPlay = false,
+  eager = false,
 }: LazyMediaProps) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -101,7 +104,8 @@ export function LazyMedia({
     }
   }, [hoverToPlay, hasVideo, isPlaying])
 
-  const shouldLoadImage = inView && !hasError
+  const visible = eager || inView
+  const shouldLoadImage = visible && !hasError
 
   const objectFitClass = {
     cover: 'object-cover',
@@ -127,7 +131,7 @@ export function LazyMedia({
         )}
 
         {/* Video element as primary content */}
-        {inView && (
+        {visible && (
           <video
             src={videoSource.videoUrl}
             className={cn(
@@ -197,7 +201,7 @@ export function LazyMedia({
           )}
           onLoad={handleLoad}
           onError={handleError}
-          loading="lazy"
+          loading={eager ? 'eager' : 'lazy'}
         />
       )}
 
@@ -207,7 +211,7 @@ export function LazyMedia({
           ref={livePhotoRef}
           videoSource={videoSource!}
           imageFile={imageFile}
-          isCurrentImage={inView}
+          isCurrentImage={visible}
           className={objectFit === 'cover' ? 'object-cover' : 'object-contain'}
           onPlayingChange={setIsPlaying}
         />

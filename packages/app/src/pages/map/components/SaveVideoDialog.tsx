@@ -8,12 +8,12 @@ import { cn, glassPanel } from '@/lib/utils'
 interface SaveVideoDialogProps {
   pendingVideo: PendingVideo | null
   isProcessing: boolean
-  conversionProgress: number | null
+  progress?: number
   onSave: () => void
   onDiscard: () => void
 }
 
-export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress, onSave, onDiscard }: SaveVideoDialogProps) {
+export function SaveVideoDialog({ pendingVideo, isProcessing, progress = 0, onSave, onDiscard }: SaveVideoDialogProps) {
   const { t } = useTranslation()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewUnsupported, setPreviewUnsupported] = useState(false)
@@ -63,14 +63,12 @@ export function SaveVideoDialog({ pendingVideo, isProcessing, conversionProgress
               {pendingVideo
                 ? t('workspace.recording.ready.title')
                 : isProcessing
-                  ? conversionProgress != null
-                    ? t('workspace.recording.converting', { progress: Math.round(conversionProgress * 100) })
-                    : t('workspace.recording.processing', { defaultValue: 'Processing video…' })
+                  ? t('workspace.recording.backgroundProgress', { progress })
                   : t('workspace.recording.replayComplete', { defaultValue: 'Replay Complete' })}
             </p>
             {pendingVideo && (
               <p className="text-text-secondary mt-0.5 text-xs">
-                {formatFileSize(pendingVideo.blob.size)}
+                {`${pendingVideo.width} × ${pendingVideo.height} · ${formatFileSize(pendingVideo.blob.size)}`}
               </p>
             )}
           </div>
