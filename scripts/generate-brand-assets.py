@@ -16,6 +16,9 @@ def main():
         outputs = {
             'packages/app/src/assets/locusify.png': 256,
             'packages/app/public/logo.png': 256,
+            'packages/app/public/favicon-16.png': 16,
+            'packages/app/public/favicon-32.png': 32,
+            'packages/app/public/favicon-48.png': 48,
             'packages/web/public/logo.png': 256,
             'packages/web/public/favicon-16.png': 16,
             'packages/web/public/icon-light-32x32.png': 32,
@@ -24,7 +27,11 @@ def main():
         }
         for path, size in outputs.items():
             source.resize((size, size), Image.Resampling.LANCZOS).save(ROOT / path)
-        source.save(ROOT / 'packages/app/public/favicon.ico', sizes=[(16, 16)])
+        # Include native resolutions for high-DPI browser tabs and OS shortcuts.
+        source.save(
+            ROOT / 'packages/app/public/favicon.ico',
+            sizes=[(size, size) for size in (16, 32, 48, 64, 128, 256)],
+        )
         # Keep the existing 1200x630 social format and center the complete square.
         social = Image.new('RGB', (1200, 630), source.convert('RGB').getpixel((0, 0)))
         social.paste(source.resize((630, 630), Image.Resampling.LANCZOS), (285, 0))

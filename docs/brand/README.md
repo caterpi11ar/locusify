@@ -14,7 +14,7 @@ wordmark detail; it retains the complete approved artwork.
 
 | Surface | Files / treatment |
 | --- | --- |
-| App assets | `packages/app/src/assets/locusify.png`, `public/logo.png` (256²), `public/favicon.ico` (16²), `public/og-image.png` (1200×630) |
+| App assets | `packages/app/src/assets/locusify.png`, `public/logo.png` (256²), `public/favicon.ico` (16/32/48/64/128/256²), `public/favicon-{16,32,48}.png`, `public/og-image.png` (1200×630) |
 | Web assets | `packages/web/public/logo.png` (256²), `favicon-16.png`, `icon-light-32x32.png`, `favicon-48.png`, `apple-icon.png` (180²), `og-image.png` (1200×630) |
 | App DOM | SplashScreen, AboutSection, ReplayIntroOverlay, TrajectoryStatsBar |
 | Default avatar only | ProfileAvatar used by LoginButton, AccountSection, AvatarSetting, UserPanel and WaypointDot; current and previously persisted local asset URLs resolve to the current bundled artwork |
