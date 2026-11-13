@@ -86,6 +86,7 @@ function MapSectionContent() {
   useRegionPhotoMapping()
 
   const isReplayMode = useReplayStore(s => s.isReplayMode)
+  const replayStatus = useReplayStore(s => s.status)
   const prepareReplay = useReplayStore(s => s.prepareReplay)
   const exitReplay = useReplayStore(s => s.exitReplay)
 
@@ -341,14 +342,14 @@ function MapSectionContent() {
   const hasEnoughPhotos = markers.length >= 2
   const displayMarkers = isReplayMode ? [] : markers
   const isInAnyReplay = isReplayMode
-  const captureUiActive = introVisible || recordingActive || isRecording
+  const captureUiActive = introVisible || recordingActive || isRecording || (isReplayMode && replayStatus === 'playing')
   const showDesktopSidebar = !captureUiActive && !!user && !isInAnyReplay
   const mapDrawerModal = isMobile ? undefined : false
   const mapDrawerDesktopOffset = showDesktopSidebar && !isMobile ? 56 : 0
 
   return (
     <div className={cn('absolute size-full', captureUiActive && 'flex items-center justify-center overflow-hidden bg-black')}>
-      {(isRecording || isProcessing) && !videoDialogOpen && (
+      {(captureUiActive || isProcessing) && !videoDialogOpen && (
         <button
           type="button"
           aria-label={t('workspace.controls.exit')}
@@ -491,6 +492,7 @@ function MapSectionContent() {
       >
         {isReplayMode && (
           <TrajectoryOverlay
+            presentationActive={captureUiActive}
             onBeginRecording={beginRecording}
             onShowIntro={showIntro}
             onUpgradeClick={() => setSettingsOpen(true)}
