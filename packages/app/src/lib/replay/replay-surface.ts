@@ -4,6 +4,7 @@ import type { ReplayTextRole, SceneTypography } from './scene-typography'
 import type { SceneVideo } from './scene-video'
 import type { ReplayState } from '@/stores/replay/types'
 import { BlurFilter, CanvasSource, Container, Graphics, Sprite, Text, Texture, WebGLRenderer } from 'pixi.js'
+import { flushSync } from 'react-dom'
 import { presetAvatars } from '@/data/presetAvatars'
 import { transportModeIcons } from '@/data/transportModes'
 import { i18n } from '@/i18n'
@@ -13,25 +14,19 @@ import { useAuthStore } from '@/stores/authStore'
 import { claimReplayClock } from '@/stores/replay/loop'
 import { useReplayStore } from '@/stores/replayStore'
 import { useSettingsStore } from '@/stores/settingsStore'
-import { getFilterStyle } from './filters'
 import { LiveEncoder } from './live-encoder'
 import { waitForReplayTiles } from './map-ready'
+import { PhotoPanelCapture } from './photo-panel-capture'
 import { prepareReplayAvatar } from './prepare-avatar'
 import { encodeRecordingAudio, prepareRecordingAudio } from './recording-audio'
-import { captionTexture, iconTexture, loadSceneBrand, loadSceneImage, metadataTexture, paintTexture, photoTexture, prepareScenePhotos } from './scene-assets'
-import { easePhoto, easeScroll, FRAME_MS, FRAME_SECONDS, SCENE_HEIGHT as H, swing, SCENE_WIDTH as W } from './scene-motion'
+import { iconTexture, loadSceneBrand, loadSceneImage, paintTexture, prepareScenePhotos } from './scene-assets'
+import { easeScroll, FRAME_MS, FRAME_SECONDS, SCENE_HEIGHT as H, SCENE_WIDTH as W } from './scene-motion'
 import { SceneText } from './scene-text'
 import { prepareSceneTypography } from './scene-typography'
 import { getSceneViewport } from './scene-viewport'
 
 interface Card {
-  root: Container
-  body: Container
-  photo: Sprite
-  still: Texture
-  caption: Sprite
-  blur: BlurFilter
-  video?: { decoder: SceneVideo, canvas: HTMLCanvasElement, texture: Texture, timestamp: number }
+  video?: { decoder: SceneVideo, canvas: HTMLCanvasElement, timestamp: number }
 }
 interface Recording {
   encoder: LiveEncoder
@@ -59,6 +54,9 @@ export class ReplaySurface {
   private mapSource: CanvasSource
   private mapTexture: Texture
   private cards: Card[] = []
+  private photoPanel!: PhotoPanelCapture
+  private photoLayer = new Sprite()
+  private photoTexture?: Texture
   private textures: Texture[] = []
   private avatar = new Container()
   private pulse = new Graphics()
@@ -74,6 +72,7 @@ export class ReplaySurface {
   private statsHeight = 106
   private layoutStats = () => {}
   private tick = 0
+  private frameStep = FRAME_SECONDS
   private lastPaint = 0
   private raf = 0
   private pending = false
@@ -86,10 +85,7 @@ export class ReplaySurface {
   private time = 0
   private introExit = -1
   private active = 0
-  private previous = 0
   private changedAt = -10
-  private scroll = 0
-  private scrollFrom = 0
   private springDistance = 0
   private springVelocity = 0
   private recording?: Recording
@@ -101,12 +97,13 @@ export class ReplaySurface {
 
   static async create(map: LibreMap, host: HTMLElement, signal: AbortSignal, onIntroComplete: () => void) {
     const scene = new ReplaySurface(map, signal, onIntroComplete)
+    scene.photoPanel = new PhotoPanelCapture(host.querySelector<HTMLElement>('[data-testid="replay-photo-panel"]')!)
     try {
       await scene.initialize()
       signal.throwIfAborted()
       scene.resize()
       scene.pending = true
-      scene.paint()
+      await scene.paint()
       host.append(scene.canvas)
       scene.resizeObserver = new ResizeObserver(scene.resize)
       scene.resizeObserver.observe(host)
@@ -115,6 +112,8 @@ export class ReplaySurface {
       scene.unsubscribeStore = useReplayStore.subscribe((state, previous) => {
         if (state.recordingActive !== previous.recordingActive)
           scene.resize()
+        if (state.currentWaypointIndex !== previous.currentWaypointIndex || state.status !== previous.status)
+          scene.needsResizePaint = true
       })
       map.on('render', scene.paint)
       scene.raf = requestAnimationFrame(scene.schedule)
@@ -135,7 +134,7 @@ export class ReplaySurface {
       this.lifetime.abort(signal.reason)
     this.onIntroComplete = onIntroComplete
     this.canvas.dataset.testid = 'replay-surface'
-    this.canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none'
+    this.canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1'
     const source = map.getCanvas()
     this.mapSource = new CanvasSource({ resource: source, width: source.width, height: source.height, resolution: 1 })
     this.mapTexture = new Texture({ source: this.mapSource, dynamic: true })
@@ -205,62 +204,12 @@ export class ReplaySurface {
       mapBackground.height = height
     })
 
-    // The blurred panel samples the real map texture, not a substitute background.
-    const panel = new Container()
-    const blurred = this.sprite(this.mapTexture, W, H)
-    blurred.filters = [new BlurFilter({ strength: 4, quality: 3 })]
-    panel.addChild(blurred)
-    const mask = new Graphics().rect(0, 0, W * 0.4, H).fill(0xFFFFFF)
-    panel.addChild(mask)
-    panel.mask = mask
-    const panelShade = new Graphics().rect(0, 0, W * 0.4, H).fill({ color: 0, alpha: 0.1 })
-    panel.addChild(panelShade)
+    this.cards = state.waypoints.map(() => ({}))
+    this.stage.addChild(this.photoLayer)
     this.layouts.push((width, height) => {
-      blurred.width = width
-      blurred.height = height
-      mask.clear().rect(0, 0, W * 0.4, height).fill(0xFFFFFF)
-      panelShade.clear().rect(0, 0, W * 0.4, height).fill({ color: 0, alpha: 0.1 })
+      this.photoLayer.width = width * 0.4
+      this.photoLayer.height = height
     })
-    this.stage.addChild(panel)
-    const photoRail = new Container()
-    const railMask = new Graphics().rect(0, 0, W * 0.4, H - 105).fill(0xFFFFFF)
-    this.stage.addChild(photoRail, railMask)
-    photoRail.mask = railMask
-    this.layouts.push((_, height) => {
-      photoRail.y = (height - H) / 2
-      railMask.clear().rect(0, 0, W * 0.4, height - 105).fill(0xFFFFFF)
-    })
-    photoRail.addChild(new Graphics().moveTo(0, 110).quadraticCurveTo(256, 142, 512, 110).stroke({ color: light ? '#8fa8be' : '#65809a', width: 1.5 }))
-    const placeholder = this.own(paintTexture(348, 261, (ctx) => {
-      ctx.fillStyle = light ? '#e5e7eb' : '#20232a'
-      ctx.fillRect(0, 0, 348, 261)
-    }))
-    for (let index = 0; index < state.waypoints.length; index++) {
-      const marker = state.waypoints[index].marker
-      const root = new Container()
-      const body = new Container()
-      body.pivot.set(174, -18)
-      const photo = this.sprite(placeholder, 348, 261)
-      const blur = new BlurFilter({ strength: 0, quality: 3 })
-      body.addChild(photo, this.sprite(this.own(metadataTexture(marker, index, state.waypoints.length, light, typography)), 348, 36, 0, 267))
-      const clip = this.own(paintTexture(12, 29, (ctx) => {
-        const gradient = ctx.createLinearGradient(0, 0, 12, 0)
-        gradient.addColorStop(0, light ? '#6d8ca7' : '#3d617e')
-        gradient.addColorStop(0.48, light ? '#b7cce0' : '#799cbb')
-        gradient.addColorStop(1, light ? '#6d8ca7' : '#3d617e')
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.roundRect(0, 0, 12, 29, 3)
-        ctx.fill()
-      }))
-      body.addChild(this.sprite(clip, 12, 29, 168, -18))
-      root.addChild(body)
-      photoRail.addChild(root)
-      const caption = this.sprite(this.own(captionTexture(marker, light, typography)), 348, 160, 82, 470)
-      photoRail.addChild(caption)
-      const card: Card = { root, body, photo, still: photo.texture, caption, blur }
-      this.cards.push(card)
-    }
     const lineColor = state.templateConfig.lineStyle.color
     this.pulse.circle(0, 0, 20).fill(lineColor)
     this.avatar.addChild(this.pulse)
@@ -388,16 +337,7 @@ export class ReplaySurface {
     this.intro.visible = false
     this.stage.addChild(this.intro)
     const photos = prepareScenePhotos(state.waypoints.map(w => w.marker.photo), this.signal, (index, image) => {
-      const card = this.cards[index]
-      const previous = card.still
-      const texture = this.own(photoTexture(image, state.templateConfig.filter))
-      if (card.photo.texture === previous)
-        card.photo.texture = texture
-      card.still = texture
-      if (previous !== placeholder) {
-        this.textures.splice(this.textures.indexOf(previous), 1)
-        previous.destroy(true)
-      }
+      this.photoPanel.setPhoto(index, image)
     })
     // Video fetch/decode starts during configuration but does not hold up photos.
     const videos = async () => {
@@ -413,10 +353,10 @@ export class ReplaySurface {
           decoder.dispose()
           this.signal.throwIfAborted()
         }
-        const canvas = document.createElement('canvas')
+        const canvas = this.photoPanel.videoCanvas(index)
         canvas.width = 696
         canvas.height = 522
-        const video = { decoder, canvas, texture: this.own(Texture.from(canvas)), timestamp: -1 }
+        const video = { decoder, canvas, timestamp: -1 }
         try {
           // Publish only after the first decode, so the frame loop cannot enter
           // the same sequential decoder while preparation still owns it.
@@ -448,7 +388,8 @@ export class ReplaySurface {
         return
       }
       const state = useReplayStore.getState()
-      if (state.status === 'completed' && !this.recording && !this.needsResizePaint)
+      const transitionSettled = this.time - this.changedAt >= Math.max(1, state.templateConfig.transitions.duration / 1000)
+      if (state.status === 'completed' && !this.recording && !this.needsResizePaint && transitionSettled)
         return
       // Do not advance the authoritative clock into missing map tiles.
       if (state.status === 'playing' && !this.map.areTilesLoaded()) {
@@ -472,13 +413,15 @@ export class ReplaySurface {
         return
       }
       this.pending = true
+      const deltaMs = this.recording || !this.lastPaint ? FRAME_MS : Math.min(100, now - this.lastPaint)
+      this.frameStep = deltaMs / 1000
       this.lastPaint = now
       if (state.status === 'playing')
-        state._tick(FRAME_MS)
+        flushSync(() => state._tick(deltaMs))
       const index = Math.min(useReplayStore.getState().currentWaypointIndex, this.cards.length - 1)
       if (this.cards[index].video) {
         this.awaitingMedia = true
-        void this.prepareVideo(index, index === this.active ? Math.max(0, this.tick * FRAME_SECONDS - Math.max(0, this.changedAt)) : 0).then(() => {
+        void this.prepareVideo(index, index === this.active ? Math.max(0, this.time + this.frameStep - Math.max(0, this.changedAt)) : 0).then(() => {
           this.awaitingMedia = false
           if (!this.disposed)
             this.map.triggerRepaint()
@@ -496,13 +439,14 @@ export class ReplaySurface {
     catch (error) { this.fail(error) }
   }
 
-  private paint = () => {
+  private paint = async () => {
     if (!this.pending || this.awaitingMedia || this.disposed)
       return
-    this.pending = false
+    this.awaitingMedia = true
     try {
       const state = useReplayStore.getState()
-      this.time = this.tick++ * FRAME_SECONDS
+      this.time = this.recording ? this.tick * FRAME_SECONDS : this.time + this.frameStep
+      this.tick++
       this.update(state)
       const mapCanvas = this.map.getCanvas()
       if (this.mapSource.resize(mapCanvas.width, mapCanvas.height, 1)) {
@@ -511,6 +455,20 @@ export class ReplaySurface {
         for (const layout of this.layouts) layout(this.viewport.width, this.viewport.height)
       }
       this.mapSource.update()
+      this.photoPanel.update(mapCanvas, this.active, this.time, state.templateConfig, this.cards.map(card => !!card.video))
+      this.canvas.style.zIndex = state.recordingActive || this.intro.visible ? '1' : '-1'
+      this.photoLayer.visible = state.recordingActive
+      if (state.recordingActive && (!this.intro.visible || this.intro.alpha < 1)) {
+        const captured = await this.photoPanel.capture(this.signal)
+        if (!this.photoTexture) {
+          this.photoTexture = Texture.from(captured)
+          this.photoLayer.texture = this.photoTexture
+        }
+        this.photoTexture.source.update()
+        this.photoLayer.width = this.viewport.width * 0.4
+        this.photoLayer.height = this.viewport.height
+      }
+      this.signal.throwIfAborted()
       this.renderer.render({ container: this.stage })
       this.needsResizePaint = false
       const recording = this.recording
@@ -538,54 +496,23 @@ export class ReplaySurface {
       if (recording.frames % 30 === 0)
         recording.progress(Math.round(state.totalProgress * 95))
     }
-    catch (error) { this.fail(error) }
+    catch (error) {
+      if (!this.disposed)
+        this.fail(error)
+    }
+    finally {
+      this.pending = false
+      this.awaitingMedia = false
+    }
   }
 
   private update(state: ReplayState) {
     const index = Math.min(state.currentWaypointIndex, this.cards.length - 1)
     if (index !== this.active) {
-      this.previous = this.active
       this.active = index
       this.changedAt = this.time
-      this.scrollFrom = this.scroll
     }
-    const elapsed = this.time - this.changedAt
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-    this.scroll = this.scrollFrom + (index * 368 - this.scrollFrom) * (reduced ? 1 : easeScroll(elapsed / 0.5))
-    const transition = state.templateConfig.transitions
-    const progress = reduced ? 1 : easePhoto(elapsed / (transition.type === 'cut' ? 0.05 : transition.duration / 1000))
-    for (let i = 0; i < this.cards.length; i++) {
-      const card = this.cards[i]
-      card.photo.texture = i === index && card.video ? card.video.texture : card.still
-      const x = 256 + i * 368 - this.scroll
-      card.root.visible = x > -200 && x < 712
-      const position = Math.max(0, Math.min(1, x / 512))
-      card.root.position.set(x, 128 + 96 * position * (1 - position))
-      card.root.angle = reduced ? 0 : [-2, 1.6, -1, 2][i % 4]
-      card.body.angle = reduced || (Math.abs(i - index) > 1 && i !== this.previous) ? 0 : swing(elapsed) * Math.sign(index - this.previous)
-      // Tint changes brightness without dimming the panel behind the photograph.
-      const brightnessProgress = reduced ? 1 : Math.min(1, elapsed / 0.3)
-      const brightness = i === index ? (i === this.previous ? 1 : 0.5 + brightnessProgress * 0.5) : i === this.previous ? 1 - brightnessProgress * 0.5 : 0.5
-      card.photo.tint = Math.round(255 * brightness) * 0x010101
-      card.photo.alpha = i === index ? progress : 1
-      card.photo.pivot.set(card.photo.texture.width / 2, card.photo.texture.height / 2)
-      card.photo.position.set(174 + (i === index && transition.type === 'slide-left' ? 60 * (1 - progress) : 0), 130.5 + (i === index && transition.type === 'slide-up' ? 60 * (1 - progress) : 0))
-      const scale = i === index && transition.type === 'zoom-in' ? 0.7 + 0.3 * progress : i === index && transition.type === 'crossfade' ? 0.96 + 0.04 * progress : 1
-      card.photo.width = 348 * scale
-      card.photo.height = 261 * scale
-      if (transition.type === 'blur' && i === index && progress < 0.999) {
-        card.blur.strength = 12 * (1 - progress)
-        card.photo.filters = [card.blur]
-      }
-      else {
-        card.photo.filters = []
-      }
-      const captionEnter = reduced ? 1 : Math.max(0, Math.min(1, (elapsed - 0.3) / 0.3))
-      const exiting = i === this.previous && i !== index && elapsed < 0.3 && !reduced
-      card.caption.visible = i === index || exiting
-      card.caption.alpha = exiting ? 1 - elapsed / 0.3 : captionEnter
-      card.caption.y = exiting ? 470 - 8 * elapsed / 0.3 : 470 + 8 * (1 - captionEnter)
-    }
     if (state.currentPosition) {
       const point = this.map.project(state.currentPosition)
       const rect = this.map.getContainer().getBoundingClientRect()
@@ -607,7 +534,7 @@ export class ReplaySurface {
     const days = Math.max(0, Math.round((state.waypoints[index].timestamp.getTime() - state.waypoints[0].timestamp.getTime()) / 86400000))
     this.days.text = String(days)
     this.layoutStats()
-    if (state.recordingActive && state.earthZoomPhase !== 'done') {
+    if (state.earthZoomPhase !== 'idle' && state.earthZoomPhase !== 'done' && state.earthZoomPhase !== 'failed') {
       this.intro.visible = true
       this.intro.alpha = 1
       this.introExit = -1
@@ -628,11 +555,8 @@ export class ReplaySurface {
     if (!sample || sample.timestamp === video.timestamp || this.disposed)
       return
     const ctx = video.canvas.getContext('2d')!
-    const filter = useReplayStore.getState().templateConfig.filter
     ctx.clearRect(0, 0, video.canvas.width, video.canvas.height)
-    ctx.filter = getFilterStyle(filter.type, filter.intensity) || 'none'
     sample.drawWithFit(ctx, { fit: sample.displayHeight > sample.displayWidth ? 'contain' : 'cover' })
-    video.texture.source.update()
     video.timestamp = sample.timestamp
   }
 
@@ -643,6 +567,8 @@ export class ReplaySurface {
     signal.throwIfAborted()
     this.signal.throwIfAborted()
     this.resize()
+    await this.photoPanel.prepare(signal)
+    signal.throwIfAborted()
     const encoder = new LiveEncoder(request.width, request.height, request.music.trackId !== 'none')
     const cancelStart = () => encoder.dispose()
     signal.addEventListener('abort', cancelStart, { once: true })
@@ -663,9 +589,11 @@ export class ReplaySurface {
       this.intro.visible = true
       this.intro.alpha = 1
       this.tick = 0
+      this.time = 0
+      this.lastPaint = 0
+      this.frameStep = FRAME_SECONDS
       this.changedAt = -10
-      this.scroll = this.scrollFrom = 0
-      this.active = this.previous = 0
+      this.active = 0
       signal.addEventListener('abort', abort, { once: true })
       void encoder.done.catch((error) => {
         if (this.recording === recording)
@@ -730,8 +658,8 @@ export class ReplaySurface {
     this.stage.destroy({ children: true })
     for (const card of this.cards) {
       card.video?.decoder.dispose()
-      card.blur.destroy()
     }
+    this.photoTexture?.destroy(true)
     this.mapTexture.destroy(true)
     for (const texture of new Set(this.textures)) texture.destroy(true)
     if (this.renderer.gl)

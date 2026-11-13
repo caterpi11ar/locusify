@@ -41,6 +41,7 @@
     "@turf/boolean-point-in-polygon": "^7.3.5",
     "@turf/helpers": "^7.3.5",
     "@vercel/speed-insights": "^2.0.0",
+    "@zumer/snapdom": "3.7.4",
     "antd": "^6.6.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

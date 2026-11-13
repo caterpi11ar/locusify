@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-map-gl/maplibre'
 import { computeCameraTarget, smoothBearing } from '@/lib/replay/camera'
-import { SCENE_HEIGHT, SCENE_WIDTH } from '@/lib/replay/scene-motion'
 import { useReplayStore } from '@/stores/replayStore'
 
 /**
@@ -29,12 +28,11 @@ export function TrajectoryController() {
     if (!map)
       return
 
-    // Keep the camera clear of the uniformly scaled photo panel after resizing.
+    // The restored DOM photo panel occupies 40% of the actual workspace.
     const mapInstance = map.getMap()
     const resizePadding = () => {
       const container = mapInstance.getContainer()
-      const scale = Math.min(container.clientWidth / SCENE_WIDTH, container.clientHeight / SCENE_HEIGHT)
-      const panelWidth = Math.round(SCENE_WIDTH * 0.4 * scale)
+      const panelWidth = Math.round(container.clientWidth * 0.4)
       mapInstance.setPadding({ left: panelWidth, top: 0, right: 0, bottom: 0 })
     }
     resizePadding()

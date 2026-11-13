@@ -25,7 +25,7 @@ function Fixture() {
         >
           Toggle replay screen
         </button>
-        {visible && <TrajectoryOverlay />}
+        {visible && <TrajectoryOverlay presentationActive={false} />}
       </div>
     </LazyMotion>
   )

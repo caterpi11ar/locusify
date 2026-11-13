@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useMapStore } from '@/stores/mapStore'
 import { useReplayStore } from '@/stores/replayStore'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { PhotoPanel } from './PhotoPanel'
 import { ReplayIntroOverlay } from './ReplayIntroOverlay'
 
 export function ReplaySurfaceView({ onIntroComplete }: { onIntroComplete: () => void }) {
@@ -72,6 +73,9 @@ export function ReplaySurfaceView({ onIntroComplete }: { onIntroComplete: () => 
 
   return (
     <div ref={host} className="pointer-events-none absolute inset-0 z-20">
+      <div className="absolute inset-0 z-0">
+        <PhotoPanel />
+      </div>
       {!ready && recordingActive && <ReplayIntroOverlay visible onExitComplete={() => {}} />}
     </div>
   )

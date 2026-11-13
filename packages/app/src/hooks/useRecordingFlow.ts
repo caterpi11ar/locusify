@@ -123,10 +123,9 @@ export function useRecordingFlow(options: RecordingFlowOptions = {}) {
   // painted destination may reveal the map; elapsed time is not readiness.
   useEffect(() => {
     const unsub = useReplayStore.subscribe((state, prev) => {
-      if (state.earthZoomPhase === 'done' && prev.earthZoomPhase !== 'done') {
-        setIntroVisible(false)
-      }
-      else if (state.earthZoomPhase === 'failed' && prev.earthZoomPhase !== 'failed') {
+      // The surface fades out after camera readiness. Keep presentation mode
+      // active until onIntroComplete so editing controls cannot flash mid-fade.
+      if (state.earthZoomPhase === 'failed' && prev.earthZoomPhase !== 'failed') {
         onPlaybackStartRef.current = null
         setIntroVisible(false)
         recorderDiscard()
